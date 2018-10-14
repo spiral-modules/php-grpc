@@ -50,6 +50,14 @@ class Service
     }
 
     /**
+     * @return array
+     */
+    public function getMethods(): array
+    {
+        return $this->methods;
+    }
+
+    /**
      * @param string  $method
      * @param Context $context
      * @param string  $input

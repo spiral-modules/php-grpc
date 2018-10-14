@@ -1,11 +1,11 @@
 package main
 
 import (
-	test "../proto"
+	"../proto"
 	"context"
-	"fmt"
 	"google.golang.org/grpc"
-	"time"
+	"log"
+	"google.golang.org/grpc/metadata"
 )
 
 func main() {
@@ -14,17 +14,14 @@ func main() {
 		panic(err)
 	}
 
-	start := time.Now()
-	var n = 10000
-	for i := 0; i < n; i++ {
-		in, out := new(test.Message), new(test.Message)
-		in.Msg = "message forwarding?"
-		err := conn.Invoke(context.Background(), "/test.PHP/Ping", in, out)
+	client := test.NewPingClient(conn)
+	ctx := context.Background()
+	ctx = metadata.NewOutgoingContext(
+		ctx,
+		metadata.Pairs("key1", "val1", "key2", "val2"),
+	)
 
-		if err != nil {
-			panic(err)
-		}
-	}
-	elapsed := time.Now().Sub(start).Seconds()
-	fmt.Printf("elapsed %v s, %v rps\n", elapsed, float64(n)/elapsed)
+	log.Println(client.Ping(ctx, &test.Message{
+		Msg: "hi",
+	}))
 }

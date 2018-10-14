@@ -1,7 +1,7 @@
 package main
 
 import (
-	test "../proto"
+	"../proto"
 	"context"
 	rgrpc "github.com/spiral/grpc"
 	"github.com/spiral/roadrunner"
@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc/encoding"
 	"net"
 	"time"
+	"log"
 )
 
 type PingServer struct {
@@ -25,12 +26,11 @@ func main() {
 	}))
 
 	//Adding unit
-	test.RegisterPingServer(server, &PingServer{})
+	//test.RegisterPingServer(server, &PingServer{})
 
 	// dynamically generated server
 	srv := &rgrpc.Server{
-		Name:     "test.PHP",
-		Metadata: "test.proto",
+		Name: "test.Ping",
 	}
 
 	r := roadrunner.NewServer(&roadrunner.ServerConfig{
@@ -58,6 +58,6 @@ func main() {
 	}
 
 	defer r.Stop()
-
+	log.Println("listening")
 	server.Serve(listener)
 }

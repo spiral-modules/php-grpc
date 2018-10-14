@@ -12,12 +12,13 @@ use Spiral\RoadRunner\Worker;
 
 class Server
 {
+    /** @var Service[] */
     private $services = [];
 
     public function addService(string $name, $handler)
     {
         // todo: validate
-        $this->services[$name] = new Service($handler);
+        $this->services[$name] = new Service($name, $handler);
     }
 
     public function serve(Worker $worker)
@@ -40,6 +41,6 @@ class Server
 
     protected function invoke(string $service, string $method, string $body, array $context): string
     {
-
+        return $this->services[$service]->invoke($method, new Context($context), $body);
     }
 }
