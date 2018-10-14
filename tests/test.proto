@@ -1,12 +1,21 @@
-syntax="proto3";
+syntax = "proto3";
 package test;
 
-service Ping {
+// Test ping service.
+service PingService {
+    // method
     rpc Ping (Message) returns (Message) {
     }
 }
 
+// Test pong service.
+service PongService {
+    // method
+    rpc Pong (Message) returns (Message) {
+    }
+}
+
 message Message {
-  string msg = 1;
+    string msg = 1;
 }
 

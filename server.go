@@ -9,8 +9,7 @@ import (
 type server interface{}
 
 type Server struct {
-	Name     string
-	Metadata string
+	Name string
 }
 
 func (s *Server) ServiceDesc(r *roadrunner.Server) *grpc.ServiceDesc {
@@ -19,12 +18,14 @@ func (s *Server) ServiceDesc(r *roadrunner.Server) *grpc.ServiceDesc {
 		HandlerType: (*server)(nil),
 		Methods:     []grpc.MethodDesc{},
 		Streams:     []grpc.StreamDesc{},
-		Metadata:    s.Metadata,
 	}
+
+	// todo: multiple services?
 
 	m := grpc.MethodDesc{
 		MethodName: "Ping",
 		Handler: func(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+
 			// from pool (not sure, to payload directly)?
 			msg := new(rawMessage)
 			dec(msg)
