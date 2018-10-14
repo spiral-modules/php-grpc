@@ -1,0 +1,13 @@
+{
+  "require": {
+    "ext-json": "*",
+    "google/protobuf": "^3.6",
+    "spiral/reactor": "^2.1",
+    "spiral/roadrunner": "^1.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "Spiral\\GRPC\\": "src/"
+    }
+  }
+}
