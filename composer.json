@@ -3,7 +3,9 @@
     "ext-json": "*",
     "google/protobuf": "^3.6",
     "spiral/reactor": "^2.1",
-    "spiral/roadrunner": "^1.2",
+    "spiral/roadrunner": "^1.2"
+  },
+  "require-dev": {
     "spiral/debug": "^1.3"
   },
   "autoload": {
