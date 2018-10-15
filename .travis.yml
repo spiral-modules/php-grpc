@@ -1,0 +1,19 @@
+language: php
+
+php:
+  - 7.1
+  - 7.2
+  - nightly
+
+before_install:
+  - composer self-update
+
+install:
+  - composer install --no-interaction
+  - pecl install protobuf-3.6.1
+
+script:
+  - vendor/bin/phpunit --coverage-clover=coverage.xml
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash) -f coverage.xml
