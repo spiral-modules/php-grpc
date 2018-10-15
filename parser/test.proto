@@ -1,0 +1,22 @@
+syntax = "proto3";
+package test;
+
+// Ping Service.
+service PingService {
+    // Ping Method.
+    rpc Ping (Message) returns (Message) {
+    }
+}
+
+// Pong service.
+service PongService {
+    // Pong method.
+    rpc Pong (stream Message) returns (stream Message) {
+    }
+}
+
+message Message {
+    string msg  = 1;
+    int64 value = 2;
+}
+
