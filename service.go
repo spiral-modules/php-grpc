@@ -14,6 +14,8 @@ type Service struct {
 func (s *Service) Init(cfg *Config) (bool, error) {
 	s.cgf = cfg
 
+	// register service
+
 	return true, nil
 }
 

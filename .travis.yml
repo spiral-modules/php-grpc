@@ -17,7 +17,7 @@ install:
   - composer install --no-interaction --prefer-source --ignore-platform-reqs
 
 script:
-  - go test ./parser -race -v -coverprofile=parser.txt -covermode=atomic
+  - go test ./parse -race -v -coverprofile=parse.txt -covermode=atomic
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash) -f parser.txt
+  - bash <(curl -s https://codecov.io/bash) -f parse.txt

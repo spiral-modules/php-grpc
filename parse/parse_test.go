@@ -1,4 +1,4 @@
-package parser
+package parse
 
 import (
 	"github.com/stretchr/testify/assert"
@@ -6,7 +6,7 @@ import (
 )
 
 func TestParseFile(t *testing.T) {
-	services, err := ParseFile("test.proto")
+	services, err := File("test.proto")
 	assert.NoError(t, err)
 	assert.Len(t, services, 2)
 
@@ -14,18 +14,18 @@ func TestParseFile(t *testing.T) {
 }
 
 func TestParseNotFound(t *testing.T) {
-	_, err := ParseFile("test2.proto")
+	_, err := File("test2.proto")
 	assert.Error(t, err)
 }
 
 func TestParseBytes(t *testing.T) {
-	services, err := ParseBytes([]byte{})
+	services, err := Bytes([]byte{})
 	assert.NoError(t, err)
 	assert.Len(t, services, 0)
 }
 
 func TestParseString(t *testing.T) {
-	services, err := ParseBytes([]byte(`
+	services, err := Bytes([]byte(`
 syntax = "proto3";
 package app.namespace;
 

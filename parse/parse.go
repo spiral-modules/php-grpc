@@ -1,11 +1,10 @@
-package parser
+package parse
 
 import (
 	"bytes"
 	pp "github.com/emicklei/proto"
 	"io"
 	"os"
-	"strings"
 )
 
 // Service contains information about singular GRPC service.
@@ -16,9 +15,6 @@ type Service struct {
 	// Name defines service name.
 	Name string
 
-	// Comment associated with the service.
-	Comment string
-
 	// Methods list.
 	Methods []Method
 }
@@ -27,9 +23,6 @@ type Service struct {
 type Method struct {
 	// Name is method name.
 	Name string
-
-	// Comment associated with method.
-	Comment string
 
 	// StreamsRequest defines if method accept stream input.
 	StreamsRequest bool
@@ -44,8 +37,8 @@ type Method struct {
 	ReturnsType string
 }
 
-// ParseFile parses given proto file or returns error.
-func ParseFile(file string) ([]Service, error) {
+// File parses given proto file or returns error.
+func File(file string) ([]Service, error) {
 	reader, _ := os.Open(file)
 	defer reader.Close()
 
@@ -53,7 +46,7 @@ func ParseFile(file string) ([]Service, error) {
 }
 
 // ParseString parses string into proto definition.
-func ParseBytes(data []byte) ([]Service, error) {
+func Bytes(data []byte) ([]Service, error) {
 	return parse(bytes.NewBuffer(data))
 }
 
@@ -85,7 +78,6 @@ func parseServices(proto *pp.Proto, pkg string) ([]Service, error) {
 		services = append(services, Service{
 			Package: pkg,
 			Name:    service.Name,
-			Comment: parseComment(service.Comment),
 			Methods: parseMethods(service),
 		})
 	}))
@@ -99,7 +91,6 @@ func parseMethods(s *pp.Service) []Method {
 		if m, ok := e.(*pp.RPC); ok {
 			methods = append(methods, Method{
 				Name:           m.Name,
-				Comment:        parseComment(m.Comment),
 				StreamsRequest: m.StreamsRequest,
 				RequestType:    m.RequestType,
 				StreamsReturns: m.StreamsReturns,
@@ -109,12 +100,4 @@ func parseMethods(s *pp.Service) []Method {
 	}
 
 	return methods
-}
-
-func parseComment(comment *pp.Comment) string {
-	if comment == nil {
-		return ""
-	}
-
-	return strings.Trim(strings.Join(comment.Lines, "\n"), "\r \n")
 }
