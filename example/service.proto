@@ -1,5 +1,5 @@
 syntax = "proto3";
-package service;
+package app.service.class;
 
 service PingService {
     rpc Ping (Message) returns (Message) {
@@ -8,6 +8,9 @@ service PingService {
 
 service ClassService {
     rpc Convert (Class) returns (Class) {
+    }
+
+    rpc Unconvert (Class) returns (Class) {
     }
 }
 

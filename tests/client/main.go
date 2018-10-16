@@ -4,8 +4,8 @@ import (
 	"../proto"
 	"context"
 	"google.golang.org/grpc"
-	"log"
 	"google.golang.org/grpc/metadata"
+	"log"
 )
 
 func main() {

@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"os"
 	parser "github.com/emicklei/proto"
+	"os"
 )
 
 func main() {

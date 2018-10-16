@@ -7,9 +7,9 @@ import (
 	"github.com/spiral/roadrunner"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/encoding"
+	"log"
 	"net"
 	"time"
-	"log"
 )
 
 type PingServer struct {

@@ -6,7 +6,7 @@ import (
 
 type (
 	rawMessage []byte
-	codec struct{ base encoding.Codec }
+	codec      struct{ base encoding.Codec }
 )
 
 // Marshal returns the wire format of v. rawMessages would be returned without encoding.

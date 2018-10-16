@@ -2,13 +2,13 @@ package main
 
 import (
 	bench "../proto"
-	"fmt"
-	"google.golang.org/grpc"
-	"time"
-	"golang.org/x/net/context"
-	"sync"
 	"flag"
+	"fmt"
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
+	"sync"
 	"sync/atomic"
+	"time"
 )
 
 var in chan *bench.Message

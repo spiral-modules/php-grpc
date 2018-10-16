@@ -12,7 +12,6 @@ install:
   - go get "github.com/spiral/roadrunner"
   - go get "github.com/spiral/goridge"
   - go get "github.com/sirupsen/logrus"
-  - go get "github.com/pkg/errors"
   - go get "github.com/stretchr/testify/assert"
   - go get "github.com/emicklei/proto"
   - composer install --no-interaction --prefer-source --ignore-platform-reqs
