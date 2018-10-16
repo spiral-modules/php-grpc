@@ -14,26 +14,26 @@ use Spiral\GRPC\Exception\NotFoundException;
 /**
  * Wraps handlers methods.
  */
-class Service
+final class Service
 {
     /** @var string */
     private $name;
 
-    /** @var InvocatorInterface */
-    private $invocator;
-
     /** @var object */
     private $handler;
+
+    /** @var InvocatorInterface */
+    private $invocator;
 
     /** @var Method[] */
     private $methods;
 
     /**
      * @param string             $name
-     * @param InvocatorInterface $invocator
      * @param object             $handler
+     * @param InvocatorInterface $invocator
      */
-    public function __construct(string $name, InvocatorInterface $invocator, $handler)
+    public function __construct(string $name, $handler, InvocatorInterface $invocator)
     {
         $this->name = $name;
         $this->invocator = $invocator;

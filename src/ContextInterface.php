@@ -8,10 +8,25 @@
 
 namespace Spiral\GRPC;
 
-
+/**
+ * Carries information about call context, client information and metadata.
+ */
 interface ContextInterface
 {
+    /**
+     * Create context with new value.
+     *
+     * @param string $key
+     * @param mixed  $value
+     * @return ContextInterface
+     */
     public function withValue(string $key, $value): ContextInterface;
 
+    /**
+     * Get context value or return null.
+     *
+     * @param string $key
+     * @return mixed
+     */
     public function getValue(string $key);
 }

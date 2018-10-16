@@ -12,13 +12,27 @@ use Spiral\RoadRunner\Worker;
 
 class Server
 {
+    /** @var InvocatorInterface */
+    private $invocator;
+
     /** @var Service[] */
     private $services = [];
 
-    public function addService(string $name, $handler)
+    /**
+     * @param InvocatorInterface|null $invocator
+     */
+    public function __construct(InvocatorInterface $invocator = null)
     {
-        // todo: validate
-        $this->services[$name] = new Service($name, $handler);
+        $this->invocator = $invocator;
+    }
+
+    /**
+     * @param string $name
+     * @param object $handler
+     */
+    public function registerService(string $name, $handler)
+    {
+        $this->services[$name] = new Service($name, $handler, $this->invocator);
     }
 
     public function serve(Worker $worker)
@@ -35,12 +49,14 @@ class Server
                 ));
             } catch (\Throwable $e) {
                 // report error
+                // todo: map error to GRPC errors
             }
         }
     }
 
     protected function invoke(string $service, string $method, string $body, array $context): string
     {
+        //todo: check if service exists
         return $this->services[$service]->invoke($method, new Context($context), $body);
     }
 }

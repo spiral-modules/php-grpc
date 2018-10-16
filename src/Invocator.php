@@ -8,10 +8,8 @@
 
 namespace Spiral\GRPC;
 
-
 class Invocator
 {
-
     public function invoke(Context $ctx, string $input): string
     {
         /** @var Message $in */
