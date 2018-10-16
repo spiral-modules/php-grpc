@@ -1,7 +1,9 @@
 package parser
 
 import (
+	"bytes"
 	pp "github.com/emicklei/proto"
+	"io"
 	"os"
 	"strings"
 )
@@ -47,19 +49,34 @@ func ParseFile(file string) ([]Service, error) {
 	reader, _ := os.Open(file)
 	defer reader.Close()
 
+	return parse(reader)
+}
+
+// ParseString parses string into proto definition.
+func ParseBytes(data []byte) ([]Service, error) {
+	return parse(bytes.NewBuffer(data))
+}
+
+func parse(reader io.Reader) ([]Service, error) {
 	proto, err := pp.NewParser(reader).Parse()
 	if err != nil {
 		return nil, err
 	}
 
-	var pkg string
+	return parseServices(
+		proto,
+		parsePackage(proto),
+	)
+}
+
+func parsePackage(proto *pp.Proto) string {
 	for _, e := range proto.Elements {
 		if p, ok := e.(*pp.Package); ok {
-			pkg = p.Name
+			return p.Name
 		}
 	}
 
-	return parseServices(proto, pkg)
+	return ""
 }
 
 func parseServices(proto *pp.Proto, pkg string) ([]Service, error) {
