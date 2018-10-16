@@ -1,0 +1,7 @@
+grpc:
+  proto: test.proto
+  workers:
+    command: "php worker.php"
+    pool:
+      numWorkers: 1
+      maxJobs:    1

@@ -8,6 +8,7 @@ import (
 
 func main() {
 	rr.Container.Register(grpc.ID, &grpc.Service{})
+
 	rr.Logger.Formatter = &logrus.TextFormatter{ForceColors: true}
 	rr.Execute()
 }

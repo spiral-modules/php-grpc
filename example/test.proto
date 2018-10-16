@@ -1,0 +1,20 @@
+syntax = "proto3";
+package service;
+
+service PingService {
+    rpc Ping (Message) returns (Message) {
+    }
+}
+
+service ClassService {
+    rpc Convert (Class) returns (Class) {
+    }
+}
+
+message Message {
+    string msg = 1;
+}
+
+message Class {
+    int64 value = 1;
+}
