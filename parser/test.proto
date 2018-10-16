@@ -15,7 +15,6 @@ service PongService {
 }
 
 message Message {
-    string msg  = 1;
+    string msg = 1;
     int64 value = 2;
 }
-
