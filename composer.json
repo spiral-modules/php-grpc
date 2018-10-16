@@ -1,4 +1,5 @@
 {
+  "name": "spiral/grpc",
   "require": {
     "ext-json": "*",
     "google/protobuf": "^3.6",
@@ -9,8 +10,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Spiral\\GRPC\\": "src/",
-      "": "root/"
+      "Spiral\\GRPC\\": "src/"
     }
   }
 }
