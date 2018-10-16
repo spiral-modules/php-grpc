@@ -10,7 +10,6 @@ service PingService {
 
 // Pong service.
 service PongService {
-    // Pong method.
     rpc Pong (stream Message) returns (stream Message) {
     }
 }

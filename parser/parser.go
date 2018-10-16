@@ -1,13 +1,13 @@
 package parser
 
 import (
-	"fmt"
 	pp "github.com/emicklei/proto"
 	"os"
 	"strings"
 )
 
 type Service struct {
+	Package string
 	Name    string
 	Comment string
 	Methods []Method
@@ -31,21 +31,29 @@ func ParseFile(file string) ([]Service, error) {
 		return nil, err
 	}
 
-	return fetchServices(proto)
+	var pkg string
+	for _, e := range proto.Elements {
+		if p, ok := e.(*pp.Package); ok {
+			pkg = p.Name
+		}
+	}
+
+	return fetchServices(proto, pkg)
 }
 
-func fetchServices(proto *pp.Proto) ([]Service, error) {
+func fetchServices(proto *pp.Proto, pkg string) ([]Service, error) {
 	services := make([]Service, 0)
 	pp.Walk(proto, pp.WithService(func(service *pp.Service) {
-		services = append(services, handleService(service))
+		svc := handleService(service)
+		svc.Package = pkg
+
+		services = append(services, svc)
 	}))
 
 	return services, nil
 }
 
 func handleService(s *pp.Service) Service {
-	fmt.Println(s.Name)
-
 	return Service{
 		Name:    s.Name,
 		Comment: comment(s.Comment),
