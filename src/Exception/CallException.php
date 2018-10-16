@@ -6,9 +6,9 @@
  * @author    Anton Titov (Wolfy-J)
  */
 
-namespace Spiral\GRPC;
+namespace Spiral\GRPC\Exception;
 
-class Context implements ContextInterface
+class CallException extends GRPCException
 {
 
 }

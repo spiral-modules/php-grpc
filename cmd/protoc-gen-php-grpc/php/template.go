@@ -74,7 +74,7 @@ const phpBody = `<?php
 {{if .File.Package}} 
 namespace {{ .File.Package | namespace}};
 {{end}}
-use Spiral\GRPC\ContentInterface;
+use Spiral\GRPC\ContextInterface;
 
 interface {{ .Service.Name | interface }} 
 {
@@ -84,7 +84,7 @@ interface {{ .Service.Name | interface }}
      * @param {{ $m.InputType | message }} $in
 	 * @return {{ $m.OutputType | message}}
 	 *
-     * @throws \Spiral\GRPC\Exceptions\InvokeException
+     * @throws \Spiral\GRPC\Exception\CallException
      */
 	public function {{ $m.Name }}(ContextInterface $ctx, {{ $m.InputType | message }} $in): {{ $m.OutputType | message}};
 {{ end -}}
