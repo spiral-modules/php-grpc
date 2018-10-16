@@ -1,14 +1,17 @@
 package parser
 
 import (
-	"encoding/json"
-	"fmt"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestParseFile(t *testing.T) {
-	s, _ := ParseFile("test.proto")
+	services, err := ParseFile("test.proto")
+	assert.NoError(t, err)
+	assert.Len(t, services, 2)
+}
 
-	d, _ := json.Marshal(s)
-	fmt.Printf("%s", d)
+func TestParseNotFound(t *testing.T) {
+	_, err := ParseFile("test2.proto")
+	assert.Error(t, err)
 }
