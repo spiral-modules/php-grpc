@@ -84,7 +84,7 @@ interface {{ .Service.Name | interface }}
      * @param {{ $m.InputType | message }} $in
 	 * @return {{ $m.OutputType | message}}
 	 *
-     * @throws \Spiral\GRPC\Exception\CallException
+     * @throws \Spiral\GRPC\Exception\InvokeException
      */
 	public function {{ $m.Name }}(ContextInterface $ctx, {{ $m.InputType | message }} $in): {{ $m.OutputType | message}};
 {{ end -}}

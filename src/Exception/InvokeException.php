@@ -8,7 +8,7 @@
 
 namespace Spiral\GRPC\Exception;
 
-class CallException extends GRPCException
+class InvokeException extends GRPCException
 {
 
 }

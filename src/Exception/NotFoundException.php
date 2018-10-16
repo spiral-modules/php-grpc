@@ -8,7 +8,7 @@
 
 namespace Spiral\GRPC\Exception;
 
-class MethodNotFoundException extends ServiceException
+class NotFoundException extends InvokeException
 {
 
 }

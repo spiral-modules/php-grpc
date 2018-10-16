@@ -8,6 +8,7 @@
 
 namespace Spiral\GRPC\Exception;
 
+
 class ServiceException extends GRPCException
 {
 

@@ -8,29 +8,39 @@
 
 namespace Spiral\GRPC;
 
-use Spiral\GRPC\Exception\MethodNotFoundException;
+use Spiral\GRPC\Exception\InvokeException;
+use Spiral\GRPC\Exception\NotFoundException;
 
+/**
+ * Wraps handlers methods.
+ */
 class Service
 {
     /** @var string */
     private $name;
 
+    /** @var InvocatorInterface */
+    private $invocator;
+
     /** @var object */
     private $handler;
 
     /** @var Method[] */
-    private $methods = [];
+    private $methods;
 
     /**
-     * @param string $name
-     * @param object $handler
+     * @param string             $name
+     * @param InvocatorInterface $invocator
+     * @param object             $handler
      */
-    public function __construct(string $name, object $handler)
+    public function __construct(string $name, InvocatorInterface $invocator, $handler)
     {
         $this->name = $name;
+        $this->invocator = $invocator;
         $this->handler = $handler;
 
-        $this->fetchMethods($handler);
+        // list of all available methods and their object types
+        $this->methods = $this->fetchMethods($handler);
     }
 
     /**
@@ -44,47 +54,48 @@ class Service
     /**
      * @return object
      */
-    public function getHandler(): object
+    public function getHandler()
     {
         return $this->handler;
     }
 
     /**
-     * @return array
-     */
-    public function getMethods(): array
-    {
-        return $this->methods;
-    }
-
-    /**
-     * @param string  $method
-     * @param Context $context
-     * @param string  $input
+     * @param string           $method
+     * @param ContextInterface $context
+     * @param string           $input
      * @return string
      *
-     * @throws MethodNotFoundException
+     * @throws InvokeException
      */
-    public function invoke(string $method, Context $context, string $input): string
+    public function invoke(string $method, ContextInterface $context, string $input): string
     {
         if (!isset($this->methods[$method])) {
-            throw new MethodNotFoundException(
-                "Method `{$method}` not found in service `{$this->name}`."
-            );
+            throw new NotFoundException("Method `{$method}` not found in service `{$this->name}`.");
         }
 
-        return $this->methods[$method]->invoke($context, $input);
+        return $this->invocator->invoke(
+            $this->handler,
+            $this->methods[$method],
+            $context,
+            $input
+        );
     }
 
     /**
      * @param object $handler
+     * @return array
      */
-    protected function fetchMethods(object $handler)
+    protected function fetchMethods($handler): array
     {
         $reflection = new \ReflectionObject($handler);
 
+        $methods = [];
         foreach ($reflection->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
-            dumP($method);
+            if (Method::match($method)) {
+                $methods[$method->getName()] = Method::parse($method);
+            }
         }
+
+        return $methods;
     }
 }

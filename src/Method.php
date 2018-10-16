@@ -10,43 +10,97 @@ namespace Spiral\GRPC;
 
 use Google\Protobuf\Internal\Message;
 
-class Method
+/**
+ * Carries information about service method.
+ */
+final class Method
 {
-    private $handler;
+    /** @var string */
     private $name;
+
+    /** @var string */
     private $input;
+
+    /** @var string */
     private $output;
 
-    public function __construct(
-        object $handler,
-        string $name,
-        string $input,
-        string $output
-    ) {
-        $this->handler = $handler;
-        $this->name = $name;
-        $this->input = $input;
-        $this->output = $output;
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
     }
 
-    public function invoke(Context $ctx, string $input): string
+    /**
+     * @return string
+     */
+    public function getInputType(): string
     {
-        /** @var Message $in */
-        $in = new ($this->input);
+        return $this->input;
+    }
 
-        try {
-            $in->mergeFromString($input);
-        } catch (\Exception $e) {
-            throw new $e;
+    /**
+     * @return string
+     */
+    public function getOutputType(): string
+    {
+        return $this->output;
+    }
+
+    /**
+     * Returns true if method signature matches.
+     *
+     * @param \ReflectionMethod $method
+     * @return bool
+     */
+    public static function match(\ReflectionMethod $method): bool
+    {
+        if ($method->getNumberOfParameters() != 2) {
+            return false;
         }
 
-        /** @var Message $out */
-        $out = call_user_func([$this->handler, $this->name], $ctx, $in);
+        $ctx = $method->getParameters()[0]->getClass();
+        $in = $method->getParameters()[0]->getClass();
+
+        if (empty($ctx) || !$ctx->isSubclassOf(ContextInterface::class)) {
+            return false;
+        }
+
+        if (empty($in) || !$in->isSubclassOf(Message::class)) {
+            return false;
+        }
+
+        if (empty($method->getReturnType())) {
+            return false;
+        }
 
         try {
-            return $out->serializeToString();
-        } catch (\Exception $e) {
-            throw new $e;
+            $return = $method->getReturnType()->getName();
+            if (!class_exists($return)) {
+                return false;
+            }
+            $return = new \ReflectionClass($return);
+        } catch (\ReflectionException $e) {
+            return false;
         }
+
+        return $return->isSubclassOf(Message::class);
+    }
+
+    /**
+     * Returns true if method signature matches.
+     *
+     * @param \ReflectionMethod $method
+     * @return Method
+     */
+    public static function parse(\ReflectionMethod $method): Method
+    {
+        $m = new self;
+        $m->name = $method->getName();
+        $m->input = $method->getParameters()[1]->getClass()->getName();
+        $m->output = $method->getReturnType()->getName();
+
+        return $m;
     }
 }
