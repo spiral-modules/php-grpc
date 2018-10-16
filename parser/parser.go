@@ -6,22 +6,43 @@ import (
 	"strings"
 )
 
+// Service contains information about singular GRPC service.
 type Service struct {
+	// Package defines service namespace.
 	Package string
-	Name    string
+
+	// Name defines service name.
+	Name string
+
+	// Comment associated with the service.
 	Comment string
+
+	// Methods list.
 	Methods []Method
 }
 
+// Method describes singular RPC method.
 type Method struct {
-	Name           string
-	Comment        string
+	// Name is method name.
+	Name string
+
+	// Comment associated with method.
+	Comment string
+
+	// StreamsRequest defines if method accept stream input.
 	StreamsRequest bool
-	RequestType    string
+
+	// RequestType defines message name (from the same package) of method input.
+	RequestType string
+
+	// StreamsReturns defines if method streams result.
 	StreamsReturns bool
-	ReturnsType    string
+
+	// ReturnsType defines message name (from the same package) of method return value.
+	ReturnsType string
 }
 
+// ParseFile parses given proto file or returns error.
 func ParseFile(file string) ([]Service, error) {
 	reader, _ := os.Open(file)
 	defer reader.Close()
@@ -38,44 +59,30 @@ func ParseFile(file string) ([]Service, error) {
 		}
 	}
 
-	return fetchServices(proto, pkg)
+	return parseServices(proto, pkg)
 }
 
-func fetchServices(proto *pp.Proto, pkg string) ([]Service, error) {
+func parseServices(proto *pp.Proto, pkg string) ([]Service, error) {
 	services := make([]Service, 0)
 	pp.Walk(proto, pp.WithService(func(service *pp.Service) {
-		svc := handleService(service)
-		svc.Package = pkg
-
-		services = append(services, svc)
+		services = append(services, Service{
+			Package: pkg,
+			Name:    service.Name,
+			Comment: parseComment(service.Comment),
+			Methods: parseMethods(service),
+		})
 	}))
 
 	return services, nil
 }
 
-func handleService(s *pp.Service) Service {
-	return Service{
-		Name:    s.Name,
-		Comment: comment(s.Comment),
-		Methods: methods(s),
-	}
-}
-
-func comment(comment *pp.Comment) string {
-	if comment == nil {
-		return ""
-	}
-
-	return strings.Trim(strings.Join(comment.Lines, "\n"), "\r \n")
-}
-
-func methods(s *pp.Service) []Method {
+func parseMethods(s *pp.Service) []Method {
 	methods := make([]Method, 0)
 	for _, e := range s.Elements {
 		if m, ok := e.(*pp.RPC); ok {
 			methods = append(methods, Method{
 				Name:           m.Name,
-				Comment:        comment(m.Comment),
+				Comment:        parseComment(m.Comment),
 				StreamsRequest: m.StreamsRequest,
 				RequestType:    m.RequestType,
 				StreamsReturns: m.StreamsReturns,
@@ -85,4 +92,12 @@ func methods(s *pp.Service) []Method {
 	}
 
 	return methods
+}
+
+func parseComment(comment *pp.Comment) string {
+	if comment == nil {
+		return ""
+	}
+
+	return strings.Trim(strings.Join(comment.Lines, "\n"), "\r \n")
 }
