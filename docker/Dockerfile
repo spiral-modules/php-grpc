@@ -15,3 +15,6 @@ RUN apk add make autoconf automake libc-dev gcc \
     && pecl install protobuf-$PROTOBUF_VERSION \
     && echo "extension=protobuf.so" > /usr/local/etc/php/conf.d/protobuf.ini \
     && apk del make autoconf automake libc-dev gcc
+
+# Default application directory
+WORKDIR "/app"

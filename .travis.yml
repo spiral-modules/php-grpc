@@ -1,19 +1,24 @@
-language: php
+language: go
 
-php:
-  - 7.1
-  - 7.2
-  - nightly
+sudo: required
+
+go:
+  - "1.11.x"
 
 before_install:
-  - composer self-update
+  - go version
 
 install:
-  - composer install --no-interaction
-  - pecl install protobuf-3.6.1
+  - go get "github.com/spiral/roadrunner"
+  - go get "github.com/spiral/goridge"
+  - go get "github.com/sirupsen/logrus"
+  - go get "github.com/pkg/errors"
+  - go get "github.com/stretchr/testify/assert"
+  - go get "github.com/emicklei/proto"
+  - composer install --no-interaction --prefer-source --ignore-platform-reqs
 
 script:
-  - vendor/bin/phpunit --coverage-clover=coverage.xml
+  - go test ./parser -race -v -coverprofile=parser.txt -covermode=atomic
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash) -f coverage.xml
+  - bash <(curl -s https://codecov.io/bash) -f parser.txt

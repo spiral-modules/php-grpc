@@ -1,5 +1,5 @@
 syntax = "proto3";
-package test;
+package app.namespace;
 
 // Ping Service.
 service PingService {

@@ -1,5 +1,5 @@
 syntax = "proto3";
-package test;
+package service;
 
 // Test ping service.
 service PingService {
@@ -19,3 +19,6 @@ message Message {
     string msg = 1;
 }
 
+message Class {
+    int64 value = 1;
+}
