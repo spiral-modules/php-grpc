@@ -36,7 +36,7 @@ func NewProxy(name string, metadata string, rr *roadrunner.Server) *Proxy {
 	}
 }
 
-// Attach attaches proxy to the GRPC server.
+// Attach attaches proxy to the GRPC grpc.
 func (p *Proxy) Attach(server *grpc.Server) {
 	server.RegisterService(p.ServiceDesc(), p)
 }

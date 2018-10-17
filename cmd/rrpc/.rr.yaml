@@ -1,5 +1,6 @@
 grpc:
-  proto: test.proto
+  listen: "tcp://localhost:9001"
+  proto: "test.proto"
   workers:
     command: "php worker.php"
     pool:
