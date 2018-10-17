@@ -29,7 +29,7 @@ func (s *Server) ServiceDesc(r *roadrunner.Server) *grpc.ServiceDesc {
 
 			log.Println(ctx)
 
-			// from pool (not sure, to payload directly)?
+			// from msgPool (not sure, to payload directly)?
 			msg := new(rawMessage)
 			dec(msg)
 
