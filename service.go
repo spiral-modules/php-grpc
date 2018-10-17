@@ -8,6 +8,7 @@ import (
 	"github.com/spiral/roadrunner/service/rpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/encoding"
+	"reflect"
 	"sync"
 )
 
@@ -17,9 +18,16 @@ type Service struct {
 	cfg  *Config
 	env  env.Environment
 	list []func(event int, ctx interface{})
+	opts []grpc.ServerOption
+	svcs []grpcService
 	mu   sync.Mutex
 	rr   *roadrunner.Server
 	grpc *grpc.Server
+}
+
+type grpcService struct {
+	sd      *grpc.ServiceDesc
+	handler interface{}
 }
 
 // Init service.
@@ -32,8 +40,6 @@ func (s *Service) Init(cfg *Config, r *rpc.Service, e env.Environment) (ok bool,
 			return false, err
 		}
 	}
-
-	// todo: register services here (?)
 
 	return true, nil
 }
@@ -65,13 +71,18 @@ func (s *Service) Serve() error {
 
 	s.grpc = grpc.NewServer(s.serverOptions()...)
 
-	// register services
+	// rr services
 	if services, err := parser.File(s.cfg.Proto); err != nil {
 		return err
 	} else {
 		for _, service := range services {
 			NewProxy(fmt.Sprintf("%s.%s", service.Package, service.Name), s.cfg.Proto, s.rr).Attach(s.grpc)
 		}
+	}
+
+	// external services
+	for _, gs := range s.svcs {
+		s.grpc.RegisterService(gs.sd, gs.handler)
 	}
 
 	s.mu.Unlock()
@@ -95,6 +106,24 @@ func (s *Service) Stop() {
 	go s.grpc.GracefulStop()
 }
 
+// RegisterService registers a service and its implementation to the gRPC
+// server. This must be called before invoking Serve.
+func (s *Service) RegisterService(sd *grpc.ServiceDesc, ss interface{}) error {
+	ht := reflect.TypeOf(sd.HandlerType).Elem()
+	st := reflect.TypeOf(ss)
+	if !st.Implements(ht) {
+		return fmt.Errorf("grpc: Server.RegisterService found the handler of type %v that does not satisfy %v", st, ht)
+	}
+
+	s.svcs = append(s.svcs, grpcService{sd: sd, handler: ss})
+	return nil
+}
+
+// AddOption adds new GRPC server option. Codec and TLS options are controlled by service internally.
+func (s *Service) AddOption(opt grpc.ServerOption) {
+	s.opts = append(s.opts, opt)
+}
+
 // AddListener attaches grpc event watcher.
 func (s *Service) AddListener(l func(event int, ctx interface{})) {
 	s.list = append(s.list, l)
@@ -113,8 +142,8 @@ func (s *Service) throw(event int, ctx interface{}) {
 }
 
 func (s *Service) serverOptions() []grpc.ServerOption {
-	return []grpc.ServerOption{
+	return append(s.opts,
 		// wrap default proto codec to bypass message marshal/unmarshal when rr is target
 		grpc.CustomCodec(&codec{encoding.GetCodec("proto")}),
-	}
+	)
 }
