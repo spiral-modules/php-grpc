@@ -28,10 +28,12 @@ func (s *Service) Init(cfg *Config, r *rpc.Service, e env.Environment) (ok bool,
 	s.env = e
 
 	if r != nil {
-		if err := r.Register(ID, &rpcService{s}); err != nil {
+		if err := r.Register(ID, &rpcServer{s}); err != nil {
 			return false, err
 		}
 	}
+
+	// todo: register services here (?)
 
 	return true, nil
 }
@@ -71,8 +73,6 @@ func (s *Service) Serve() error {
 			NewProxy(fmt.Sprintf("%s.%s", service.Package, service.Name), s.cfg.Proto, s.rr).Attach(s.grpc)
 		}
 	}
-
-	// todo: register external service
 
 	s.mu.Unlock()
 

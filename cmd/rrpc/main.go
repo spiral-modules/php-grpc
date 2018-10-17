@@ -4,6 +4,9 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spiral/grpc"
 	rr "github.com/spiral/roadrunner/cmd/rr/cmd"
+
+	// grpc commands
+	_ "github.com/spiral/grpc/cmd/rrpc/grpc"
 )
 
 func main() {
