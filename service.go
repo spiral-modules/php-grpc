@@ -5,6 +5,7 @@ import (
 	"github.com/spiral/grpc/parser"
 	"github.com/spiral/roadrunner"
 	"github.com/spiral/roadrunner/service/env"
+	"github.com/spiral/roadrunner/service/rpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/encoding"
 	"sync"
@@ -21,15 +22,16 @@ type Service struct {
 	grpc *grpc.Server
 }
 
-// AddListener attaches grpc event watcher.
-func (s *Service) AddListener(l func(event int, ctx interface{})) {
-	s.list = append(s.list, l)
-}
-
 // Init service.
-func (s *Service) Init(cfg *Config, e env.Environment) (ok bool, err error) {
+func (s *Service) Init(cfg *Config, r *rpc.Service, e env.Environment) (ok bool, err error) {
 	s.cfg = cfg
 	s.env = e
+
+	if r != nil {
+		if err := r.Register(ID, &rpcService{s}); err != nil {
+			return false, err
+		}
+	}
 
 	return true, nil
 }
@@ -91,6 +93,11 @@ func (s *Service) Stop() {
 	}
 
 	go s.grpc.GracefulStop()
+}
+
+// AddListener attaches grpc event watcher.
+func (s *Service) AddListener(l func(event int, ctx interface{})) {
+	s.list = append(s.list, l)
 }
 
 // throw handles service, grpc and pool events.
