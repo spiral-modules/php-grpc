@@ -18,11 +18,8 @@ class Invocator implements InvocatorInterface
      */
     public function invoke($handler, Method $method, ContextInterface $context, string $input): string
     {
-        $out = call_user_func(
-            [$handler, $method->getName()],
-            $context,
-            $this->makeInput($method, $input)
-        );
+        // do not convert php errors into GRPCErrors by default, use Invocator wrapper.
+        $out = call_user_func([$handler, $method->getName()], $context, $this->makeInput($method, $input));
 
         try {
             return $out->serializeToString();
