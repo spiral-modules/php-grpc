@@ -96,6 +96,6 @@ class Server
      */
     private function packError(GRPCException $e): string
     {
-        return $e->getMessage();
+        return sprintf("%s|:|%s", $e->getCode(), $e->getMessage());
     }
 }

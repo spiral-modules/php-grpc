@@ -7,9 +7,12 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"strconv"
+	"strings"
 	"sync"
 )
 
+// base interface for Proxy class
 type proxyService interface {
 	// RegisterMethod registers new RPC method.
 	RegisterMethod(method string)
@@ -18,6 +21,7 @@ type proxyService interface {
 	ServiceDesc() *grpc.ServiceDesc
 }
 
+// carry details about service, method and RPC context to PHP process
 type rpcContext struct {
 	Service string                 `json:"service"`
 	Method  string                 `json:"method"`
@@ -75,16 +79,14 @@ func (p *Proxy) methodHandler(method string) func(srv interface{}, ctx context.C
 	return func(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 		msg := p.msgPool.Get().(rawMessage)
 		if err := dec(&msg); err != nil {
-			return nil, status.Error(codes.Internal, err.Error())
+			return nil, wrapError(err)
 		}
 
 		resp, err := p.rr.Exec(p.makePayload(ctx, method, msg))
 		p.msgPool.Put(msg)
 
-		// todo: wrap error (!)
 		if err != nil {
-			// todo: HOW ?
-			return nil, err
+			return nil, wrapError(err)
 		}
 
 		return rawMessage(resp.Body), nil
@@ -101,4 +103,21 @@ func (p *Proxy) makePayload(ctx context.Context, method string, body rawMessage)
 
 	// 	log.Println(ctx)
 	return &roadrunner.Payload{Context: ctxData, Body: body}
+}
+
+// mounts proper error code for the error
+func wrapError(err error) error {
+	// internal agreement
+	if strings.Index(err.Error(), "|:|") != 0 {
+		chunks := strings.Split(err.Error(), "|:|")
+		code := codes.Internal
+
+		if phpCode, err := strconv.Atoi(chunks[0]); err == nil {
+			code = codes.Code(phpCode)
+		}
+
+		return status.Error(code, chunks[1])
+	}
+
+	return status.Error(codes.Internal, err.Error())
 }
