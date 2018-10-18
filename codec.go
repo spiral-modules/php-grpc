@@ -5,12 +5,17 @@ import (
 )
 
 type rawMessage []byte
+
+func (r rawMessage) Reset()       { r = r[:0] }
+func (rawMessage) ProtoMessage()  {}
+func (rawMessage) String() string { return "rawMessage" }
+
 type codec struct{ base encoding.Codec }
 
 // Marshal returns the wire format of v. rawMessages would be returned without encoding.
 func (c *codec) Marshal(v interface{}) ([]byte, error) {
-	if raw, ok := v.(*rawMessage); ok {
-		return *raw, nil
+	if raw, ok := v.(rawMessage); ok {
+		return raw, nil
 	}
 
 	return c.base.Marshal(v)

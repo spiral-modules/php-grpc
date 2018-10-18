@@ -40,8 +40,8 @@ var (
 
 func init() {
 	workersCommand := &cobra.Command{
-		Use:   "http:workers",
-		Short: "List workers associated with RoadRunner HTTP service",
+		Use:   "grpc:workers",
+		Short: "List workers associated with RoadRunner GRPC service",
 		RunE:  workersHandler,
 	}
 

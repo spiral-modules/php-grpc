@@ -61,9 +61,9 @@ final class Method
         }
 
         $ctx = $method->getParameters()[0]->getClass();
-        $in = $method->getParameters()[0]->getClass();
+        $in = $method->getParameters()[1]->getClass();
 
-        if (empty($ctx) || !$ctx->isSubclassOf(ContextInterface::class)) {
+        if (empty($ctx) || !$ctx->implementsInterface(ContextInterface::class)) {
             return false;
         }
 

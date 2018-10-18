@@ -10,7 +10,6 @@ import (
 	"google.golang.org/grpc/encoding"
 	"reflect"
 	"sync"
-	"sync/atomic"
 )
 
 const ID = "grpc"
@@ -21,7 +20,6 @@ type Service struct {
 	list     []func(event int, ctx interface{})
 	opts     []grpc.ServerOption
 	services []grpcService
-	stopping int32
 	mu       sync.Mutex
 	rr       *roadrunner.Server
 	grpc     *grpc.Server
@@ -80,6 +78,10 @@ func (s *Service) Serve() error {
 		var p *Proxy
 		for _, service := range services {
 			p = NewProxy(fmt.Sprintf("%s.%s", service.Package, service.Name), s.cfg.Proto, s.rr)
+			for _, m := range service.Methods {
+				p.RegisterMethod(m.Name)
+			}
+
 			s.grpc.RegisterService(p.ServiceDesc(), p)
 		}
 	}
@@ -101,13 +103,6 @@ func (s *Service) Serve() error {
 
 // Stop the service.
 func (s *Service) Stop() {
-	if atomic.LoadInt32(&s.stopping) != 0 {
-		// already stopping
-		return
-	}
-
-	atomic.StoreInt32(&s.stopping, 1)
-
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if s.grpc == nil {

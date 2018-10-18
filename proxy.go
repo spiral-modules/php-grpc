@@ -1,19 +1,25 @@
 package grpc
 
 import (
+	"encoding/json"
 	"github.com/spiral/roadrunner"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	"log"
 	"sync"
 )
 
 type proxyService interface {
 	// RegisterMethod registers new RPC method.
-	AddMethod(method string)
+	RegisterMethod(method string)
 
 	// ServiceDesc returns service description for the proxy.
 	ServiceDesc() *grpc.ServiceDesc
+}
+
+type rpcContext struct {
+	Service string                 `json:"service"`
+	Method  string                 `json:"method"`
+	Context map[string]interface{} `json:"context"`
 }
 
 // Proxy manages GRPC/RoadRunner bridge.
@@ -29,7 +35,7 @@ type Proxy struct {
 func NewProxy(name string, metadata string, rr *roadrunner.Server) *Proxy {
 	return &Proxy{
 		rr:       rr,
-		msgPool:  sync.Pool{New: func() interface{} { return &rawMessage{} }},
+		msgPool:  sync.Pool{New: func() interface{} { return rawMessage{} }},
 		name:     name,
 		metadata: metadata,
 		methods:  make([]string, 0),
@@ -65,27 +71,35 @@ func (p *Proxy) ServiceDesc() *grpc.ServiceDesc {
 // Generate method handler proxy.
 func (p *Proxy) methodHandler(method string) func(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	return func(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-		msg := p.msgPool.Get().(*rawMessage)
-		defer p.msgPool.Put(msg)
+		msg := p.msgPool.Get().(rawMessage)
 
-		// decode incoming message
-		dec(msg)
+		if err := dec(&msg); err != nil {
+			return nil, err
+		}
 
-		resp, err := p.rr.Exec(p.makePayload(ctx, msg))
+		resp, err := p.rr.Exec(p.makePayload(ctx, method, msg))
+		p.msgPool.Put(msg)
 
 		// todo: wrap error (!)
 		if err != nil {
 			return nil, err
 		}
 
-		return resp.Body, nil
+		return rawMessage(resp.Body), nil
 	}
 }
 
-// makePayload generates RoadRunner compatible payload based on GRPC message.
-func (p *Proxy) makePayload(ctx context.Context, msg *rawMessage) *roadrunner.Payload {
-	log.Println(ctx)
+// makePayload generates RoadRunner compatible payload based on GRPC message. todo: return error
+func (p *Proxy) makePayload(ctx context.Context, method string, msg rawMessage) *roadrunner.Payload {
+	ctxData, _ := json.Marshal(rpcContext{
+		Service: p.name,
+		Method:  method,
+		// pack context
+	})
+
+	// 	log.Println(ctx)
 	return &roadrunner.Payload{
-		Body: *msg,
+		Context: ctxData,
+		Body:    msg,
 	}
 }

@@ -37,7 +37,7 @@ class Server
 
     public function serve(Worker $worker)
     {
-        while ($body = $worker->receive($context)) {
+        while (($body = $worker->receive($context)) || !empty($context)) {
             try {
                 $context = json_decode($context, true);
 
@@ -45,9 +45,10 @@ class Server
                     $context['service'],
                     $context['method'],
                     $body,
-                    $context['context']
+                    $context['context'] ?? []
                 ));
             } catch (\Throwable $e) {
+                $worker->error($e);
                 // report error
                 // todo: map error to GRPC errors
             }

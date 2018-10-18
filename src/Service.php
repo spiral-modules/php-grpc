@@ -29,8 +29,8 @@ final class Service
     private $methods;
 
     /**
-     * @param string             $name
-     * @param object             $handler
+     * @param string $name
+     * @param object $handler
      * @param InvocatorInterface $invocator
      */
     public function __construct(string $name, $handler, InvocatorInterface $invocator)
@@ -60,9 +60,9 @@ final class Service
     }
 
     /**
-     * @param string           $method
+     * @param string $method
      * @param ContextInterface $context
-     * @param string           $input
+     * @param string $input
      * @return string
      *
      * @throws InvokeException

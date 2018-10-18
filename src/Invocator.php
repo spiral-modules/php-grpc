@@ -8,26 +8,42 @@
 
 namespace Spiral\GRPC;
 
-class Invocator
-{
-    public function invoke(Context $ctx, string $input): string
-    {
-        /** @var Message $in */
-        $in = new ($this->input);
 
+use Google\Protobuf\Internal\Message;
+
+class Invocator implements InvocatorInterface
+{
+    // todo: map exceptions
+    public function invoke($handler, Method $method, ContextInterface $context, string $input): string
+    {
         try {
+            $in = $this->makeInput($method);
             $in->mergeFromString($input);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new $e;
         }
 
-        /** @var Message $out */
-        $out = call_user_func([$this->handler, $this->name], $ctx, $in);
+        try {
+            $out = call_user_func([$handler, $method->getName()], $context, $in);
+        } catch (\Throwable $e) {
+            throw new $e;
+        }
 
         try {
             return $out->serializeToString();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new $e;
         }
+    }
+
+    /**
+     * @param Method $method
+     * @return Message
+     */
+    private function makeInput(Method $method): Message
+    {
+        $in = $method->getInputType();
+
+        return new $in;
     }
 }
