@@ -6,6 +6,8 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/peer"
 	"google.golang.org/grpc/status"
 	"strconv"
 	"strings"
@@ -23,9 +25,9 @@ type proxyService interface {
 
 // carry details about service, method and RPC context to PHP process
 type rpcContext struct {
-	Service string                 `json:"service"`
-	Method  string                 `json:"method"`
-	Context map[string]interface{} `json:"context"`
+	Service string              `json:"service"`
+	Method  string              `json:"method"`
+	Context map[string][]string `json:"context"`
 }
 
 // Proxy manages GRPC/RoadRunner bridge.
@@ -82,7 +84,12 @@ func (p *Proxy) methodHandler(method string) func(srv interface{}, ctx context.C
 			return nil, wrapError(err)
 		}
 
-		resp, err := p.rr.Exec(p.makePayload(ctx, method, msg))
+		payload, err := p.makePayload(ctx, method, msg)
+		if err != nil {
+			return nil, err
+		}
+
+		resp, err := p.rr.Exec(payload)
 		p.msgPool.Put(msg)
 
 		if err != nil {
@@ -94,15 +101,33 @@ func (p *Proxy) methodHandler(method string) func(srv interface{}, ctx context.C
 }
 
 // makePayload generates RoadRunner compatible payload based on GRPC message. todo: return error
-func (p *Proxy) makePayload(ctx context.Context, method string, body rawMessage) *roadrunner.Payload {
-	ctxData, _ := json.Marshal(rpcContext{
+func (p *Proxy) makePayload(ctx context.Context, method string, body rawMessage) (*roadrunner.Payload, error) {
+	ctxMD := make(map[string][]string)
+
+	if md, ok := metadata.FromIncomingContext(ctx); ok {
+		for k, v := range md {
+			ctxMD[k] = v
+		}
+	}
+
+	if pr, ok := peer.FromContext(ctx); ok {
+		ctxMD[":peer.address"] = []string{pr.Addr.String()}
+		if pr.AuthInfo != nil {
+			ctxMD[":peer.auth-type"] = []string{pr.AuthInfo.AuthType()}
+		}
+	}
+
+	ctxData, err := json.Marshal(rpcContext{
 		Service: p.name,
 		Method:  method,
-		// todo: pack context
+		Context: ctxMD,
 	})
 
-	// 	log.Println(ctx)
-	return &roadrunner.Payload{Context: ctxData, Body: body}
+	if err != nil {
+		return nil, err
+	}
+
+	return &roadrunner.Payload{Context: ctxData, Body: body}, nil
 }
 
 // mounts proper error code for the error
