@@ -77,8 +77,10 @@ func (s *Service) Serve() error {
 	if services, err := parser.File(s.cfg.Proto); err != nil {
 		return err
 	} else {
+		var p *Proxy
 		for _, service := range services {
-			NewProxy(fmt.Sprintf("%s.%s", service.Package, service.Name), s.cfg.Proto, s.rr).Attach(s.grpc)
+			p = NewProxy(fmt.Sprintf("%s.%s", service.Package, service.Name), s.cfg.Proto, s.rr)
+			s.grpc.RegisterService(p.ServiceDesc(), p)
 		}
 	}
 
