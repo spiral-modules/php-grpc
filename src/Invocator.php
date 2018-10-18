@@ -8,42 +8,48 @@
 
 namespace Spiral\GRPC;
 
-
 use Google\Protobuf\Internal\Message;
+use Spiral\GRPC\Exception\GRPCException;
 
 class Invocator implements InvocatorInterface
 {
-    // todo: map exceptions
+    /**
+     * @inheritdoc
+     */
     public function invoke($handler, Method $method, ContextInterface $context, string $input): string
     {
-        try {
-            $in = $this->makeInput($method);
-            $in->mergeFromString($input);
-        } catch (\Throwable $e) {
-            throw new $e;
-        }
-
-        try {
-            $out = call_user_func([$handler, $method->getName()], $context, $in);
-        } catch (\Throwable $e) {
-            throw new $e;
-        }
+        $out = call_user_func(
+            [$handler, $method->getName()],
+            $context,
+            $this->makeInput($method, $input)
+        );
 
         try {
             return $out->serializeToString();
         } catch (\Throwable $e) {
-            throw new $e;
+            throw new GRPCException($e->getMessage(), StatusCode::INTERNAL, $e);
         }
     }
 
     /**
      * @param Method $method
+     * @param string $body
      * @return Message
+     *
+     * @throws GRPCException
      */
-    private function makeInput(Method $method): Message
+    private function makeInput(Method $method, string $body): Message
     {
-        $in = $method->getInputType();
+        try {
+            $class = $method->getInputType();
 
-        return new $in;
+            /** @var Message $in */
+            $in = new $class;
+            $in->mergeFromString($body);
+
+            return $in;
+        } catch (\Throwable $e) {
+            throw new GRPCException($e->getMessage(), StatusCode::INTERNAL, $e);
+        }
     }
 }

@@ -8,8 +8,14 @@
 
 namespace Spiral\GRPC;
 
+use Spiral\GRPC\Exception\GRPCException;
+use Spiral\GRPC\Exception\NotFoundException;
+use Spiral\GRPC\Exception\ServiceException;
 use Spiral\RoadRunner\Worker;
 
+/**
+ * Manages group of services and communication with RoadRunner server.
+ */
 class Server
 {
     /** @var InvocatorInterface */
@@ -27,37 +33,69 @@ class Server
     }
 
     /**
-     * @param string $name
-     * @param object $handler
+     * Register new GRPC service.
+     *
+     * Example: $server->registerService(EchoServiceInterface::class, new EchoService());
+     *
+     * @param string $interface Generated service interface.
+     * @param object $handler Must implement interface.
+     *
+     * @throws ServiceException
      */
-    public function registerService(string $name, $handler)
+    public function registerService(string $interface, $handler)
     {
-        $this->services[$name] = new Service($name, $handler, $this->invocator);
+        $service = new Service($this->invocator, $interface, $handler);
+        $this->services[$service->getName()] = $service;
     }
 
+    /**
+     * Serve GRPC over given RoadRunner worker.
+     *
+     * @param Worker $worker
+     */
     public function serve(Worker $worker)
     {
-        while (($body = $worker->receive($context)) || !empty($context)) {
+        while ($body = $worker->receive($ctx)) {
             try {
-                $context = json_decode($context, true);
-
-                $worker->send($this->invoke(
-                    $context['service'],
-                    $context['method'],
-                    $body,
-                    $context['context'] ?? []
-                ));
+                $ctx = json_decode($ctx, true);
+                $worker->send($this->invoke($ctx['service'], $ctx['method'], $ctx['context'], $body));
+            } catch (GRPCException $e) {
+                $worker->send($this->packError($e));
             } catch (\Throwable $e) {
                 $worker->error($e);
-                // report error
-                // todo: map error to GRPC errors
             }
         }
     }
 
-    protected function invoke(string $service, string $method, string $body, array $context): string
+    /**
+     * Invoke service method with binary payload and return the response.
+     *
+     * @param string $service
+     * @param string $method
+     * @param array|null $context
+     * @param string $body
+     * @return string
+     *
+     * @throws GRPCException
+     * @throws \Throwable
+     */
+    protected function invoke(string $service, string $method, array $context = null, string $body): string
     {
-        //todo: check if service exists
-        return $this->services[$service]->invoke($method, new Context($context), $body);
+        if (!isset($this->services[$service])) {
+            throw new NotFoundException("Service `{$service}` not found.", StatusCode::NOT_FOUND);
+        }
+
+        return $this->services[$service]->invoke($method, new Context($context ?? []), $body);
+    }
+
+    /**
+     * Packs exception message and code into one string.
+     *
+     * @param GRPCException $e
+     * @return string
+     */
+    private function packError(GRPCException $e): string
+    {
+        return $e->getMessage();
     }
 }

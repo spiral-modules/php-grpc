@@ -99,7 +99,10 @@ final class Method
     public static function parse(\ReflectionMethod $method): Method
     {
         if (!self::match($method)) {
-            throw new GRPCException("Method `{$method->getName()}` is not valid GRPC method.");
+            throw new GRPCException(
+                "Method `{$method->getName()}` is not valid GRPC method.",
+                StatusCode::INTERNAL
+            );
         }
 
         $m = new self;

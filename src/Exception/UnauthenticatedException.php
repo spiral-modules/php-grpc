@@ -8,9 +8,10 @@
 
 namespace Spiral\GRPC\Exception;
 
+
 use Spiral\GRPC\StatusCode;
 
-class InvokeException extends GRPCException
+class UnauthenticatedException extends InvokeException
 {
-    protected const CODE = StatusCode::UNAVAILABLE;
+    protected const CODE = StatusCode::UNAUTHENTICATED;
 }

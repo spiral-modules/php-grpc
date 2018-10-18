@@ -33,7 +33,7 @@ import (
 var tpl *template.Template
 
 func init() {
-	tpl = template.Must(template.New("body").Funcs(template.FuncMap{
+	tpl = template.Must(template.New("phpBody").Funcs(template.FuncMap{
 		"namespace": func(pkg *string) string {
 			return namespace(pkg, "\\")
 		},
@@ -43,6 +43,9 @@ func init() {
 		},
 		"interface": func(name *string) string {
 			return identifier(*name, "interface")
+		},
+		"name": func(pkg *string, name *string) string {
+			return fmt.Sprintf("%s.%s", *pkg, *name)
 		},
 	}).Parse(phpBody))
 }
@@ -78,6 +81,8 @@ use Spiral\GRPC\ContextInterface;
 
 interface {{ .Service.Name | interface }} 
 {
+	// GRPC specific service name.
+    public const NAME = "{{ name .File.Package .Service.Name }}"; {{ "\n" }}
 {{- range $m := .Service.Method }}
 	/**
      * @param ContextInterface $ctx

@@ -28,6 +28,7 @@ final class Context implements ContextInterface
     {
         $ctx = clone $this;
         $ctx->values[$key] = $value;
+
         return $ctx;
     }
 
@@ -37,5 +38,13 @@ final class Context implements ContextInterface
     public function getValue(string $key)
     {
         return $this->values[$key] ?? null;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getValues(): array
+    {
+        return $this->values;
     }
 }
