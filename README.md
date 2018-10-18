@@ -6,5 +6,5 @@ GRPC Server for PHP
 
 
 ```bash
-$ docker run --rm -it -v ${PWD}:/app gr protoc --php_out=. test.proto
+$ docker run --rm -it -v ${PWD}:/app gr protoc --php-grpc_out=. --php_out=. test.proto
 ```

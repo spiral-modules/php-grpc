@@ -9,7 +9,7 @@ import (
 )
 
 type proxyService interface {
-	// AddMethod registers new RPC method.
+	// RegisterMethod registers new RPC method.
 	AddMethod(method string)
 
 	// ServiceDesc returns service description for the proxy.
@@ -36,13 +36,8 @@ func NewProxy(name string, metadata string, rr *roadrunner.Server) *Proxy {
 	}
 }
 
-// Attach attaches proxy to the GRPC grpc.
-func (p *Proxy) Attach(server *grpc.Server) {
-	server.RegisterService(p.ServiceDesc(), p)
-}
-
-// AddMethod registers new RPC method.
-func (p *Proxy) AddMethod(method string) {
+// RegisterMethod registers new RPC method.
+func (p *Proxy) RegisterMethod(method string) {
 	p.methods = append(p.methods, method)
 }
 

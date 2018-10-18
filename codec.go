@@ -4,10 +4,8 @@ import (
 	"google.golang.org/grpc/encoding"
 )
 
-type (
-	rawMessage []byte
-	codec      struct{ base encoding.Codec }
-)
+type rawMessage []byte
+type codec struct{ base encoding.Codec }
 
 // Marshal returns the wire format of v. rawMessages would be returned without encoding.
 func (c *codec) Marshal(v interface{}) ([]byte, error) {

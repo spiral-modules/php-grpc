@@ -10,19 +10,21 @@ import (
 	"google.golang.org/grpc/encoding"
 	"reflect"
 	"sync"
+	"sync/atomic"
 )
 
 const ID = "grpc"
 
 type Service struct {
-	cfg  *Config
-	env  env.Environment
-	list []func(event int, ctx interface{})
-	opts []grpc.ServerOption
-	svcs []grpcService
-	mu   sync.Mutex
-	rr   *roadrunner.Server
-	grpc *grpc.Server
+	cfg      *Config
+	env      env.Environment
+	list     []func(event int, ctx interface{})
+	opts     []grpc.ServerOption
+	services []grpcService
+	stopping int32
+	mu       sync.Mutex
+	rr       *roadrunner.Server
+	grpc     *grpc.Server
 }
 
 type grpcService struct {
@@ -75,13 +77,15 @@ func (s *Service) Serve() error {
 	if services, err := parser.File(s.cfg.Proto); err != nil {
 		return err
 	} else {
+		var p *Proxy
 		for _, service := range services {
-			NewProxy(fmt.Sprintf("%s.%s", service.Package, service.Name), s.cfg.Proto, s.rr).Attach(s.grpc)
+			p = NewProxy(fmt.Sprintf("%s.%s", service.Package, service.Name), s.cfg.Proto, s.rr)
+			s.grpc.RegisterService(p.ServiceDesc(), p)
 		}
 	}
 
 	// external services
-	for _, gs := range s.svcs {
+	for _, gs := range s.services {
 		s.grpc.RegisterService(gs.sd, gs.handler)
 	}
 
@@ -97,6 +101,13 @@ func (s *Service) Serve() error {
 
 // Stop the service.
 func (s *Service) Stop() {
+	if atomic.LoadInt32(&s.stopping) != 0 {
+		// already stopping
+		return
+	}
+
+	atomic.StoreInt32(&s.stopping, 1)
+
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if s.grpc == nil {
@@ -115,7 +126,7 @@ func (s *Service) RegisterService(sd *grpc.ServiceDesc, ss interface{}) error {
 		return fmt.Errorf("grpc: Server.RegisterService found the handler of type %v that does not satisfy %v", st, ht)
 	}
 
-	s.svcs = append(s.svcs, grpcService{sd: sd, handler: ss})
+	s.services = append(s.services, grpcService{sd: sd, handler: ss})
 	return nil
 }
 
