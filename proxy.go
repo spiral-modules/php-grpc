@@ -5,6 +5,8 @@ import (
 	"github.com/spiral/roadrunner"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"sync"
 )
 
@@ -72,9 +74,8 @@ func (p *Proxy) ServiceDesc() *grpc.ServiceDesc {
 func (p *Proxy) methodHandler(method string) func(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	return func(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 		msg := p.msgPool.Get().(rawMessage)
-
 		if err := dec(&msg); err != nil {
-			return nil, err
+			return nil, status.Error(codes.Internal, err.Error())
 		}
 
 		resp, err := p.rr.Exec(p.makePayload(ctx, method, msg))
@@ -82,6 +83,7 @@ func (p *Proxy) methodHandler(method string) func(srv interface{}, ctx context.C
 
 		// todo: wrap error (!)
 		if err != nil {
+			// todo: HOW ?
 			return nil, err
 		}
 
@@ -90,16 +92,13 @@ func (p *Proxy) methodHandler(method string) func(srv interface{}, ctx context.C
 }
 
 // makePayload generates RoadRunner compatible payload based on GRPC message. todo: return error
-func (p *Proxy) makePayload(ctx context.Context, method string, msg rawMessage) *roadrunner.Payload {
+func (p *Proxy) makePayload(ctx context.Context, method string, body rawMessage) *roadrunner.Payload {
 	ctxData, _ := json.Marshal(rpcContext{
 		Service: p.name,
 		Method:  method,
-		// pack context
+		// todo: pack context
 	})
 
 	// 	log.Println(ctx)
-	return &roadrunner.Payload{
-		Context: ctxData,
-		Body:    msg,
-	}
+	return &roadrunner.Payload{Context: ctxData, Body: body}
 }
