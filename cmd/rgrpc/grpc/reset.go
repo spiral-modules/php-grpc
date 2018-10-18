@@ -18,34 +18,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package cmd
+package grpc
 
 import (
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	rrpc "github.com/spiral/grpc"
 	rr "github.com/spiral/roadrunner/cmd/rr/cmd"
 	"github.com/spiral/roadrunner/cmd/util"
 )
 
 func init() {
-	cobra.OnInitialize(func() {
-		if rr.Debug {
-			svc, _ := rr.Container.Get(rrpc.ID)
-			if svc, ok := svc.(*rrpc.Service); ok {
-				svc.AddListener((&debugger{logger: rr.Logger}).listener)
-			}
-		}
+	rr.CLI.AddCommand(&cobra.Command{
+		Use:   "grpc:reset",
+		Short: "Reload RoadRunner worker pool for the GRPC service",
+		RunE:  reloadHandler,
 	})
 }
 
-// listener provide debug callback for system events. With colors!
-type debugger struct{ logger *logrus.Logger }
-
-// listener listens to http events and generates nice looking output.
-func (s *debugger) listener(event int, ctx interface{}) {
-	if util.LogEvent(s.logger, event, ctx) {
-		// handler by default debug package
-		return
+func reloadHandler(cmd *cobra.Command, args []string) error {
+	client, err := util.RPCClient(rr.Container)
+	if err != nil {
+		return err
 	}
+	defer client.Close()
+
+	util.Printf("<green>restarting http worker pool</reset>: ")
+
+	var r string
+	if err := client.Call("grpc.Reset", true, &r); err != nil {
+		return err
+	}
+
+	util.Printf("<green+hb>done</reset>\n")
+	return nil
 }
