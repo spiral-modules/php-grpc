@@ -9,7 +9,7 @@
 namespace Spiral\GRPC;
 
 /**
- * GRPC specific status codes.
+ * GRPC specific status codes. Sources from Go/GRPC implementation.
  */
 final class StatusCode
 {
