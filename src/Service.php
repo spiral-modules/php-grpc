@@ -102,8 +102,8 @@ final class Service
             );
         }
 
-        if (is_object($handler)) {
-            throw new ServiceException("Service handler must be object.");
+        if (!is_object($handler)) {
+            throw new ServiceException("Service handler must be an object.");
         }
 
         if (!$handler instanceof $interface) {

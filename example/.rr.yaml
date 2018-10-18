@@ -1,0 +1,8 @@
+grpc:
+  listen: "tcp://:9001"
+  proto: "service.proto"
+  workers:
+    command: "php server.php"
+    pool:
+      numWorkers: 1
+      maxJobs:    1

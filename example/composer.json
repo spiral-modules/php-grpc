@@ -1,0 +1,10 @@
+{
+  "require": {
+    "spiral/grpc": "dev-master"
+  },
+  "autoload": {
+    "psr-4": {
+      "": "src/"
+    }
+  }
+}

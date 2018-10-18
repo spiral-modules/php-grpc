@@ -60,7 +60,7 @@ class Server
                 $ctx = json_decode($ctx, true);
                 $worker->send($this->invoke($ctx['service'], $ctx['method'], $ctx['context'], $body));
             } catch (GRPCException $e) {
-                $worker->send($this->packError($e));
+                $worker->error($this->packError($e));
             } catch (\Throwable $e) {
                 $worker->error($e);
             }
