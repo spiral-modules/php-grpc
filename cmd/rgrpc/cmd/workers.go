@@ -18,36 +18,83 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package grpc
+package cmd
 
 import (
+	tm "github.com/buger/goterm"
 	"github.com/spf13/cobra"
+	rrpc "github.com/spiral/grpc"
 	rr "github.com/spiral/roadrunner/cmd/rr/cmd"
 	"github.com/spiral/roadrunner/cmd/util"
+	"net/rpc"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+)
+
+var (
+	interactive bool
+	stopSignal  = make(chan os.Signal, 1)
 )
 
 func init() {
-	rr.CLI.AddCommand(&cobra.Command{
-		Use:   "grpc:reset",
-		Short: "Reload RoadRunner worker pool for the GRPC service",
-		RunE:  reloadHandler,
-	})
+	workersCommand := &cobra.Command{
+		Use:   "http:workers",
+		Short: "List workers associated with RoadRunner HTTP service",
+		RunE:  workersHandler,
+	}
+
+	workersCommand.Flags().BoolVarP(
+		&interactive,
+		"interactive",
+		"i",
+		false,
+		"render interactive workers table",
+	)
+
+	rr.CLI.AddCommand(workersCommand)
+
+	signal.Notify(stopSignal, syscall.SIGTERM)
+	signal.Notify(stopSignal, syscall.SIGINT)
 }
 
-func reloadHandler(cmd *cobra.Command, args []string) error {
+func workersHandler(cmd *cobra.Command, args []string) (err error) {
+	defer func() {
+		if r, ok := recover().(error); ok {
+			err = r
+		}
+	}()
+
 	client, err := util.RPCClient(rr.Container)
 	if err != nil {
 		return err
 	}
 	defer client.Close()
 
-	util.Printf("<green>restarting http worker pool</reset>: ")
-
-	var r string
-	if err := client.Call("grpc.Reset", true, &r); err != nil {
-		return err
+	if !interactive {
+		showWorkers(client)
+		return nil
 	}
 
-	util.Printf("<green+hb>done</reset>\n")
-	return nil
+	tm.Clear()
+	for {
+		select {
+		case <-stopSignal:
+			return nil
+		case <-time.NewTicker(time.Millisecond * 500).C:
+			tm.MoveCursor(1, 1)
+			showWorkers(client)
+			tm.Flush()
+		}
+	}
+}
+
+func showWorkers(client *rpc.Client) {
+	var r rrpc.WorkerList
+	if err := client.Call("grpc.Workers", true, &r); err != nil {
+		panic(err)
+	}
+
+	util.WorkerTable(r.Workers).Render()
 }

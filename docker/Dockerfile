@@ -1,6 +1,7 @@
 FROM php:7.2.11-cli-alpine
 
 ENV PROTOBUF_VERSION 3.6.1
+ENV VERBOSE          false
 
 # Install protoc compiler
 RUN cd /tmp \
@@ -15,6 +16,10 @@ RUN apk add make autoconf automake libc-dev gcc \
     && pecl install protobuf-$PROTOBUF_VERSION \
     && echo "extension=protobuf.so" > /usr/local/etc/php/conf.d/protobuf.ini \
     && apk del make autoconf automake libc-dev gcc
+
+# Copying GRPC server and Protoc generator binaries
+COPY protoc-gen-php-grpc /usr/bin/protoc-gen-php_grpc
+COPY rgrpc /usr/bin
 
 # Default application directory
 WORKDIR "/app"

@@ -23,7 +23,7 @@ class Server
      */
     public function __construct(InvocatorInterface $invocator = null)
     {
-        $this->invocator = $invocator;
+        $this->invocator = $invocator ?? new Invocator();
     }
 
     /**
