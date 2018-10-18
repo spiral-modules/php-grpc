@@ -6,10 +6,16 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 	"log"
+	"google.golang.org/grpc/credentials"
 )
 
 func main() {
-	conn, err := grpc.Dial("localhost:9001", grpc.WithInsecure())
+	creds, err := credentials.NewClientTLSFromFile("server.crt", "")
+	if err != nil {
+		panic(err)
+	}
+
+	conn, err := grpc.Dial("localhost:9001", grpc.WithTransportCredentials(creds))
 	if err != nil {
 		panic(err)
 	}

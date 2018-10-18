@@ -10,6 +10,7 @@ import (
 	"google.golang.org/grpc/encoding"
 	"reflect"
 	"sync"
+	"google.golang.org/grpc/credentials"
 )
 
 const ID = "grpc"
@@ -148,7 +149,17 @@ func (s *Service) throw(event int, ctx interface{}) {
 }
 
 func (s *Service) serverOptions() []grpc.ServerOption {
-	return append(s.opts,
+	// 	WORKING WITH CREDS
+	creds, err := credentials.NewServerTLSFromFile("server.crt", "server.key")
+	if err != nil {
+		panic(err)
+	}
+
+	return append(
+		s.opts,
+
+		grpc.Creds(creds),
+
 		// wrap default proto codec to bypass message marshal/unmarshal when rr is target
 		grpc.CustomCodec(&codec{encoding.GetCodec("proto")}),
 	)

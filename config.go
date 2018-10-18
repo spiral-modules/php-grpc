@@ -18,8 +18,15 @@ type Config struct {
 	// Proto file associated with the service.
 	Proto string
 
+	// Auth defined authentication method (TLS for now),
+	Auth Auth
+
 	// Workers configures roadrunner grpc and worker pool.
 	Workers *roadrunner.ServerConfig
+}
+
+// Auth defines auth credentials.
+type Auth struct {
 }
 
 // Hydrate the config and validate it's values.
