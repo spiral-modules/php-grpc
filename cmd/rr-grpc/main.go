@@ -6,7 +6,7 @@ import (
 	rr "github.com/spiral/roadrunner/cmd/rr/cmd"
 
 	// grpc specific commands
-	_ "github.com/spiral/grpc/cmd/rgrpc/grpc"
+	_ "github.com/spiral/grpc/cmd/rr-grpc/grpc"
 )
 
 func main() {
