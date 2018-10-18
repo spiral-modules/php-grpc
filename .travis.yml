@@ -11,10 +11,12 @@ install:
   - composer install --no-interaction --prefer-source --ignore-platform-reqs
 
 script:
+  - go test -race -v -coverprofile=grpc.txt -covermode=atomic
   - go test ./parser -race -v -coverprofile=parser.txt -covermode=atomic
   - vendor/bin/phpunit --coverage-clover=coverage.xml
 
 after_success:
+  - bash <(curl -s https://codecov.io/bash) -f grpc.txt
   - bash <(curl -s https://codecov.io/bash) -f parser.txt
   - bash <(curl -s https://codecov.io/bash) -f coverage.xml
 
