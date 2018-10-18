@@ -133,7 +133,7 @@ func (p *Proxy) makePayload(ctx context.Context, method string, body rawMessage)
 // mounts proper error code for the error
 func wrapError(err error) error {
 	// internal agreement
-	if strings.Index(err.Error(), "|:|") != 0 {
+	if strings.Index(err.Error(), "|:|") != -1 {
 		chunks := strings.Split(err.Error(), "|:|")
 		code := codes.Internal
 

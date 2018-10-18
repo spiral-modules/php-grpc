@@ -4,6 +4,7 @@ import (
 	"./service"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 	"log"
 )
 
@@ -15,7 +16,8 @@ func main() {
 	defer conn.Close()
 
 	client := service.NewEchoClient(conn)
-	log.Println(client.Ping(context.Background(), &service.Message{
+
+	log.Println(client.Ping(metadata.AppendToOutgoingContext(context.Background(), "key", "value"), &service.Message{
 		Msg: "hello world",
 	}))
 }
