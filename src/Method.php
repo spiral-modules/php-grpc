@@ -9,9 +9,11 @@
 namespace Spiral\GRPC;
 
 use Google\Protobuf\Internal\Message;
+use Spiral\GRPC\Exception\GRPCException;
 
 /**
- * Carries information about service method.
+ * Method carry information about one specific RPC method, it's input and return types. Provides
+ * ability to detect GRPC methods based on given class declaration.
  */
 final class Method
 {
@@ -96,6 +98,10 @@ final class Method
      */
     public static function parse(\ReflectionMethod $method): Method
     {
+        if (!self::match($method)) {
+            throw new GRPCException("Method `{$method->getName()}` is not valid GRPC method.");
+        }
+
         $m = new self;
         $m->name = $method->getName();
         $m->input = $method->getParameters()[1]->getClass()->getName();
