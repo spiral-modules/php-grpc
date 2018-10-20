@@ -9,28 +9,22 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/encoding"
-	"reflect"
 	"sync"
 )
 
 // ID sets public GRPC service ID for roadrunner.Container.
 const ID = "grpc"
 
-// Service manages set of GPRC services, options and connections.
+// Service manages set of GPRC registerServices, options and connections.
 type Service struct {
-	cfg      *Config
-	env      env.Environment
-	list     []func(event int, ctx interface{})
-	opts     []grpc.ServerOption
-	services []grpcService
-	mu       sync.Mutex
-	rr       *roadrunner.Server
-	grpc     *grpc.Server
-}
-
-type grpcService struct {
-	sd      *grpc.ServiceDesc
-	handler interface{}
+	cfg              *Config
+	env              env.Environment
+	list             []func(event int, ctx interface{})
+	opts             []grpc.ServerOption
+	registerServices []func(server *grpc.Server)
+	mu               sync.Mutex
+	rr               *roadrunner.Server
+	grpc             *grpc.Server
 }
 
 // Init service.
@@ -98,16 +92,9 @@ func (s *Service) Stop() {
 	go s.grpc.GracefulStop()
 }
 
-// RegisterService registers a service and its implementation to the gRPC
-// server. This must be called before invoking Serve.
-func (s *Service) RegisterService(sd *grpc.ServiceDesc, ss interface{}) error {
-	ht := reflect.TypeOf(sd.HandlerType).Elem()
-	st := reflect.TypeOf(ss)
-	if !st.Implements(ht) {
-		return fmt.Errorf("grpc: Server.RegisterService found the handler of type %v that does not satisfy %v", st, ht)
-	}
-
-	s.services = append(s.services, grpcService{sd: sd, handler: ss})
+// AddService would be invoked after GRPC service creation.
+func (s *Service) AddService(r func(server *grpc.Server)) error {
+	s.registerServices = append(s.registerServices, r)
 	return nil
 }
 
@@ -142,7 +129,7 @@ func (s *Service) createGPRCServer() (*grpc.Server, error) {
 
 	server := grpc.NewServer(opts...)
 
-	// php proxy services
+	// php proxy registerServices
 	services, err := parser.File(s.cfg.Proto)
 	if err != nil {
 		return nil, err
@@ -157,9 +144,9 @@ func (s *Service) createGPRCServer() (*grpc.Server, error) {
 		server.RegisterService(p.ServiceDesc(), p)
 	}
 
-	// external services
-	for _, gs := range s.services {
-		server.RegisterService(gs.sd, gs.handler)
+	// external registerServices
+	for _, r := range s.registerServices {
+		r(server)
 	}
 
 	return server, nil
