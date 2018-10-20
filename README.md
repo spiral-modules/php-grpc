@@ -1,4 +1,4 @@
-GRPC Server for PHP7 applications
+GRPC Server for PHP applications
 =================================
 [![Latest Stable Version](https://poser.pugx.org/spiral/php-grpc/version)](https://packagist.org/packages/spiral/php-grpc)
 [![Build Status](https://travis-ci.org/spiral/php-grpc.svg?branch=master)](https://travis-ci.org/spiral/php-grpc)
