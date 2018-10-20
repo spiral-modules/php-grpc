@@ -11,7 +11,7 @@ Server support both PHP and Golang services running within one application.
 
 Features:
 --------
-- compliant with native Golang GRPC services
+- compliant with native Golang GRPC implementation
 - minimal configuration, plug-and-play model
 - very fast, low footprint proxy overlay
 - easy TLS configuration
