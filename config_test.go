@@ -48,7 +48,7 @@ func Test_Config_TLS_No_key(t *testing.T) {
 	cfg := &Config{
 		Listen: "tcp://:8080",
 		TLS: TLS{
-			Cert: "fixtures/server.crt",
+			Cert: "tests/server.crt",
 		},
 		Proto: "tests/test.proto",
 		Workers: &roadrunner.ServerConfig{
@@ -69,7 +69,7 @@ func Test_Config_TLS_No_Cert(t *testing.T) {
 	cfg := &Config{
 		Listen: "tcp://:8080",
 		TLS: TLS{
-			Key: "fixtures/server.key",
+			Key: "tests/server.key",
 		},
 		Proto: "tests/test.proto",
 		Workers: &roadrunner.ServerConfig{

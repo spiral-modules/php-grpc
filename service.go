@@ -167,7 +167,7 @@ func (s *Service) createGPRCServer() (*grpc.Server, error) {
 // server options
 func (s *Service) serverOptions() (opts []grpc.ServerOption, err error) {
 	if s.cfg.EnableTLS() {
-		creds, err := credentials.NewServerTLSFromFile("server.crt", "server.key")
+		creds, err := credentials.NewServerTLSFromFile(s.cfg.TLS.Cert, s.cfg.TLS.Key)
 		if err != nil {
 			return nil, err
 		}
