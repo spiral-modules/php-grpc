@@ -31,7 +31,7 @@ Define your service schema using proto file. You can scaffold protobuf classes a
 $ protoc --php_out=target-dir/ --php-grpc_out=target-dir/ sample.proto
 ```
 
-> Make sure to install [prococ compiler](https://github.com/protocolbuffers/protobuf) first.
+> Make sure to install [prococ compiler](https://github.com/protocolbuffers/protobuf) and run `composer require spiral/grpc` first
 
 [Implement](https://github.com/spiral/php-grpc/blob/master/example/server/src/EchoService.php) needed classes and create [worker.php](https://github.com/spiral/php-grpc/blob/master/example/server/worker.php) to invoke your services.
 
@@ -47,7 +47,7 @@ To reset worker state:
 rr-grpc grpc:reset
 ```
 
-> See [example](https://github.com/spiral/php-grpc/tree/master/example). Make sure to run `composer require spiral/grpc`.
+> See [example](https://github.com/spiral/php-grpc/tree/master/example).
 
 You can find more details regarding server configuration at [RoadRunner Wiki](https://github.com/spiral/roadrunner/wiki).
 
