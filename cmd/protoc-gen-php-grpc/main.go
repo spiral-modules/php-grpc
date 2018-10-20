@@ -63,5 +63,5 @@ func writeResponse(out io.Writer, resp *plugin.CodeGeneratorResponse) error {
 	}
 
 	_, err = out.Write(data)
-	return nil
+	return err
 }

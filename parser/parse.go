@@ -45,7 +45,7 @@ func File(file string) ([]Service, error) {
 	return parse(reader)
 }
 
-// ParseString parses string into proto definition.
+// Bytes parses string into proto definition.
 func Bytes(data []byte) ([]Service, error) {
 	return parse(bytes.NewBuffer(data))
 }

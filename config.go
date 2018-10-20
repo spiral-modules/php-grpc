@@ -11,6 +11,7 @@ import (
 	"syscall"
 )
 
+// Config describes GRPC service configuration.
 type Config struct {
 	// Address to listen.
 	Listen string

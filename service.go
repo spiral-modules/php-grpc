@@ -15,6 +15,7 @@ import (
 
 const ID = "grpc"
 
+// Service manages set of GPRC services, options and connections.
 type Service struct {
 	cfg      *Config
 	env      env.Environment

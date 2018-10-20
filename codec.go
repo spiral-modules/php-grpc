@@ -6,7 +6,7 @@ import (
 
 type rawMessage []byte
 
-func (r rawMessage) Reset()       { r = r[:0] }
+func (r rawMessage) Reset()       {}
 func (rawMessage) ProtoMessage()  {}
 func (rawMessage) String() string { return "rawMessage" }
 
