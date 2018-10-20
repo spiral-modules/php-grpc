@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/spiral/roadrunner"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -11,7 +12,6 @@ import (
 	"google.golang.org/grpc/status"
 	"strconv"
 	"strings"
-	"sync"
 )
 
 // base interface for Proxy class
@@ -33,7 +33,6 @@ type rpcContext struct {
 // Proxy manages GRPC/RoadRunner bridge.
 type Proxy struct {
 	rr       *roadrunner.Server
-	msgPool  sync.Pool
 	name     string
 	metadata string
 	methods  []string
@@ -43,7 +42,6 @@ type Proxy struct {
 func NewProxy(name string, metadata string, rr *roadrunner.Server) *Proxy {
 	return &Proxy{
 		rr:       rr,
-		msgPool:  sync.Pool{New: func() interface{} { return rawMessage{} }},
 		name:     name,
 		metadata: metadata,
 		methods:  make([]string, 0),
@@ -77,27 +75,52 @@ func (p *Proxy) ServiceDesc() *grpc.ServiceDesc {
 }
 
 // Generate method handler proxy.
-func (p *Proxy) methodHandler(method string) func(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	return func(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-		msg := p.msgPool.Get().(rawMessage)
-		if err := dec(&msg); err != nil {
+func (p *Proxy) methodHandler(method string) func(
+	srv interface{},
+	ctx context.Context,
+	dec func(interface{},
+	) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	return func(
+		srv interface{},
+		ctx context.Context,
+		dec func(interface{}) error,
+		interceptor grpc.UnaryServerInterceptor,
+	) (interface{}, error) {
+		in := rawMessage{}
+		if err := dec(&in); err != nil {
 			return nil, wrapError(err)
 		}
 
-		payload, err := p.makePayload(ctx, method, msg)
-		if err != nil {
-			return nil, err
+		if interceptor == nil {
+			return p.invoke(ctx, method, in)
 		}
 
-		resp, err := p.rr.Exec(payload)
-		p.msgPool.Put(msg)
-
-		if err != nil {
-			return nil, wrapError(err)
+		info := &grpc.UnaryServerInfo{
+			Server:     srv,
+			FullMethod: fmt.Sprintf("/%s/%s", p.name, method),
 		}
 
-		return rawMessage(resp.Body), nil
+		handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+			return p.invoke(ctx, method, req.(rawMessage))
+		}
+
+		return interceptor(ctx, in, info, handler)
 	}
+}
+
+func (p *Proxy) invoke(ctx context.Context, method string, in rawMessage) (interface{}, error) {
+	payload, err := p.makePayload(ctx, method, in)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := p.rr.Exec(payload)
+
+	if err != nil {
+		return nil, wrapError(err)
+	}
+
+	return rawMessage(resp.Body), nil
 }
 
 // makePayload generates RoadRunner compatible payload based on GRPC message. todo: return error

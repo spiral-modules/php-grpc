@@ -3,7 +3,7 @@ grpc:
   proto: "service.proto"
   tls:
     key:  "server.key"
-    cert: "server.cert"
+    cert: "server.crt"
   workers:
     command: "php server.php"
     pool:

@@ -163,10 +163,7 @@ func (s *Service) createGPRCServer() (*grpc.Server, error) {
 }
 
 // server options
-func (s *Service) serverOptions() ([]grpc.ServerOption, error) {
-	opts := make([]grpc.ServerOption, 0)
-	copy(opts, s.opts)
-
+func (s *Service) serverOptions() (opts []grpc.ServerOption, err error) {
 	if s.cfg.EnableTLS() {
 		creds, err := credentials.NewServerTLSFromFile("server.crt", "server.key")
 		if err != nil {
@@ -175,6 +172,8 @@ func (s *Service) serverOptions() ([]grpc.ServerOption, error) {
 
 		opts = append(opts, grpc.Creds(creds))
 	}
+
+	opts = append(opts, s.opts...)
 
 	// custom codec is required to bypass protobuf
 	return append(opts, grpc.CustomCodec(&codec{encoding.GetCodec("proto")})), nil

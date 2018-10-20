@@ -26,6 +26,11 @@ import (
 	rrpc "github.com/spiral/php-grpc"
 	rr "github.com/spiral/roadrunner/cmd/rr/cmd"
 	"github.com/spiral/roadrunner/cmd/util"
+	"golang.org/x/net/context"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/peer"
+	"google.golang.org/grpc/status"
 )
 
 func init() {
@@ -33,7 +38,9 @@ func init() {
 		if rr.Debug {
 			svc, _ := rr.Container.Get(rrpc.ID)
 			if svc, ok := svc.(*rrpc.Service); ok {
-				svc.AddListener((&debugger{logger: rr.Logger}).listener)
+				debug := &debugger{logger: rr.Logger}
+				svc.AddListener(debug.listener)
+				svc.AddOption(grpc.UnaryInterceptor(debug.interceptor))
 			}
 		}
 	})
@@ -43,9 +50,64 @@ func init() {
 type debugger struct{ logger *logrus.Logger }
 
 // listener listens to http events and generates nice looking output.
-func (s *debugger) listener(event int, ctx interface{}) {
-	if util.LogEvent(s.logger, event, ctx) {
+func (d *debugger) listener(event int, ctx interface{}) {
+	if util.LogEvent(d.logger, event, ctx) {
 		// handler by default debug package
 		return
 	}
+}
+
+// call info
+func (d *debugger) interceptor(
+	ctx context.Context,
+	req interface{},
+	info *grpc.UnaryServerInfo,
+	handler grpc.UnaryHandler,
+) (resp interface{}, err error) {
+	resp, err = handler(ctx, req)
+
+	if err == nil {
+		d.logger.Info(util.Sprintf(
+			"<cyan+h>%s</reset> <green+h>Ok</reset> %s",
+			d.getPeer(ctx),
+			info.FullMethod,
+		))
+	} else {
+		if st, ok := status.FromError(err); ok {
+			d.logger.Error(util.Sprintf(
+				"<cyan+h>%s</reset> %s %s <red>%s</reset>",
+				d.getPeer(ctx),
+				d.wrapStatus(st),
+				info.FullMethod,
+				st.Message(),
+			))
+		} else {
+			d.logger.Error(util.Sprintf(
+				"<cyan+h>%s</reset> %s <red>%s</reset>",
+				d.getPeer(ctx),
+				info.FullMethod,
+				err.Error(),
+			))
+		}
+	}
+
+	return resp, err
+}
+
+func (d *debugger) getPeer(ctx context.Context) string {
+	pr, ok := peer.FromContext(ctx)
+	if ok {
+		return pr.Addr.String()
+	}
+
+	return "unknown"
+}
+
+func (d *debugger) wrapStatus(st *status.Status) string {
+	switch st.Code() {
+	case codes.NotFound, codes.Canceled, codes.Unavailable:
+		return util.Sprintf("<yellow+h>%s</reset>", st.Code().String())
+	}
+
+	return util.Sprintf("<red+h>%s</reset>", st.Code().String())
 }

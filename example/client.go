@@ -2,25 +2,34 @@ package main
 
 import (
 	"./proto"
+	"fmt"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
-	"log"
+	"os"
 )
 
 func main() {
+	if len(os.Args) < 2 {
+		panic("message text is required (go run client.go \"hello world\")")
+	}
+
 	conn := makeConn()
 	defer conn.Close()
 
 	client := proto.NewEchoClient(conn)
 
-	log.Println(
-		client.Ping(
-			metadata.AppendToOutgoingContext(context.Background(), "key", "value"),
-			&proto.Message{Msg: "hello world"},
-		),
+	resp, err := client.Ping(
+		metadata.AppendToOutgoingContext(context.Background(), "key", "value"),
+		&proto.Message{Msg: os.Args[1]},
 	)
+
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("Response: %s\n", resp.Msg)
 }
 
 func makeConn() *grpc.ClientConn {
