@@ -23,7 +23,7 @@ Features:
 
 Usage:
 --------
-Install `rr-grpc` and `protoc-gen-php-grpc` using `go get` or by [pre-build release](https://github.com/spiral/php-grpc/releases).
+Install `rr-grpc` and `protoc-gen-php-grpc` by building it or using [pre-build release](https://github.com/spiral/php-grpc/releases).
 
 Define your service schema using proto file. You can scaffold protobuf classes and GRPC [service interfaces](https://github.com/spiral/php-grpc/blob/master/example/server/src/Service/EchoInterface.php) using:
 
