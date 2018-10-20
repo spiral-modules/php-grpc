@@ -6,8 +6,8 @@ clean:
 	rm -rf protoc-gen-php-grpc
 	rm -rf rr-grpc
 install: all
-	cp rr /usr/local/bin/protoc-gen-php-grpc
-	cp rr /usr/local/bin/rr-grpc
+	cp protoc-gen-php-grpc /usr/local/bin/protoc-gen-php-grpc
+	cp rr-grpc /usr/local/bin/rr-grpc
 uninstall: 
 	rm -f /usr/local/bin/protoc-gen-php-grpc
 	rm -f /usr/local/bin/rr-grpc
