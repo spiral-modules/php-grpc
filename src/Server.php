@@ -21,7 +21,7 @@ class Server
     /** @var InvocatorInterface */
     private $invocator;
 
-    /** @var Service[] */
+    /** @var ServiceWrapper[] */
     private $services = [];
 
     /**
@@ -37,14 +37,14 @@ class Server
      *
      * Example: $server->registerService(EchoServiceInterface::class, new EchoService());
      *
-     * @param string $interface Generated service interface.
-     * @param object $handler Must implement interface.
+     * @param string           $interface Generated service interface.
+     * @param ServiceInterface $service   Must implement interface.
      *
      * @throws ServiceException
      */
-    public function registerService(string $interface, $handler)
+    public function registerService(string $interface, ServiceInterface $service)
     {
-        $service = new Service($this->invocator, $interface, $handler);
+        $service = new ServiceWrapper($this->invocator, $interface, $service);
         $this->services[$service->getName()] = $service;
     }
 
@@ -58,7 +58,8 @@ class Server
         while ($body = $worker->receive($ctx)) {
             try {
                 $ctx = json_decode($ctx, true);
-                $worker->send($this->invoke($ctx['service'], $ctx['method'], $ctx['context'], $body));
+                $worker->send($this->invoke($ctx['service'], $ctx['method'], $ctx['context'],
+                    $body));
             } catch (GRPCException $e) {
                 $worker->error($this->packError($e));
             } catch (\Throwable $e) {
@@ -70,17 +71,21 @@ class Server
     /**
      * Invoke service method with binary payload and return the response.
      *
-     * @param string $service
-     * @param string $method
+     * @param string     $service
+     * @param string     $method
      * @param array|null $context
-     * @param string $body
+     * @param string     $body
      * @return string
      *
      * @throws GRPCException
      * @throws \Throwable
      */
-    protected function invoke(string $service, string $method, array $context = null, string $body): string
-    {
+    protected function invoke(
+        string $service,
+        string $method,
+        array $context = null,
+        string $body
+    ): string {
         if (!isset($this->services[$service])) {
             throw new NotFoundException("Service `{$service}` not found.", StatusCode::NOT_FOUND);
         }

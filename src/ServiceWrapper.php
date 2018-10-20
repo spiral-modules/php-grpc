@@ -15,12 +15,12 @@ use Spiral\GRPC\Exception\ServiceException;
 /**
  * Wraps handlers methods.
  */
-final class Service
+final class ServiceWrapper
 {
     /** @var string */
     private $name;
 
-    /** @var object */
+    /** @var ServiceInterface */
     private $handler;
 
     /** @var InvocatorInterface */
@@ -31,15 +31,18 @@ final class Service
 
     /**
      * @param InvocatorInterface $invocator
-     * @param string $interface Service interface name.
-     * @param object $handler
+     * @param string             $interface Service interface name.
+     * @param ServiceInterface   $service
      *
      * @throws ServiceException
      */
-    public function __construct(InvocatorInterface $invocator, string $interface, $handler)
-    {
+    public function __construct(
+        InvocatorInterface $invocator,
+        string $interface,
+        ServiceInterface $service
+    ) {
         $this->invocator = $invocator;
-        $this->configure($interface, $handler);
+        $this->configure($interface, $service);
     }
 
     /**
@@ -51,17 +54,17 @@ final class Service
     }
 
     /**
-     * @return object
+     * @return ServiceInterface
      */
-    public function getHandler()
+    public function getService(): ServiceInterface
     {
         return $this->handler;
     }
 
     /**
-     * @param string $method
+     * @param string           $method
      * @param ContextInterface $context
-     * @param string $input
+     * @param string           $input
      * @return string
      *
      * @throws NotFoundException
@@ -79,12 +82,12 @@ final class Service
     /**
      * Configure service name and methods.
      *
-     * @param string $interface
-     * @param object $handler
+     * @param string           $interface
+     * @param ServiceInterface $service
      *
      * @throws ServiceException
      */
-    protected function configure(string $interface, $handler)
+    protected function configure(string $interface, ServiceInterface $service)
     {
         try {
             $r = new \ReflectionClass($interface);
@@ -102,27 +105,27 @@ final class Service
             );
         }
 
-        if (!is_object($handler)) {
+        if (!is_object($service)) {
             throw new ServiceException("Service handler must be an object.");
         }
 
-        if (!$handler instanceof $interface) {
+        if (!$service instanceof $interface) {
             throw new ServiceException("Service handler does not implement `{$interface}`.");
         }
 
-        $this->handler = $handler;
+        $this->handler = $service;
 
         // list of all available methods and their object types
-        $this->methods = $this->fetchMethods($handler);
+        $this->methods = $this->fetchMethods($service);
     }
 
     /**
-     * @param object $handler
+     * @param ServiceInterface $service
      * @return array
      */
-    protected function fetchMethods($handler): array
+    protected function fetchMethods(ServiceInterface $service): array
     {
-        $reflection = new \ReflectionObject($handler);
+        $reflection = new \ReflectionObject($service);
 
         $methods = [];
         foreach ($reflection->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {

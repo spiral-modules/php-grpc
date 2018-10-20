@@ -8,7 +8,6 @@
 
 namespace Service;
 
-
 use Spiral\GRPC\ContextInterface;
 
 class EchoService implements EchoInterface

@@ -16,13 +16,18 @@ use Spiral\GRPC\Exception\GRPCException;
 interface InvocatorInterface
 {
     /**
-     * @param object $handler
-     * @param Method $method
+     * @param ServiceInterface $service
+     * @param Method           $method
      * @param ContextInterface $context
-     * @param string $input
+     * @param string           $input
      * @return string
      *
      * @throws GRPCException
      */
-    public function invoke($handler, Method $method, ContextInterface $context, string $input): string;
+    public function invoke(
+        ServiceInterface $service,
+        Method $method,
+        ContextInterface $context,
+        string $input
+    ): string;
 }
