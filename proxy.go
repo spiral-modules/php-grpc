@@ -140,11 +140,7 @@ func (p *Proxy) makePayload(ctx context.Context, method string, body rawMessage)
 		}
 	}
 
-	ctxData, err := json.Marshal(rpcContext{
-		Service: p.name,
-		Method:  method,
-		Context: ctxMD,
-	})
+	ctxData, err := json.Marshal(rpcContext{Service: p.name, Method: method, Context: ctxMD})
 
 	if err != nil {
 		return nil, err

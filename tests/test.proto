@@ -2,7 +2,7 @@ syntax = "proto3";
 package service;
 
 service Test {
-    rpc Ping (Message) returns (Message) {
+    rpc Echo (Message) returns (Message) {
     }
 
     rpc Throw (Message) returns (Message) {

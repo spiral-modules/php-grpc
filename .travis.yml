@@ -13,6 +13,7 @@ install:
 script:
   - go test -race -v -coverprofile=grpc.txt -covermode=atomic
   - go test ./parser -race -v -coverprofile=parser.txt -covermode=atomic
+  - composer require phpunit/phpunit:~7.0 --ignore-platform-reqs
   - vendor/bin/phpunit --coverage-clover=coverage.xml
   - go build cmd/protoc-gen-php-grpc/main.go
   - go build cmd/rr-grpc/main.go

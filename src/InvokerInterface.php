@@ -8,12 +8,12 @@
 
 namespace Spiral\GRPC;
 
-use Spiral\GRPC\Exception\GRPCException;
+use Spiral\GRPC\Exception\InvokeException;
 
 /**
  * Responsible for data marshalling/unmarshalling and method invocation.
  */
-interface InvocatorInterface
+interface InvokerInterface
 {
     /**
      * @param ServiceInterface $service
@@ -22,7 +22,7 @@ interface InvocatorInterface
      * @param string           $input
      * @return string
      *
-     * @throws GRPCException
+     * @throws InvokeException
      */
     public function invoke(
         ServiceInterface $service,

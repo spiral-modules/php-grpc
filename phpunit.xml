@@ -13,7 +13,7 @@
 >
 
     <testsuites>
-        <testsuite name="GRPC Server for PHP">
+        <testsuite name="High-Performance GRPC server for PHP applications">
             <directory>./tests/</directory>
         </testsuite>
     </testsuites>
