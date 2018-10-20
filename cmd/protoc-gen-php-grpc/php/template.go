@@ -77,21 +77,21 @@ const phpBody = `<?php
 {{if .File.Package}} 
 namespace {{ .File.Package | namespace}};
 {{end}}
-use Spiral\GRPC\ContextInterface;
+use Spiral\GRPC;
 
-interface {{ .Service.Name | interface }} 
+interface {{ .Service.Name | interface }} extends GRPC\ServiceInterface
 {
 	// GRPC specific service name.
     public const NAME = "{{ name .File.Package .Service.Name }}"; {{ "\n" }}
 {{- range $m := .Service.Method }}
 	/**
-     * @param ContextInterface $ctx
+     * @param GRPC\ContextInterface $ctx
      * @param {{ $m.InputType | message }} $in
 	 * @return {{ $m.OutputType | message}}
 	 *
-     * @throws \Spiral\GRPC\Exception\InvokeException
+     * @throws GRPC\Exception\InvokeException
      */
-	public function {{ $m.Name }}(ContextInterface $ctx, {{ $m.InputType | message }} $in): {{ $m.OutputType | message}};
+	public function {{ $m.Name }}(GRPC\ContextInterface $ctx, {{ $m.InputType | message }} $in): {{ $m.OutputType | message}};
 {{ end -}}
 }
 `
