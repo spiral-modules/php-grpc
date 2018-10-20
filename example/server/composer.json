@@ -1,6 +1,6 @@
 {
   "require": {
-    "spiral/grpc": "^1.0"
+    "spiral/grpc": "dev-master"
   },
   "autoload": {
     "psr-4": {

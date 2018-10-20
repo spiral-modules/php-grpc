@@ -42,14 +42,8 @@ func (s *Service) Init(cfg *Config, r *rpc.Service, e env.Environment) (ok bool,
 }
 
 // Serve GRPC grpc.
-func (s *Service) Serve() error {
+func (s *Service) Serve() (err error) {
 	s.mu.Lock()
-
-	lis, err := s.cfg.Listener()
-	if err != nil {
-		return err
-	}
-	defer lis.Close()
 
 	if s.env != nil {
 		values, err := s.env.GetEnv()
@@ -70,6 +64,13 @@ func (s *Service) Serve() error {
 	if s.grpc, err = s.createGPRCServer(); err != nil {
 		return err
 	}
+
+	lis, err := s.cfg.Listener()
+	if err != nil {
+		return err
+	}
+
+	defer lis.Close()
 
 	s.mu.Unlock()
 
