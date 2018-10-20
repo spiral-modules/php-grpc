@@ -20,11 +20,21 @@ class TestService implements TestInterface
 
     public function Die(ContextInterface $ctx, Message $in): Message
     {
-        // TODO: Implement Die() method.
+        error_log($in->getMsg());
+
+        return $in;
     }
 
     public function Info(ContextInterface $ctx, Message $in): Message
     {
-        // TODO: Implement Info() method.
+        $out = new Message();
+        switch ($in->getMsg()) {
+            case "RR_GRPC":
+            case "ENV_KEY":
+                $out->setMsg(getenv($in->getMsg()));
+                break;
+        }
+
+        return $out;
     }
 }

@@ -55,6 +55,7 @@ func (s *Service) Serve() error {
 	if err != nil {
 		return err
 	}
+	defer lis.Close()
 
 	if s.env != nil {
 		values, err := s.env.GetEnv()

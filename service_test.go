@@ -5,6 +5,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/spiral/php-grpc/tests"
+	"github.com/spiral/roadrunner"
 	"github.com/spiral/roadrunner/service"
 	"github.com/spiral/roadrunner/service/env"
 	"github.com/spiral/roadrunner/service/rpc"
@@ -91,6 +92,76 @@ func Test_Service_Configure_Enable(t *testing.T) {
 	assert.Equal(t, service.StatusOK, st)
 }
 
+func Test_Service_Dead(t *testing.T) {
+	logger, _ := test.NewNullLogger()
+	logger.SetLevel(logrus.DebugLevel)
+
+	c := service.NewContainer(logger)
+	c.Register(ID, &Service{})
+
+	assert.NoError(t, c.Init(&testCfg{grpcCfg: `{
+			"listen": "tcp://:9080",
+			"tls": {
+				"key": "tests/server.key",
+				"cert": "tests/server.crt"
+			},
+			"proto": "tests/test.proto",
+			"workers":{
+				"command": "php tests/worker-bad.php",
+				"relay": "pipes",
+				"pool": {
+					"numWorkers": 1, 
+					"allocateTimeout": 10,
+					"destroyTimeout": 10 
+				}
+			}
+	}`}))
+
+	s, st := c.Get(ID)
+	assert.NotNil(t, s)
+	assert.Equal(t, service.StatusOK, st)
+
+	// should do nothing
+	s.(*Service).Stop()
+
+	assert.Error(t, c.Serve())
+}
+
+func Test_Service_Invalid_TLS(t *testing.T) {
+	logger, _ := test.NewNullLogger()
+	logger.SetLevel(logrus.DebugLevel)
+
+	c := service.NewContainer(logger)
+	c.Register(ID, &Service{})
+
+	assert.NoError(t, c.Init(&testCfg{grpcCfg: `{
+			"listen": "tcp://:9080",
+			"tls": {
+				"key": "tests/server.key",
+				"cert": "tests/test.proto"
+			},
+			"proto": "tests/test.proto",
+			"workers":{
+				"command": "php tests/worker.php",
+				"relay": "pipes",
+				"pool": {
+					"numWorkers": 1, 
+					"allocateTimeout": 10,
+					"destroyTimeout": 10 
+				}
+			}
+	}`}))
+
+	s, st := c.Get(ID)
+	assert.NotNil(t, s)
+	assert.Equal(t, service.StatusOK, st)
+
+	// should do nothing
+	s.(*Service).Stop()
+
+	assert.Error(t, c.Serve())
+}
+
 func Test_Service_Echo(t *testing.T) {
 	logger, _ := test.NewNullLogger()
 	logger.SetLevel(logrus.DebugLevel)
@@ -134,6 +205,118 @@ func Test_Service_Echo(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, "ping", out.Msg)
+}
+
+func Test_Service_ErrorBuffer(t *testing.T) {
+	logger, _ := test.NewNullLogger()
+	logger.SetLevel(logrus.DebugLevel)
+
+	c := service.NewContainer(logger)
+	c.Register(ID, &Service{})
+
+	assert.NoError(t, c.Init(&testCfg{grpcCfg: `{
+			"listen": "tcp://:9080",
+			"tls": {
+				"key": "tests/server.key",
+				"cert": "tests/server.crt"
+			},
+			"proto": "tests/test.proto",
+			"workers":{
+				"command": "php tests/worker.php",
+				"relay": "pipes",
+				"pool": {
+					"numWorkers": 1, 
+					"allocateTimeout": 10,
+					"destroyTimeout": 10 
+				}
+			}
+	}`}))
+
+	s, st := c.Get(ID)
+	assert.NotNil(t, s)
+	assert.Equal(t, service.StatusOK, st)
+
+	// should do nothing
+	s.(*Service).Stop()
+
+	goterr := make(chan interface{})
+	s.(*Service).AddListener(func(event int, ctx interface{}) {
+		if event == roadrunner.EventStderrOutput {
+			if string(ctx.([]byte)) == "WORLD\n" {
+				goterr <- nil
+			}
+		}
+	})
+
+	go func() { assert.NoError(t, c.Serve()) }()
+	time.Sleep(time.Millisecond * 100)
+	defer c.Stop()
+
+	cl, cn := makeClient("localhost:9080")
+	defer cn.Close()
+
+	out, err := cl.Die(context.Background(), &tests.Message{Msg: "WORLD"})
+
+	<-goterr
+	assert.NoError(t, err)
+	assert.Equal(t, "WORLD", out.Msg)
+}
+
+func Test_Service_Env(t *testing.T) {
+	logger, _ := test.NewNullLogger()
+	logger.SetLevel(logrus.DebugLevel)
+
+	c := service.NewContainer(logger)
+	c.Register(env.ID, &env.Service{})
+	c.Register(ID, &Service{})
+
+	assert.NoError(t, c.Init(&testCfg{
+		grpcCfg: `{
+			"listen": "tcp://:9080",
+			"tls": {
+				"key": "tests/server.key",
+				"cert": "tests/server.crt"
+			},
+			"proto": "tests/test.proto",
+			"workers":{
+				"command": "php tests/worker.php",
+				"relay": "pipes",
+				"pool": {
+					"numWorkers": 1, 
+					"allocateTimeout": 10,
+					"destroyTimeout": 10 
+				}
+			}
+	}`,
+		envCfg: `
+{
+	"env_key": "value"
+}`,
+	}))
+
+	s, st := c.Get(ID)
+	assert.NotNil(t, s)
+	assert.Equal(t, service.StatusOK, st)
+
+	// should do nothing
+	s.(*Service).Stop()
+
+	go func() { assert.NoError(t, c.Serve()) }()
+	time.Sleep(time.Millisecond * 100)
+	defer c.Stop()
+
+	cl, cn := makeClient("localhost:9080")
+	defer cn.Close()
+
+	out, err := cl.Info(context.Background(), &tests.Message{Msg: "RR_GRPC"})
+
+	assert.NoError(t, err)
+	assert.Equal(t, "true", out.Msg)
+
+	out, err = cl.Info(context.Background(), &tests.Message{Msg: "ENV_KEY"})
+
+	assert.NoError(t, err)
+	assert.Equal(t, "value", out.Msg)
 }
 
 func makeClient(addr string) (client tests.TestClient, conn *ngrpc.ClientConn) {
