@@ -1,4 +1,4 @@
-Spiral / PHP-GRPC
+PHP-GRPC
 =================================
 [![Latest Stable Version](https://poser.pugx.org/spiral/grpc/version)](https://packagist.org/packages/spiral/grpc)
 [![GoDoc](https://godoc.org/github.com/spiral/php-grpc?status.svg)](https://godoc.org/github.com/spiral/php-grpc)
