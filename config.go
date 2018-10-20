@@ -19,7 +19,7 @@ type Config struct {
 	// Proto file associated with the service.
 	Proto string
 
-	// TLS defined authentication method (TLS for now),
+	// TLS defined authentication method (TLS for now).
 	TLS TSL
 
 	// Workers configures roadrunner grpc and worker pool.

@@ -13,6 +13,7 @@ import (
 	"sync"
 )
 
+// ID sets public GRPC service ID for roadrunner.Container.
 const ID = "grpc"
 
 // Service manages set of GPRC services, options and connections.
