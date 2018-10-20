@@ -1,5 +1,5 @@
 {
-  "name": "spiral/grpc",
+  "name": "spiral/php-grpc",
   "type": "server",
   "description": "High-Performance GRPC server for PHP applications",
   "license": "MIT",
