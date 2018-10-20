@@ -19,17 +19,17 @@ use Spiral\RoadRunner\Worker;
 class Server
 {
     /** @var InvokerInterface */
-    private $invocator;
+    private $invoker;
 
     /** @var ServiceWrapper[] */
     private $services = [];
 
     /**
-     * @param InvokerInterface|null $invocator
+     * @param InvokerInterface|null $invoker
      */
-    public function __construct(InvokerInterface $invocator = null)
+    public function __construct(InvokerInterface $invoker = null)
     {
-        $this->invocator = $invocator ?? new Invoker();
+        $this->invoker = $invoker ?? new Invoker();
     }
 
     /**
@@ -44,7 +44,7 @@ class Server
      */
     public function registerService(string $interface, ServiceInterface $service)
     {
-        $service = new ServiceWrapper($this->invocator, $interface, $service);
+        $service = new ServiceWrapper($this->invoker, $interface, $service);
         $this->services[$service->getName()] = $service;
     }
 
@@ -58,8 +58,13 @@ class Server
         while ($body = $worker->receive($ctx)) {
             try {
                 $ctx = json_decode($ctx, true);
-                $worker->send($this->invoke($ctx['service'], $ctx['method'], $ctx['context'],
-                    $body));
+                $worker->send(
+                    $this->invoke(
+                        $ctx['service'],
+                        $ctx['method'],
+                        $ctx['context'] ?? [],
+                        $body
+                    ));
             } catch (GRPCException $e) {
                 $worker->error($this->packError($e));
             } catch (\Throwable $e) {
@@ -71,10 +76,10 @@ class Server
     /**
      * Invoke service method with binary payload and return the response.
      *
-     * @param string     $service
-     * @param string     $method
-     * @param array|null $context
-     * @param string     $body
+     * @param string $service
+     * @param string $method
+     * @param array  $context
+     * @param string $body
      * @return string
      *
      * @throws GRPCException
@@ -83,7 +88,7 @@ class Server
     protected function invoke(
         string $service,
         string $method,
-        array $context = null,
+        array $context,
         string $body
     ): string {
         if (!isset($this->services[$service])) {

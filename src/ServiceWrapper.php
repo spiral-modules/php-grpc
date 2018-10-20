@@ -21,27 +21,27 @@ final class ServiceWrapper
     private $name;
 
     /** @var ServiceInterface */
-    private $handler;
+    private $service;
 
     /** @var InvokerInterface */
-    private $invocator;
+    private $invoker;
 
     /** @var Method[] */
     private $methods;
 
     /**
-     * @param InvokerInterface $invocator
+     * @param InvokerInterface $invoker
      * @param string           $interface Service interface name.
      * @param ServiceInterface $service
      *
      * @throws ServiceException
      */
     public function __construct(
-        InvokerInterface $invocator,
+        InvokerInterface $invoker,
         string $interface,
         ServiceInterface $service
     ) {
-        $this->invocator = $invocator;
+        $this->invoker = $invoker;
         $this->configure($interface, $service);
     }
 
@@ -58,7 +58,15 @@ final class ServiceWrapper
      */
     public function getService(): ServiceInterface
     {
-        return $this->handler;
+        return $this->service;
+    }
+
+    /**
+     * @return array
+     */
+    public function getMethods(): array
+    {
+        return array_values($this->methods);
     }
 
     /**
@@ -76,7 +84,7 @@ final class ServiceWrapper
             throw new NotFoundException("Method `{$method}` not found in service `{$this->name}`.");
         }
 
-        return $this->invocator->invoke($this->handler, $this->methods[$method], $context, $input);
+        return $this->invoker->invoke($this->service, $this->methods[$method], $context, $input);
     }
 
     /**
@@ -105,15 +113,11 @@ final class ServiceWrapper
             );
         }
 
-        if (!is_object($service)) {
-            throw new ServiceException("Service handler must be an object.");
-        }
-
         if (!$service instanceof $interface) {
             throw new ServiceException("Service handler does not implement `{$interface}`.");
         }
 
-        $this->handler = $service;
+        $this->service = $service;
 
         // list of all available methods and their object types
         $this->methods = $this->fetchMethods($service);
