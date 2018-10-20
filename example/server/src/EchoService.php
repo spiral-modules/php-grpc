@@ -12,6 +12,6 @@ class EchoService implements EchoInterface
     public function Ping(ContextInterface $ctx, Message $in): Message
     {
         $out = new Message();
-        return $out->setMsg(strrev($in->getMsg()));
+        return $out->setMsg(strtoupper($in->getMsg()));
     }
 }
