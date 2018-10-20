@@ -23,13 +23,15 @@ Features:
 
 Usage:
 --------
-Install `rr-grpc` and `protoc-gen-php-grpc` by building it or use [pre-build release](https://github.com/spiral/php-grpc/releases).
+Install `rr-grpc` and `protoc-gen-php-grpc` by building it or use [pre-build binaries](https://github.com/spiral/php-grpc/releases).
 
 Define your service schema using proto file. You can scaffold protobuf classes and GRPC [service interfaces](https://github.com/spiral/php-grpc/blob/master/example/server/src/Service/EchoInterface.php) using:
 
 ```
 $ protoc --php_out=target-dir/ --php-grpc_out=target-dir/ sample.proto
 ```
+
+> Make sure to install [prococ compiler](https://github.com/protocolbuffers/protobuf) first.
 
 [Implement](https://github.com/spiral/php-grpc/blob/master/example/server/src/EchoService.php) needed classes and create [worker.php](https://github.com/spiral/php-grpc/blob/master/example/server/worker.php) to invoke your services.
 
