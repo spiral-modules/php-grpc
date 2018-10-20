@@ -1,8 +1,17 @@
 syntax = "proto3";
 package service;
 
-service Echo {
+service Test {
     rpc Ping (Message) returns (Message) {
+    }
+
+    rpc Throw (Message) returns (Message) {
+    }
+
+    rpc Die (Message) returns (Message) {
+    }
+
+    rpc Info (Message) returns (Message) {
     }
 }
 

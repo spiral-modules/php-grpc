@@ -11,5 +11,10 @@
     "psr-4": {
       "Spiral\\GRPC\\": "src/"
     }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "": "tests/src/"
+    }
   }
 }
