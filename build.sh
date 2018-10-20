@@ -12,7 +12,7 @@ build(){
 	echo Packaging $1 Build
 	bdir=rr-grpc-${RR_VERSION}-$2-$3
 	rm -rf builds/$bdir && mkdir -p builds/$bdir
-	GOOS=$2 GOARCH=$3 ./build.sh
+	GOOS=$2 GOARCH=$3 build.sh
 
 	if [ "$2" == "windows" ]; then
 		mv rr-grpc builds/$bdir/rr-grpc.exe
@@ -39,7 +39,7 @@ build_protoc(){
 	echo Packaging Protoc $1 Build
 	bdir=protoc-gen-php-grpc-${RR_VERSION}-$2-$3
 	rm -rf builds/$bdir && mkdir -p builds/$bdir
-	GOOS=$2 GOARCH=$3 ./build.sh
+	GOOS=$2 GOARCH=$3 build.sh
 
 	if [ "$2" == "windows" ]; then
 		mv protoc-gen-php-grpc builds/$bdir/protoc-gen-php-grpc.exe
