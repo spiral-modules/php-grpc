@@ -1,9 +1,15 @@
 {
   "name": "spiral/grpc",
   "type": "server",
+  "description": "High-Performance GRPC server for PHP applications",
   "license": "MIT",
+  "authors": [
+    {
+      "name": "Anton Titov / Wolfy-J",
+      "email": "wolfy.jd@gmail.com"
+    }
+  ],
   "require": {
-    "ext-json": "*",
     "google/protobuf": "^3.6",
     "spiral/roadrunner": "^1.2"
   },
