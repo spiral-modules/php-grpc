@@ -6,6 +6,10 @@ PHP-GRPC
 [![Go Report Card](https://goreportcard.com/badge/github.com/spiral/php-grpc)](https://goreportcard.com/report/github.com/spiral/php-grpc)
 [![Codecov](https://codecov.io/gh/spiral/php-grpc/branch/master/graph/badge.svg)](https://codecov.io/gh/spiral/php-grpc/)
 
+PHP-GRPC is an open source (MIT licensed), high-performance PHP GRPC server build at top of [RoadRunner](https://github.com/spiral/roadrunner).
+
+PHP-GRPC support both PHP and Golang services run within one application and provide **protoc** compiler plugin for rapid development.
+
 Table of Contents 
 -----------------
 - TODO
