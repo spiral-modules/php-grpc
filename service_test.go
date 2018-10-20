@@ -25,8 +25,8 @@ type testCfg struct {
 	target  string
 }
 
-func (cfg *testCfg) Get(name string) service.Config {
-	if name == ID {
+func (cfg *testCfg) Get(service string) service.Config {
+	if service == ID {
 		if cfg.grpcCfg == "" {
 			return nil
 		}
@@ -34,11 +34,11 @@ func (cfg *testCfg) Get(name string) service.Config {
 		return &testCfg{target: cfg.grpcCfg}
 	}
 
-	if name == rpc.ID {
+	if service == rpc.ID {
 		return &testCfg{target: cfg.rpcCfg}
 	}
 
-	if name == env.ID {
+	if service == env.ID {
 		return &testCfg{target: cfg.envCfg}
 	}
 
@@ -70,7 +70,8 @@ func Test_Service_Configure_Enable(t *testing.T) {
 	c := service.NewContainer(logger)
 	c.Register(ID, &Service{})
 
-	assert.NoError(t, c.Init(&testCfg{grpcCfg: `{
+	assert.NoError(t, c.Init(&testCfg{
+		grpcCfg: `{
 			"listen": "tcp://:9080",
 			"tls": {
 				"key": "tests/server.key",
@@ -86,7 +87,8 @@ func Test_Service_Configure_Enable(t *testing.T) {
 					"destroyTimeout": 1 
 				}
 			}
-	}`}))
+	}`,
+	}))
 
 	s, st := c.Get(ID)
 	assert.NotNil(t, s)
@@ -100,7 +102,8 @@ func Test_Service_Dead(t *testing.T) {
 	c := service.NewContainer(logger)
 	c.Register(ID, &Service{})
 
-	assert.NoError(t, c.Init(&testCfg{grpcCfg: `{
+	assert.NoError(t, c.Init(&testCfg{
+		grpcCfg: `{
 			"listen": "tcp://:9080",
 			"tls": {
 				"key": "tests/server.key",
@@ -116,7 +119,8 @@ func Test_Service_Dead(t *testing.T) {
 					"destroyTimeout": 10 
 				}
 			}
-	}`}))
+	}`,
+	}))
 
 	s, st := c.Get(ID)
 	assert.NotNil(t, s)
@@ -135,7 +139,8 @@ func Test_Service_Invalid_TLS(t *testing.T) {
 	c := service.NewContainer(logger)
 	c.Register(ID, &Service{})
 
-	assert.NoError(t, c.Init(&testCfg{grpcCfg: `{
+	assert.NoError(t, c.Init(&testCfg{
+		grpcCfg: `{
 			"listen": "tcp://:9080",
 			"tls": {
 				"key": "tests/server.key",
@@ -151,7 +156,8 @@ func Test_Service_Invalid_TLS(t *testing.T) {
 					"destroyTimeout": 10 
 				}
 			}
-	}`}))
+	}`,
+	}))
 
 	s, st := c.Get(ID)
 	assert.NotNil(t, s)
@@ -170,7 +176,8 @@ func Test_Service_Invalid_Proto(t *testing.T) {
 	c := service.NewContainer(logger)
 	c.Register(ID, &Service{})
 
-	assert.NoError(t, c.Init(&testCfg{grpcCfg: `{
+	assert.NoError(t, c.Init(&testCfg{
+		grpcCfg: `{
 			"listen": "tcp://:9080",
 			"tls": {
 				"key": "tests/server.key",
@@ -186,7 +193,8 @@ func Test_Service_Invalid_Proto(t *testing.T) {
 					"destroyTimeout": 10 
 				}
 			}
-	}`}))
+	}`,
+	}))
 
 	s, st := c.Get(ID)
 	assert.NotNil(t, s)
@@ -205,7 +213,8 @@ func Test_Service_Echo(t *testing.T) {
 	c := service.NewContainer(logger)
 	c.Register(ID, &Service{})
 
-	assert.NoError(t, c.Init(&testCfg{grpcCfg: `{
+	assert.NoError(t, c.Init(&testCfg{
+		grpcCfg: `{
 			"listen": "tcp://:9080",
 			"tls": {
 				"key": "tests/server.key",
@@ -221,7 +230,8 @@ func Test_Service_Echo(t *testing.T) {
 					"destroyTimeout": 10 
 				}
 			}
-	}`}))
+	}`,
+	}))
 
 	s, st := c.Get(ID)
 	assert.NotNil(t, s)
@@ -250,7 +260,8 @@ func Test_Service_ErrorBuffer(t *testing.T) {
 	c := service.NewContainer(logger)
 	c.Register(ID, &Service{})
 
-	assert.NoError(t, c.Init(&testCfg{grpcCfg: `{
+	assert.NoError(t, c.Init(&testCfg{
+		grpcCfg: `{
 			"listen": "tcp://:9080",
 			"tls": {
 				"key": "tests/server.key",
@@ -266,7 +277,8 @@ func Test_Service_ErrorBuffer(t *testing.T) {
 					"destroyTimeout": 10 
 				}
 			}
-	}`}))
+	}`,
+	}))
 
 	s, st := c.Get(ID)
 	assert.NotNil(t, s)

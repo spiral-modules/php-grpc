@@ -96,7 +96,7 @@ func Test_Config_BadListener(t *testing.T) {
 			Key:  "tests/server.key",
 			Cert: "tests/server.crt",
 		},
-		Proto: "tests/test2.proto",
+		Proto: "tests/test.proto",
 		Workers: &roadrunner.ServerConfig{
 			Command: "php tests/worker.php",
 			Relay:   "pipes",

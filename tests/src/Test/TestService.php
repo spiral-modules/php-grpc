@@ -33,6 +33,9 @@ class TestService implements TestInterface
             case "ENV_KEY":
                 $out->setMsg(getenv($in->getMsg()));
                 break;
+            case "PID":
+                $out->setMsg(getmypid());
+                break;
         }
 
         return $out;
