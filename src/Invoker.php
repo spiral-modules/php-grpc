@@ -11,7 +11,7 @@ namespace Spiral\GRPC;
 use Google\Protobuf\Internal\Message;
 use Spiral\GRPC\Exception\GRPCException;
 
-class Invocator implements InvocatorInterface
+class Invoker implements InvokerInterface
 {
     /**
      * @inheritdoc

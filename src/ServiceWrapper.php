@@ -23,21 +23,21 @@ final class ServiceWrapper
     /** @var ServiceInterface */
     private $handler;
 
-    /** @var InvocatorInterface */
+    /** @var InvokerInterface */
     private $invocator;
 
     /** @var Method[] */
     private $methods;
 
     /**
-     * @param InvocatorInterface $invocator
-     * @param string             $interface Service interface name.
-     * @param ServiceInterface   $service
+     * @param InvokerInterface $invocator
+     * @param string           $interface Service interface name.
+     * @param ServiceInterface $service
      *
      * @throws ServiceException
      */
     public function __construct(
-        InvocatorInterface $invocator,
+        InvokerInterface $invocator,
         string $interface,
         ServiceInterface $service
     ) {
