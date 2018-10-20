@@ -11,11 +11,11 @@ Server support both PHP and Golang services running within one application.
 
 Features:
 --------
-- comliant with native Golang GRPC services
+- compliant with native Golang GRPC services
 - very fast, minimal proxy overlay
 - easy TLS configuration
 - debug tools included
-- middleware and server options support
+- middleware and server customization support
 - code generation using `protoc` plugin (`go get github.com/spiral/php-grpc/cmd/protoc-gen-php-grpc`)
 - transport, message, worker error management
 - response error codes over php exceptions
