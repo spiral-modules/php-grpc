@@ -20,14 +20,14 @@ type Config struct {
 	Proto string
 
 	// TLS defined authentication method (TLS for now).
-	TLS TSL
+	TLS TLS
 
 	// Workers configures roadrunner grpc and worker pool.
 	Workers *roadrunner.ServerConfig
 }
 
 // TLS defines auth credentials.
-type TSL struct {
+type TLS struct {
 	// Key defined private server key.
 	Key string
 
