@@ -9,6 +9,7 @@ install:
   - export GO111MODULE=on
   - go mod download
   - composer install --no-interaction --prefer-source --ignore-platform-reqs
+  - composer require phpunit/phpunit:~7.0
 
 script:
   - go test -race -v -coverprofile=grpc.txt -covermode=atomic
