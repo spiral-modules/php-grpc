@@ -38,13 +38,19 @@ $ protoc --php_out=target-dir/ --php-grpc_out=target-dir/ sample.proto
 Place [.rr.yaml](https://github.com/spiral/php-grpc/blob/master/example/server/.rr.yaml) (or any other format supported by viper configurator) into the root of your project. You can run your application now:
 
 ```
-rr-grpc serve -v -d
+$ rr-grpc serve -v -d
 ```
 
-To reset worker state:
+To reset workers state:
 
 ```
-rr-grpc grpc:reset
+$ rr-grpc grpc:reset
+```
+
+To show workers statistics:
+
+```
+$ rr-gprc grpc:workers -i
 ```
 
 > See [example](https://github.com/spiral/php-grpc/tree/master/example).
