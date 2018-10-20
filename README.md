@@ -9,13 +9,16 @@ PHP-GRPC
 PHP-GRPC is an open source (MIT licensed) high-performance PHP GRPC server build at top of [RoadRunner](https://github.com/spiral/roadrunner).
 Server support both PHP and Golang services running within one application. 
 
-Table of Contents 
------------------
-- TODO
-
 Features:
 --------
-- TODO
+- easy TLS configuration
+- debug tools included
+- middleware and server options support
+- work with native Golang GRPC services
+- code generation using `protoc` plugin
+- very fast, low message footprint
+- transport, message, worker error management
+- works on Windows
 
 License:
 --------
