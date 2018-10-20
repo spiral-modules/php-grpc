@@ -58,13 +58,14 @@ class Server
         while ($body = $worker->receive($ctx)) {
             try {
                 $ctx = json_decode($ctx, true);
-                $worker->send(
-                    $this->invoke(
-                        $ctx['service'],
-                        $ctx['method'],
-                        $ctx['context'] ?? [],
-                        $body
-                    ));
+                $resp = $this->invoke(
+                    $ctx['service'],
+                    $ctx['method'],
+                    $ctx['context'] ?? [],
+                    $body
+                );
+
+                $worker->send($resp);
             } catch (GRPCException $e) {
                 $worker->error($this->packError($e));
             } catch (\Throwable $e) {
