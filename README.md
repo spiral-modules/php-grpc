@@ -18,6 +18,7 @@ Features:
 - middleware and server options support
 - code generation using `protoc` plugin
 - transport, message, worker error management
+- response error codes over php exceptions
 - works on Windows
 
 License:
