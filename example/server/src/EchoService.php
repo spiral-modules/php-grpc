@@ -4,13 +4,14 @@
  */
 
 use Spiral\GRPC\ContextInterface;
+use Service\EchoInterface;
 use Service\Message;
 
-class EchoService implements Service\EchoInterface
+class EchoService implements EchoInterface
 {
     public function Ping(ContextInterface $ctx, Message $in): Message
     {
         $out = new Message();
-        return $out->setMsg(strrev($in->getMsg()));
+        return $out->setMsg(strtoupper($in->getMsg()));
     }
 }

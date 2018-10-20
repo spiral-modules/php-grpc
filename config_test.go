@@ -30,7 +30,7 @@ func Test_Config_Valid_TLS(t *testing.T) {
 		},
 		Proto: "tests/test.proto",
 		Workers: &roadrunner.ServerConfig{
-			Command: "php tests/server.php",
+			Command: "php tests/worker.php",
 			Relay:   "pipes",
 			Pool: &roadrunner.Config{
 				NumWorkers:      1,
@@ -52,7 +52,7 @@ func Test_Config_TLS_No_key(t *testing.T) {
 		},
 		Proto: "tests/test.proto",
 		Workers: &roadrunner.ServerConfig{
-			Command: "php tests/server.php",
+			Command: "php tests/worker.php",
 			Relay:   "pipes",
 			Pool: &roadrunner.Config{
 				NumWorkers:      1,
@@ -73,7 +73,7 @@ func Test_Config_TLS_No_Cert(t *testing.T) {
 		},
 		Proto: "tests/test.proto",
 		Workers: &roadrunner.ServerConfig{
-			Command: "php tests/server.php",
+			Command: "php tests/worker.php",
 			Relay:   "pipes",
 			Pool: &roadrunner.Config{
 				NumWorkers:      1,
