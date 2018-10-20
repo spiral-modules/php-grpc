@@ -5,6 +5,6 @@ grpc:
     key:  "server.key"
     cert: "server.crt"
   workers:
-    command: "php server.php"
+    command: "php worker.php"
     pool:
       numWorkers: 4
