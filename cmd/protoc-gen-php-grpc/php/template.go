@@ -40,17 +40,17 @@ use Spiral\GRPC;
 
 interface {{ .Service.Name | interface }} extends GRPC\ServiceInterface
 {
-	// GRPC specific service name.
+    // GRPC specific service name.
     public const NAME = "{{ name .File.Package .Service.Name }}"; {{ "\n" }}
 {{- range $m := .Service.Method }}
-	/**
-     * @param GRPC\ContextInterface $ctx
-     * @param {{ $m.InputType | message }} $in
-	 * @return {{ $m.OutputType | message}}
-	 *
-     * @throws GRPC\Exception\InvokeException
-     */
-	public function {{ $m.Name }}(GRPC\ContextInterface $ctx, {{ $m.InputType | message }} $in): {{ $m.OutputType | message}};
+    /**
+    * @param GRPC\ContextInterface $ctx
+    * @param {{ $m.InputType | message }} $in
+    * @return {{ $m.OutputType | message}}
+    *
+    * @throws GRPC\Exception\InvokeException
+    */
+    public function {{ $m.Name }}(GRPC\ContextInterface $ctx, {{ $m.InputType | message }} $in): {{ $m.OutputType | message}};
 {{ end -}}
 }
 `
