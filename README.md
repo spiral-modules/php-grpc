@@ -1,6 +1,6 @@
 GRPC Server for PHP applications
 =================================
-[![Latest Stable Version](https://poser.pugx.org/spiral/php-grpc/version)](https://packagist.org/packages/spiral/php-grpc)
+[![Latest Stable Version](https://poser.pugx.org/spiral/grpc/version)](https://packagist.org/packages/spiral/grpc)
 [![Build Status](https://travis-ci.org/spiral/php-grpc.svg?branch=master)](https://travis-ci.org/spiral/php-grpc)
 [![Codecov](https://codecov.io/gh/spiral/php-grpc/branch/master/graph/badge.svg)](https://codecov.io/gh/spiral/php-grpc/)
 
