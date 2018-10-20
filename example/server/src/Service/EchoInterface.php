@@ -8,15 +8,15 @@ use Spiral\GRPC;
 
 interface EchoInterface extends GRPC\ServiceInterface
 {
-	// GRPC specific service name.
+    // GRPC specific service name.
     public const NAME = "service.Echo"; 
 
-	/**
+    /**
      * @param GRPC\ContextInterface $ctx
      * @param Message $in
-	 * @return Message
-	 *
+     * @return Message
+     *
      * @throws GRPC\Exception\InvokeException
      */
-	public function Ping(GRPC\ContextInterface $ctx, Message $in): Message;
+     public function Ping(GRPC\ContextInterface $ctx, Message $in): Message;
 }
