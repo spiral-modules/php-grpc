@@ -69,12 +69,12 @@ func Test_Config_No_Proto(t *testing.T) {
 
 func Test_Config_BadAddress(t *testing.T) {
 	cfg := &Config{
-		Listen: "tcp://8080",
+		Listen: "tcp//8080",
 		TLS: TLS{
 			Key:  "tests/server.key",
 			Cert: "tests/server.crt",
 		},
-		Proto: "tests/test2.proto",
+		Proto: "tests/test.proto",
 		Workers: &roadrunner.ServerConfig{
 			Command: "php tests/worker.php",
 			Relay:   "pipes",
