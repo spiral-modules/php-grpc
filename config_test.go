@@ -142,10 +142,6 @@ func Test_Config_UnixListener(t *testing.T) {
 }
 
 func Test_Config_InvalidWorkerPool(t *testing.T) {
-	if runtime.GOOS == "windows" {
-		t.Skip("not supported on " + runtime.GOOS)
-	}
-
 	cfg := &Config{
 		Listen: "unix://rr.sock",
 		TLS: TLS{
