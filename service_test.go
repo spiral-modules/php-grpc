@@ -504,7 +504,7 @@ func Test_Service_Kill(t *testing.T) {
 		return handler(ctx, req)
 	}))
 
-	go func() { assert.NoError(t, c.Serve()) }()
+	go func() { c.Serve() }()
 	time.Sleep(time.Millisecond * 100)
 
 	s.(*Service).throw(roadrunner.EventServerFailure, nil)
