@@ -13,7 +13,7 @@ Features:
 --------
 - native Golang GRPC implementation compliant
 - minimal configuration, plug-and-play model
-- very fast, low footprint proxy overlay
+- very fast, low footprint proxy
 - easy TLS configuration
 - debug tools included
 - middleware and server customization support
