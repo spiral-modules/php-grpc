@@ -35,7 +35,7 @@ $ protoc --php_out=target-dir/ --php-grpc_out=target-dir/ sample.proto
 
 [Implement](https://github.com/spiral/php-grpc/blob/master/example/server/src/EchoService.php) needed classes and create [worker.php](https://github.com/spiral/php-grpc/blob/master/example/server/worker.php) to invoke your services.
 
-Place `.rr.yaml` (or any other format supported by viper configurator) into root of your project. You can run your application now:
+Place [.rr.yaml](https://github.com/spiral/php-grpc/blob/master/example/server/.rr.yaml) (or any other format supported by viper configurator) into the root of your project. You can run your application now:
 
 ```
 rr-grpc serve -v -d
