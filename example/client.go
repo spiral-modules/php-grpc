@@ -1,7 +1,7 @@
 package main
 
 import (
-	"./service"
+	"./proto"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -10,6 +10,20 @@ import (
 )
 
 func main() {
+	conn := makeConn()
+	defer conn.Close()
+
+	client := proto.NewEchoClient(conn)
+
+	log.Println(
+		client.Ping(
+			metadata.AppendToOutgoingContext(context.Background(), "key", "value"),
+			&proto.Message{Msg: "hello world"},
+		),
+	)
+}
+
+func makeConn() *grpc.ClientConn {
 	creds, err := credentials.NewClientTLSFromFile("server.crt", "")
 	if err != nil {
 		panic(err)
@@ -19,11 +33,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	defer conn.Close()
 
-	client := service.NewEchoClient(conn)
-
-	log.Println(client.Ping(metadata.AppendToOutgoingContext(context.Background(), "key", "value"), &service.Message{
-		Msg: "hello world",
-	}))
+	return conn
 }

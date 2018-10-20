@@ -70,26 +70,8 @@ func (s *Service) Serve() error {
 	s.rr = roadrunner.NewServer(s.cfg.Workers)
 	s.rr.Listen(s.throw)
 
-	s.grpc = grpc.NewServer(s.serverOptions()...)
-
-	// rr services
-	if services, err := parser.File(s.cfg.Proto); err != nil {
+	if s.grpc, err = s.createGPRCServer(); err != nil {
 		return err
-	} else {
-		var p *Proxy
-		for _, service := range services {
-			p = NewProxy(fmt.Sprintf("%s.%s", service.Package, service.Name), s.cfg.Proto, s.rr)
-			for _, m := range service.Methods {
-				p.RegisterMethod(m.Name)
-			}
-
-			s.grpc.RegisterService(p.ServiceDesc(), p)
-		}
-	}
-
-	// external services
-	for _, gs := range s.services {
-		s.grpc.RegisterService(gs.sd, gs.handler)
 	}
 
 	s.mu.Unlock()
@@ -148,19 +130,52 @@ func (s *Service) throw(event int, ctx interface{}) {
 	}
 }
 
-func (s *Service) serverOptions() []grpc.ServerOption {
-	// 	WORKING WITH CREDS
-	creds, err := credentials.NewServerTLSFromFile("server.crt", "server.key")
+// new configured GRPC server
+func (s *Service) createGPRCServer() (*grpc.Server, error) {
+	opts, err := s.serverOptions()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return append(
-		s.opts,
+	server := grpc.NewServer(opts...)
 
-		grpc.Creds(creds),
+	// php proxy services
+	services, err := parser.File(s.cfg.Proto)
+	if err != nil {
+		return nil, err
+	}
 
-		// wrap default proto codec to bypass message marshal/unmarshal when rr is target
-		grpc.CustomCodec(&codec{encoding.GetCodec("proto")}),
-	)
+	for _, service := range services {
+		p := NewProxy(fmt.Sprintf("%s.%s", service.Package, service.Name), s.cfg.Proto, s.rr)
+		for _, m := range service.Methods {
+			p.RegisterMethod(m.Name)
+		}
+
+		server.RegisterService(p.ServiceDesc(), p)
+	}
+
+	// external services
+	for _, gs := range s.services {
+		server.RegisterService(gs.sd, gs.handler)
+	}
+
+	return server, nil
+}
+
+// server options
+func (s *Service) serverOptions() ([]grpc.ServerOption, error) {
+	opts := make([]grpc.ServerOption, 0)
+	copy(opts, s.opts)
+
+	if s.cfg.EnableTLS() {
+		creds, err := credentials.NewServerTLSFromFile("server.crt", "server.key")
+		if err != nil {
+			return nil, err
+		}
+
+		opts = append(opts, grpc.Creds(creds))
+	}
+
+	// custom codec is required to bypass protobuf
+	return append(opts, grpc.CustomCodec(&codec{encoding.GetCodec("proto")})), nil
 }

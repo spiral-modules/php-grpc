@@ -18,15 +18,20 @@ type Config struct {
 	// Proto file associated with the service.
 	Proto string
 
-	// Auth defined authentication method (TLS for now),
-	Auth Auth
+	// TLS defined authentication method (TLS for now),
+	TLS TSL
 
 	// Workers configures roadrunner grpc and worker pool.
 	Workers *roadrunner.ServerConfig
 }
 
-// Auth defines auth credentials.
-type Auth struct {
+// TLS defines auth credentials.
+type TSL struct {
+	// Key defined private server key.
+	Key string
+
+	// Cert is https certificate.
+	Cert string
 }
 
 // Hydrate the config and validate it's values.
@@ -66,23 +71,23 @@ func (c *Config) Valid() error {
 		return errors.New("mailformed grpc grpc address")
 	}
 
-	//if c.EnableTLS() {
-	//	if _, err := os.Stat(c.SSL.Key); err != nil {
-	//		if os.IsNotExist(err) {
-	//			return fmt.Errorf("key file '%s' does not exists", c.SSL.Key)
-	//		}
-	//
-	//		return err
-	//	}
-	//
-	//	if _, err := os.Stat(c.SSL.Cert); err != nil {
-	//		if os.IsNotExist(err) {
-	//			return fmt.Errorf("cert file '%s' does not exists", c.SSL.Cert)
-	//		}
-	//
-	//		return err
-	//	}
-	//}
+	if c.EnableTLS() {
+		if _, err := os.Stat(c.TLS.Key); err != nil {
+			if os.IsNotExist(err) {
+				return fmt.Errorf("key file '%s' does not exists", c.TLS.Key)
+			}
+
+			return err
+		}
+
+		if _, err := os.Stat(c.TLS.Cert); err != nil {
+			if os.IsNotExist(err) {
+				return fmt.Errorf("cert file '%s' does not exists", c.TLS.Cert)
+			}
+
+			return err
+		}
+	}
 
 	return nil
 }
@@ -99,4 +104,9 @@ func (c *Config) Listener() (net.Listener, error) {
 	}
 
 	return net.Listen(dsn[0], dsn[1])
+}
+
+// EnableTLS returns true if rr must listen TLS connections.
+func (c *Config) EnableTLS() bool {
+	return c.TLS.Key != "" || c.TLS.Cert != ""
 }
