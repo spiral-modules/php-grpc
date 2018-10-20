@@ -24,6 +24,9 @@ func TestCodec_String(t *testing.T) {
 	c := codec{jsonCodec{}}
 
 	assert.Equal(t, "raw:json", c.String())
+
+	r := rawMessage{}
+	assert.Equal(t, "rawMessage", r.String())
 }
 
 func TestCodec_Unmarshal_ByPass(t *testing.T) {
