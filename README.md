@@ -6,7 +6,13 @@ GRPC Server for PHP applications
 [![Go Report Card](https://goreportcard.com/badge/github.com/spiral/php-grpc)](https://goreportcard.com/report/github.com/spiral/php-grpc)
 [![Codecov](https://codecov.io/gh/spiral/php-grpc/branch/master/graph/badge.svg)](https://codecov.io/gh/spiral/php-grpc/)
 
+Table of Contents 
+-----------------
 
-```bash
-$ docker run --rm -it -v ${PWD}:/app gr protoc --php-grpc_out=. --php_out=. test.proto
-```
+Features:
+--------
+- TODO
+
+License:
+--------
+The MIT License (MIT). Please see [`LICENSE`](./LICENSE) for more information. Maintained by [SpiralScout](https://spiralscout.com).
