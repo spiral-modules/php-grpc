@@ -4,9 +4,9 @@ import (
 	"./service"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
 	"log"
-	"google.golang.org/grpc/credentials"
 )
 
 func main() {

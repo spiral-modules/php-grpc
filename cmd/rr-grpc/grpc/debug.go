@@ -23,7 +23,7 @@ package grpc
 import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	rrpc "github.com/spiral/grpc"
+	rrpc "github.com/spiral/php-grpc"
 	rr "github.com/spiral/roadrunner/cmd/rr/cmd"
 	"github.com/spiral/roadrunner/cmd/util"
 )

@@ -2,11 +2,11 @@ package main
 
 import (
 	"github.com/sirupsen/logrus"
-	"github.com/spiral/grpc"
+	"github.com/spiral/php-grpc"
 	rr "github.com/spiral/roadrunner/cmd/rr/cmd"
 
 	// grpc specific commands
-	_ "github.com/spiral/grpc/cmd/rr-grpc/grpc"
+	_ "github.com/spiral/php-grpc/cmd/rr-grpc/grpc"
 )
 
 func main() {

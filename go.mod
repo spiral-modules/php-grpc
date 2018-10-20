@@ -1,4 +1,4 @@
-module github.com/spiral/grpc
+module github.com/spiral/php-grpc
 
 require (
 	cloud.google.com/go v0.30.0 // indirect

@@ -2,15 +2,15 @@ package grpc
 
 import (
 	"fmt"
-	"github.com/spiral/grpc/parser"
+	"github.com/spiral/php-grpc/parser"
 	"github.com/spiral/roadrunner"
 	"github.com/spiral/roadrunner/service/env"
 	"github.com/spiral/roadrunner/service/rpc"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/encoding"
 	"reflect"
 	"sync"
-	"google.golang.org/grpc/credentials"
 )
 
 const ID = "grpc"

@@ -25,7 +25,7 @@ package main
 import (
 	"github.com/golang/protobuf/proto"
 	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
-	"github.com/spiral/grpc/cmd/protoc-gen-php-grpc/php"
+	"github.com/spiral/php-grpc/cmd/protoc-gen-php-grpc/php"
 	"io"
 	"io/ioutil"
 	"os"
