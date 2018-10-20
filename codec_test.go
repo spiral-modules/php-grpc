@@ -26,6 +26,8 @@ func TestCodec_String(t *testing.T) {
 	assert.Equal(t, "raw:json", c.String())
 
 	r := rawMessage{}
+	r.Reset()
+	r.ProtoMessage()
 	assert.Equal(t, "rawMessage", r.String())
 }
 
