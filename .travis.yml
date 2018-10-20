@@ -14,6 +14,8 @@ script:
   - go test -race -v -coverprofile=grpc.txt -covermode=atomic
   - go test ./parser -race -v -coverprofile=parser.txt -covermode=atomic
   - vendor/bin/phpunit --coverage-clover=coverage.xml
+  - go build cmd/protoc-gen-php-grpc/main.go
+  - go build cmd/rr-grpc/main.go
 
 after_success:
   - bash <(curl -s https://codecov.io/bash) -f grpc.txt
