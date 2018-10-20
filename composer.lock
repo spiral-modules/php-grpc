@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "09b54fb5574120c3c56b1fcd32d76212",
-    "content-hash": "3180636b4a4dca7e8f765f3028c1b9ea",
+    "hash": "77b49e9e30ec63d537b74e0b28200940",
+    "content-hash": "1ac813ac5ffa20051abc71919f038b6f",
     "packages": [
         {
             "name": "google/protobuf",
@@ -350,8 +350,6 @@
     "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": {
-        "ext-json": "*"
-    },
+    "platform": [],
     "platform-dev": []
 }
