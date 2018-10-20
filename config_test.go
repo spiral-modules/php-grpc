@@ -157,9 +157,7 @@ func Test_Config_InvalidWorkerPool(t *testing.T) {
 			Command: "php tests/worker.php",
 			Relay:   "pipes",
 			Pool: &roadrunner.Config{
-				NumWorkers:      -1,
-				AllocateTimeout: time.Second,
-				DestroyTimeout:  time.Second,
+				AllocateTimeout: 0,
 			},
 		},
 	}
