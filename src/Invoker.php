@@ -9,9 +9,9 @@
 namespace Spiral\GRPC;
 
 use Google\Protobuf\Internal\Message;
-use Spiral\GRPC\Exception\GRPCException;
+use Spiral\GRPC\Exception\InvokeException;
 
-class Invocator implements InvocatorInterface
+class Invoker implements InvokerInterface
 {
     /**
      * @inheritdoc
@@ -22,14 +22,16 @@ class Invocator implements InvocatorInterface
         ContextInterface $context,
         string $input
     ): string {
-        // do not convert php errors into GRPCErrors by default, use Invocator wrapper.
-        $out = call_user_func([$service, $method->getName()], $context,
-            $this->makeInput($method, $input));
+        $out = call_user_func(
+            [$service, $method->getName()],
+            $context,
+            $this->makeInput($method, $input)
+        );
 
         try {
             return $out->serializeToString();
         } catch (\Throwable $e) {
-            throw new GRPCException($e->getMessage(), StatusCode::INTERNAL, $e);
+            throw new InvokeException($e->getMessage(), StatusCode::INTERNAL, $e);
         }
     }
 
@@ -38,7 +40,7 @@ class Invocator implements InvocatorInterface
      * @param string $body
      * @return Message
      *
-     * @throws GRPCException
+     * @throws InvokeException
      */
     private function makeInput(Method $method, string $body): Message
     {
@@ -51,7 +53,7 @@ class Invocator implements InvocatorInterface
 
             return $in;
         } catch (\Throwable $e) {
-            throw new GRPCException($e->getMessage(), StatusCode::INTERNAL, $e);
+            throw new InvokeException($e->getMessage(), StatusCode::INTERNAL, $e);
         }
     }
 }

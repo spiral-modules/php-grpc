@@ -50,6 +50,11 @@ class MethodTest extends TestCase
         $this->assertFalse(Method::match(new \ReflectionMethod($this, 't_M4')));
     }
 
+    public function testNoMatch5()
+    {
+        $this->assertFalse(Method::match(new \ReflectionMethod($this, 't_M5')));
+    }
+
     public function testMethodName()
     {
         $s = new TestService();
@@ -87,6 +92,11 @@ class MethodTest extends TestCase
     }
 
     public function t_M4(TestService $context, Message $input): Invalid
+    {
+
+    }
+
+    public function t_M5(TestService $context, Message $input)
     {
 
     }

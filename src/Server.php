@@ -18,18 +18,18 @@ use Spiral\RoadRunner\Worker;
  */
 class Server
 {
-    /** @var InvocatorInterface */
+    /** @var InvokerInterface */
     private $invocator;
 
     /** @var ServiceWrapper[] */
     private $services = [];
 
     /**
-     * @param InvocatorInterface|null $invocator
+     * @param InvokerInterface|null $invocator
      */
-    public function __construct(InvocatorInterface $invocator = null)
+    public function __construct(InvokerInterface $invocator = null)
     {
-        $this->invocator = $invocator ?? new Invocator();
+        $this->invocator = $invocator ?? new Invoker();
     }
 
     /**
