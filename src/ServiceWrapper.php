@@ -70,6 +70,14 @@ final class ServiceWrapper
     }
 
     /**
+     * @return array
+     */
+    public function getMethods(): array
+    {
+        return array_values($this->methods);
+    }
+
+    /**
      * @param string           $method
      * @param ContextInterface $context
      * @param string           $input
