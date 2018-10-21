@@ -14,7 +14,7 @@ Features:
 - native Golang GRPC implementation compliant
 - minimal configuration, plug-and-play model
 - very fast, low footprint proxy
-- easy TLS configuration
+- simple TLS configuration
 - debug tools included
 - middleware and server customization support
 - code generation using `protoc` plugin (`go get github.com/spiral/php-grpc/cmd/protoc-gen-php-grpc`)
