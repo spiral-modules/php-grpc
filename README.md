@@ -60,4 +60,4 @@ You can find more details regarding server configuration at [RoadRunner Wiki](ht
 
 License:
 --------
-The MIT License (MIT). Please see [`LICENSE`](./LICENSE) for more information. Maintained by [SpiralScout](https://spiralscout.com).
+MIT License (MIT). Please see [`LICENSE`](./LICENSE) for more information. Maintained by [SpiralScout](https://spiralscout.com).
