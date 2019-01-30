@@ -6,3 +6,4 @@ vendor/
 clover.xml
 example/vendor/
 go.sum
+builds/
