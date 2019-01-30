@@ -66,27 +66,31 @@ func (d *debugger) interceptor(
 	info *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (resp interface{}, err error) {
+	start := time.Now()
 	resp, err = handler(ctx, req)
 
 	if err == nil {
 		d.logger.Info(util.Sprintf(
-			"<cyan+h>%s</reset> <green+h>Ok</reset> %s",
+			"<cyan+h>%s</reset> <green+h>Ok</reset> %s %s",
 			d.getPeer(ctx),
+			elapsed(time.Since(start)),
 			info.FullMethod,
 		))
 	} else {
 		if st, ok := status.FromError(err); ok {
 			d.logger.Error(util.Sprintf(
-				"<cyan+h>%s</reset> %s %s <red>%s</reset>",
+				"<cyan+h>%s</reset> %s %s %s <red>%s</reset>",
 				d.getPeer(ctx),
 				d.wrapStatus(st),
+				elapsed(time.Since(start)),
 				info.FullMethod,
 				st.Message(),
 			))
 		} else {
 			d.logger.Error(util.Sprintf(
-				"<cyan+h>%s</reset> %s <red>%s</reset>",
+				"<cyan+h>%s</reset> %s %s <red>%s</reset>",
 				d.getPeer(ctx),
+				elapsed(time.Since(start)),
 				info.FullMethod,
 				err.Error(),
 			))
