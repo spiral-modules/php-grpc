@@ -112,6 +112,7 @@ class TestWorker extends Worker
     public function receive(&$header)
     {
         if (!isset($this->sequence[$this->pos])) {
+            $header = null;
             return null;
         }
 

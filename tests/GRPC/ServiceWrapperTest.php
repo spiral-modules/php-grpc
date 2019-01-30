@@ -49,7 +49,7 @@ class ServiceWrapperTest extends TestCase implements ServiceInterface
             new TestService()
         );
 
-        $this->assertCount(4, $w->getMethods());
+        $this->assertCount(5, $w->getMethods());
     }
 
     /**
