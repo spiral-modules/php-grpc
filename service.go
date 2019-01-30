@@ -46,17 +46,12 @@ func (s *Service) Serve() (err error) {
 	s.mu.Lock()
 
 	if s.env != nil {
-		values, err := s.env.GetEnv()
-		if err != nil {
+		if err := s.env.Copy(s.cfg.Workers); err != nil {
 			return err
 		}
-
-		for k, v := range values {
-			s.cfg.Workers.SetEnv(k, v)
-		}
-
-		s.cfg.Workers.SetEnv("RR_GRPC", "true")
 	}
+
+	s.cfg.Workers.SetEnv("RR_GRPC", "true")
 
 	s.rr = roadrunner.NewServer(s.cfg.Workers)
 	s.rr.Listen(s.throw)

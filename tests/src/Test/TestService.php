@@ -2,8 +2,10 @@
 
 namespace Test;
 
+use Service\EmptyMessage;
 use Service\Message;
 use Service\TestInterface;
+use Spiral\GRPC;
 use Spiral\GRPC\ContextInterface;
 use Spiral\GRPC\Exception\NotFoundException;
 
@@ -47,5 +49,10 @@ class TestService implements TestInterface
         }
 
         return $out;
+    }
+
+    public function Ping(GRPC\ContextInterface $ctx, EmptyMessage $in): EmptyMessage
+    {
+        return new EmptyMessage();
     }
 }

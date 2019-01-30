@@ -20,7 +20,7 @@ class Invoker implements InvokerInterface
         ServiceInterface $service,
         Method $method,
         ContextInterface $context,
-        string $input
+        ?string $input
     ): string {
         $out = call_user_func(
             [$service, $method->getName()],
@@ -42,7 +42,7 @@ class Invoker implements InvokerInterface
      *
      * @throws InvokeException
      */
-    private function makeInput(Method $method, string $body): Message
+    private function makeInput(Method $method, ?string $body): Message
     {
         try {
             $class = $method->getInputType();

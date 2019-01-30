@@ -55,7 +55,12 @@ class Server
      */
     public function serve(Worker $worker)
     {
-        while ($body = $worker->receive($ctx)) {
+        while (true) {
+            $body = $worker->receive($ctx);
+            if (empty($body) && empty($ctx)) {
+                return;
+            }
+
             try {
                 $ctx = json_decode($ctx, true);
                 $resp = $this->invoke(
@@ -90,7 +95,7 @@ class Server
         string $service,
         string $method,
         array $context,
-        string $body
+        ?string $body
     ): string {
         if (!isset($this->services[$service])) {
             throw new NotFoundException("Service `{$service}` not found.", StatusCode::NOT_FOUND);

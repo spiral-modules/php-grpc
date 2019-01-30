@@ -4,6 +4,10 @@ package tests;
 service External {
     rpc Echo (Ping) returns (Pong) {
     }
+
+    rpc Empty (EmptyMessage) returns (EmptyMessage) {
+
+    }
 }
 
 message Ping {

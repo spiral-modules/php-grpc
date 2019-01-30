@@ -13,8 +13,14 @@ service Test {
 
     rpc Info (Message) returns (Message) {
     }
+
+    rpc Ping (EmptyMessage) returns (EmptyMessage) {
+    }
 }
 
 message Message {
     string msg = 1;
+}
+
+message EmptyMessage {
 }

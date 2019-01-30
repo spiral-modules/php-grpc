@@ -21,6 +21,7 @@
 package grpc
 
 import (
+	"fmt"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	rrpc "github.com/spiral/php-grpc"
@@ -31,6 +32,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/peer"
 	"google.golang.org/grpc/status"
+	"time"
 )
 
 func init() {
@@ -110,4 +112,33 @@ func (d *debugger) wrapStatus(st *status.Status) string {
 	}
 
 	return util.Sprintf("<red+h>%s</reset>", st.Code().String())
+}
+
+// fits duration into 5 characters
+func elapsed(d time.Duration) string {
+	var v string
+	switch {
+	case d > 100*time.Second:
+		v = fmt.Sprintf("%.1fs", d.Seconds())
+	case d > 10*time.Second:
+		v = fmt.Sprintf("%.2fs", d.Seconds())
+	case d > time.Second:
+		v = fmt.Sprintf("%.3fs", d.Seconds())
+	case d > 100*time.Millisecond:
+		v = fmt.Sprintf("%.0fms", d.Seconds()*1000)
+	case d > 10*time.Millisecond:
+		v = fmt.Sprintf("%.1fms", d.Seconds()*1000)
+	default:
+		v = fmt.Sprintf("%.2fms", d.Seconds()*1000)
+	}
+
+	if d > time.Second {
+		return util.Sprintf("<red>{%v}</reset>", v)
+	}
+
+	if d > time.Millisecond*50 {
+		return util.Sprintf("<yellow>{%v}</reset>", v)
+	}
+
+	return util.Sprintf("<gray+hb>{%v}</reset>", v)
 }

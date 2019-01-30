@@ -253,6 +253,52 @@ func Test_Service_Echo(t *testing.T) {
 	assert.Equal(t, "ping", out.Msg)
 }
 
+func Test_Service_Empty(t *testing.T) {
+	logger, _ := test.NewNullLogger()
+	logger.SetLevel(logrus.DebugLevel)
+
+	c := service.NewContainer(logger)
+	c.Register(ID, &Service{})
+
+	assert.NoError(t, c.Init(&testCfg{
+		grpcCfg: `{
+			"listen": "tcp://:9080",
+			"tls": {
+				"key": "tests/server.key",
+				"cert": "tests/server.crt"
+			},
+			"proto": "tests/test.proto",
+			"workers":{
+				"command": "php tests/worker.php",
+				"relay": "pipes",
+				"pool": {
+					"numWorkers": 1, 
+					"allocateTimeout": 10,
+					"destroyTimeout": 10 
+				}
+			}
+	}`,
+	}))
+
+	s, st := c.Get(ID)
+	assert.NotNil(t, s)
+	assert.Equal(t, service.StatusOK, st)
+
+	// should do nothing
+	s.(*Service).Stop()
+
+	go func() { assert.NoError(t, c.Serve()) }()
+	time.Sleep(time.Millisecond * 100)
+	defer c.Stop()
+
+	cl, cn := getClient("localhost:9080")
+	defer cn.Close()
+
+	_, err := cl.Ping(context.Background(), &tests.EmptyMessage{})
+
+	assert.NoError(t, err)
+}
+
 func Test_Service_ErrorBuffer(t *testing.T) {
 	logger, _ := test.NewNullLogger()
 	logger.SetLevel(logrus.DebugLevel)
