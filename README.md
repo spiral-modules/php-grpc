@@ -51,7 +51,7 @@ $ rr-grpc grpc:reset
 To show workers statistics:
 
 ```
-$ rr-gprc grpc:workers -i
+$ rr-grpc grpc:workers -i
 ```
 
 > See [example](https://github.com/spiral/php-grpc/tree/master/example).
