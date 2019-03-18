@@ -12,6 +12,7 @@ install:
   - wget https://github.com/google/protobuf/releases/download/v${PROTOBUF_VERSION}/${PROTOC_FILENAME}
   - unzip ${PROTOC_FILENAME}
   - bin/protoc --version
+  - popd
   - export GO111MODULE=on
   - go mod download
   - composer install --no-interaction --prefer-source --ignore-platform-reqs
