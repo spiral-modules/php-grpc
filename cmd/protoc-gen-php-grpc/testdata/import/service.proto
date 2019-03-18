@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package import;
+
+import "import/sub/message.proto";
+
+service Service {
+    rpc SimpleMethod (import.sub.Message) returns (import.sub.Message) {
+    }
+}
