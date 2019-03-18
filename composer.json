@@ -10,7 +10,7 @@
     }
   ],
   "require": {
-    "google/protobuf": "^3.6",
+    "google/protobuf": "^3.7",
     "spiral/roadrunner": "^1.2"
   },
   "require-dev": {
