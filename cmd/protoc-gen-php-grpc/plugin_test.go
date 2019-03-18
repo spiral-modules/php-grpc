@@ -19,6 +19,25 @@ func init() {
 	}
 }
 
+func protoc(t *testing.T, args []string) {
+	cmd := exec.Command("protoc", "--plugin=protoc-gen-php-grpc="+os.Args[0])
+	cmd.Args = append(cmd.Args, args...)
+	cmd.Env = append(os.Environ(), "RUN_AS_PROTOC_GEN_PHP=1")
+	out, err := cmd.CombinedOutput()
+
+	if len(out) > 0 || err != nil {
+		t.Log("RUNNING: ", strings.Join(cmd.Args, " "))
+	}
+
+	if len(out) > 0 {
+		t.Log(string(out))
+	}
+
+	if err != nil {
+		t.Fatalf("protoc: %v", err)
+	}
+}
+
 func Test_Simple(t *testing.T) {
 	workdir, _ := os.Getwd()
 	tmpdir, err := ioutil.TempDir("", "proto-test")
@@ -27,23 +46,18 @@ func Test_Simple(t *testing.T) {
 	}
 	defer os.RemoveAll(tmpdir)
 
-	args := []string{"-Itestdata", "--php-grpc_out=" + tmpdir}
-	args = append(args, "simple/simple.proto")
+	args := []string{
+		"-Itestdata",
+		"--php-grpc_out=" + tmpdir,
+		"simple/simple.proto",
+	}
 	protoc(t, args)
 
-	assert.FileExists(t, tmpdir+"/TestSimple/SimpleServiceInterface.php")
-
-	originalFile, err := ioutil.ReadFile(workdir + "/testdata/simple/TestSimple/SimpleServiceInterface.php")
-	if err != nil {
-		t.Fatal("Can't find original file for comparison")
-	}
-
-	generatedFile, err := ioutil.ReadFile(tmpdir + "/TestSimple/SimpleServiceInterface.php")
-	if err != nil {
-		t.Fatal("Can't find generated file for comparison")
-	}
-
-	assert.Equal(t, originalFile, generatedFile)
+	assertEqualFiles(
+		t,
+		workdir+"/testdata/simple/TestSimple/SimpleServiceInterface.php",
+		tmpdir+"/TestSimple/SimpleServiceInterface.php",
+	)
 }
 
 func Test_PhpNamespaceOption(t *testing.T) {
@@ -54,23 +68,18 @@ func Test_PhpNamespaceOption(t *testing.T) {
 	}
 	defer os.RemoveAll(tmpdir)
 
-	args := []string{"-Itestdata", "--php-grpc_out=" + tmpdir}
-	args = append(args, "php_namespace/service.proto")
+	args := []string{
+		"-Itestdata",
+		"--php-grpc_out=" + tmpdir,
+		"php_namespace/service.proto",
+	}
 	protoc(t, args)
 
-	assert.FileExists(t, tmpdir+"/Test/CustomNamespace/ServiceInterface.php")
-
-	originalFile, err := ioutil.ReadFile(workdir + "/testdata/php_namespace/Test/CustomNamespace/ServiceInterface.php")
-	if err != nil {
-		t.Fatal("Can't find original file for comparison")
-	}
-
-	generatedFile, err := ioutil.ReadFile(tmpdir + "/Test/CustomNamespace/ServiceInterface.php")
-	if err != nil {
-		t.Fatal("Can't find generated file for comparison")
-	}
-
-	assert.Equal(t, string(originalFile), string(generatedFile))
+	assertEqualFiles(
+		t,
+		workdir+"/testdata/php_namespace/Test/CustomNamespace/ServiceInterface.php",
+		tmpdir+"/Test/CustomNamespace/ServiceInterface.php",
+	)
 }
 
 func Test_UseImportedMessage(t *testing.T) {
@@ -81,37 +90,55 @@ func Test_UseImportedMessage(t *testing.T) {
 	}
 	defer os.RemoveAll(tmpdir)
 
-	args := []string{"-Itestdata", "--php-grpc_out=" + tmpdir}
-	args = append(args, "import/service.proto")
+	args := []string{
+		"-Itestdata",
+		"--php-grpc_out=" + tmpdir,
+		"import/service.proto",
+	}
 	protoc(t, args)
 
-	assert.FileExists(t, tmpdir+"/Import/ServiceInterface.php")
+	assertEqualFiles(
+		t,
+		workdir+"/testdata/import/Import/ServiceInterface.php",
+		tmpdir+"/Import/ServiceInterface.php",
+	)
+}
 
-	originalFile, err := ioutil.ReadFile(workdir + "/testdata/import/Import/ServiceInterface.php")
+func Test_PhpNamespaceOptionInUse(t *testing.T) {
+	workdir, _ := os.Getwd()
+	tmpdir, err := ioutil.TempDir("", "proto-test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(tmpdir)
+	args := []string{
+		"-Itestdata",
+		"--php-grpc_out=" + tmpdir,
+		"import_custom/service.proto",
+	}
+	protoc(t, args)
+
+	assertEqualFiles(
+		t,
+		workdir+"/testdata/import_custom/Test/CustomImport/ServiceInterface.php",
+		tmpdir+"/Test/CustomImport/ServiceInterface.php",
+	)
+}
+
+func assertEqualFiles(t *testing.T, original, generated string) {
+	assert.FileExists(t, generated)
+
+	originalData, err := ioutil.ReadFile(original)
 	if err != nil {
 		t.Fatal("Can't find original file for comparison")
 	}
 
-	generatedFile, err := ioutil.ReadFile(tmpdir + "/Import/ServiceInterface.php")
+	generatedData, err := ioutil.ReadFile(generated)
 	if err != nil {
 		t.Fatal("Can't find generated file for comparison")
 	}
 
-	assert.Equal(t, string(originalFile), string(generatedFile))
-}
-
-func protoc(t *testing.T, args []string) {
-	cmd := exec.Command("protoc", "--plugin=protoc-gen-php-grpc=" + os.Args[0])
-	cmd.Args = append(cmd.Args, args...)
-	cmd.Env = append(os.Environ(), "RUN_AS_PROTOC_GEN_PHP=1")
-	out, err := cmd.CombinedOutput()
-	if len(out) > 0 || err != nil {
-		t.Log("RUNNING: ", strings.Join(cmd.Args, " "))
-	}
-	if len(out) > 0 {
-		t.Log(string(out))
-	}
-	if err != nil {
-		t.Fatalf("protoc: %v", err)
-	}
+	// every OS has a special boy
+	r := strings.NewReplacer("\r\n", "", "\n", "")
+	assert.Equal(t, r.Replace(string(originalData)), r.Replace(string(generatedData)))
 }

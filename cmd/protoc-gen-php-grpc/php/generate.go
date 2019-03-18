@@ -33,17 +33,21 @@ func Generate(req *plugin.CodeGeneratorRequest) *plugin.CodeGeneratorResponse {
 
 	for _, file := range req.ProtoFile {
 		for _, service := range file.Service {
-			resp.File = append(resp.File, generate(file, service))
+			resp.File = append(resp.File, generate(req, file, service))
 		}
 	}
 
 	return resp
 }
 
-func generate(file *descriptor.FileDescriptorProto, service *descriptor.ServiceDescriptorProto) *plugin.CodeGeneratorResponse_File {
+func generate(
+	req *plugin.CodeGeneratorRequest,
+	file *descriptor.FileDescriptorProto,
+	service *descriptor.ServiceDescriptorProto,
+) *plugin.CodeGeneratorResponse_File {
 	return &plugin.CodeGeneratorResponse_File{
-		Name:    str(filename(file.Package, service.Name)),
-		Content: str(body(file, service)),
+		Name:    str(filename(file, service.Name)),
+		Content: str(body(req, file, service)),
 	}
 }
 
