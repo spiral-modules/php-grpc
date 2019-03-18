@@ -9,6 +9,13 @@ install:
   - export GO111MODULE=on
   - go mod download
   - composer install --no-interaction --prefer-source --ignore-platform-reqs
+  - go get
+  - PROTOBUF_VERSION=3.7.0
+  - PROTOC_FILENAME=protoc-${PROTOBUF_VERSION}-linux-x86_64.zip
+  - pushd /home/travis
+  - wget https://github.com/google/protobuf/releases/download/v${PROTOBUF_VERSION}/${PROTOC_FILENAME}
+  - unzip ${PROTOC_FILENAME}
+  - bin/protoc --version
 
 script:
   - go test -race -v -coverprofile=grpc.txt -covermode=atomic

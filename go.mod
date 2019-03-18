@@ -6,7 +6,7 @@ require (
 	github.com/c9s/inflect v0.0.0-20130402162822-006c50878f3f
 	github.com/emicklei/proto v1.6.5
 	github.com/golang/lint v0.0.0-20181011164241-5906bd5c48cd // indirect
-	github.com/golang/protobuf v1.2.0
+	github.com/golang/protobuf v1.3.1
 	github.com/kr/pty v1.1.3 // indirect
 	github.com/sirupsen/logrus v1.1.1
 	github.com/spf13/cobra v0.0.3
