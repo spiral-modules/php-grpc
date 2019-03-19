@@ -81,9 +81,16 @@ func identifier(name string, suffix string) string {
 		return name + inflect.Camelize(suffix)
 	}
 
-	if isReserved(name) {
-		return "PB" + name
+	return name
+}
+
+func resolveReserved(identifier string, pkg string) string {
+	if isReserved(strings.ToLower(identifier)) {
+		if pkg == ".google.protobuf" {
+			return "GPB" + identifier
+		}
+		return "PB" + identifier
 	}
 
-	return name
+	return identifier
 }

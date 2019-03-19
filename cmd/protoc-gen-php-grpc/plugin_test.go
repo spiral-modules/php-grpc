@@ -125,6 +125,27 @@ func Test_PhpNamespaceOptionInUse(t *testing.T) {
 	)
 }
 
+func Test_UseOfGoogleEmptyMessage(t *testing.T) {
+	workdir, _ := os.Getwd()
+	tmpdir, err := ioutil.TempDir("", "proto-test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(tmpdir)
+	args := []string{
+		"-Itestdata",
+		"--php-grpc_out=" + tmpdir,
+		"use_empty/service.proto",
+	}
+	protoc(t, args)
+
+	assertEqualFiles(
+		t,
+		workdir+"/testdata/use_empty/Test/ServiceInterface.php",
+		tmpdir+"/Test/ServiceInterface.php",
+	)
+}
+
 func assertEqualFiles(t *testing.T, original, generated string) {
 	assert.FileExists(t, generated)
 
