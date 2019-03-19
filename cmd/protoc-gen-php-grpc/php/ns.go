@@ -92,11 +92,12 @@ func (ns *ns) resolve(msg *string) string {
 
 			// use last namespace chunk
 			nsChunks := strings.Split(ns, `\`)
+			identifier := identifier(chunks[len(chunks)-1], "")
 
 			return fmt.Sprintf(
 				`%s\%s`,
 				nsChunks[len(nsChunks)-1],
-				identifier(chunks[len(chunks)-1], ""),
+				resolveReserved(identifier, pkg),
 			)
 		}
 	}
