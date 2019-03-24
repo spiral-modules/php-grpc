@@ -32,7 +32,7 @@ Define your service schema using proto file. You can scaffold protobuf classes a
 $ protoc --php_out=target-dir/ --php-grpc_out=target-dir/ sample.proto
 ```
 
-> Make sure to install [prococ compiler](https://github.com/protocolbuffers/protobuf) and run `composer require spiral/php-grpc` first
+> Make sure to install [protoc compiler](https://github.com/protocolbuffers/protobuf) and run `composer require spiral/php-grpc` first
 
 [Implement](https://github.com/spiral/php-grpc/blob/master/example/server/src/EchoService.php) needed classes and create [worker.php](https://github.com/spiral/php-grpc/blob/master/example/server/worker.php) to invoke your services.
 
