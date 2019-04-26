@@ -14,7 +14,7 @@ func TestParseFile(t *testing.T) {
 }
 
 func TestParseFileWithImportsNestedFolder(t *testing.T) {
-	services, err := File("./test_nested/test_import.proto", "./test_nested/")
+	services, err := File("./test_nested/test_import.proto", "./test_nested")
 	assert.NoError(t, err)
 	assert.Len(t, services, 2)
 
@@ -22,7 +22,7 @@ func TestParseFileWithImportsNestedFolder(t *testing.T) {
 }
 
 func TestParseFileWithImports(t *testing.T) {
-	services, err := File("test_import.proto", "")
+	services, err := File("test_import.proto", ".")
 	assert.NoError(t, err)
 	assert.Len(t, services, 2)
 

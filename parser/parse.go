@@ -86,7 +86,7 @@ func parseServices(proto *pp.Proto, pkg string, importPath string) ([]Service, e
 
 	pp.Walk(proto, func(v pp.Visitee) {
 		if i, ok := v.(*pp.Import); ok {
-			if im, err := File(importPath+i.Filename, importPath); err == nil {
+			if im, err := File(importPath+"/"+i.Filename, importPath); err == nil {
 				services = append(services, im...)
 			}
 		}
