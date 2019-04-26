@@ -19,6 +19,9 @@ type Config struct {
 	// Proto file associated with the service.
 	Proto string
 
+	// Specify the directory in which to search for imports.
+	ProtoImportPath string
+
 	// TLS defined authentication method (TLS for now).
 	TLS TLS
 

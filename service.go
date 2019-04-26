@@ -126,7 +126,7 @@ func (s *Service) createGPRCServer() (*grpc.Server, error) {
 	server := grpc.NewServer(opts...)
 
 	// php proxy registerServices
-	services, err := parser.File(s.cfg.Proto)
+	services, err := parser.File(s.cfg.Proto, s.cfg.ProtoImportPath)
 	if err != nil {
 		return nil, err
 	}
