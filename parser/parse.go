@@ -73,7 +73,9 @@ func parsePackage(proto *pp.Proto) string {
 }
 
 func parseServices(proto *pp.Proto, pkg string) ([]Service, error) {
+
 	services := make([]Service, 0)
+
 	pp.Walk(proto, pp.WithService(func(service *pp.Service) {
 		services = append(services, Service{
 			Package: pkg,
@@ -81,6 +83,14 @@ func parseServices(proto *pp.Proto, pkg string) ([]Service, error) {
 			Methods: parseMethods(service),
 		})
 	}))
+
+	pp.Walk(proto, func(v pp.Visitee) {
+		if i, ok := v.(*pp.Import); ok {
+			if im, err := File(i.Filename); err == nil {
+				services = append(services, im...)
+			}
+		}
+	})
 
 	return services, nil
 }
