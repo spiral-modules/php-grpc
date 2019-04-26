@@ -6,7 +6,15 @@ import (
 )
 
 func TestParseFile(t *testing.T) {
-	services, err := File("test.proto")
+	services, err := File("test.proto", "")
+	assert.NoError(t, err)
+	assert.Len(t, services, 2)
+
+	assert.Equal(t, "app.namespace", services[0].Package)
+}
+
+func TestParseFileWithImportsNestedFolder(t *testing.T) {
+	services, err := File("./test_nested/test_import.proto", "./test_nested/")
 	assert.NoError(t, err)
 	assert.Len(t, services, 2)
 
@@ -14,7 +22,7 @@ func TestParseFile(t *testing.T) {
 }
 
 func TestParseFileWithImports(t *testing.T) {
-	services, err := File("test_import.proto")
+	services, err := File("test_import.proto", "")
 	assert.NoError(t, err)
 	assert.Len(t, services, 2)
 
@@ -22,7 +30,7 @@ func TestParseFileWithImports(t *testing.T) {
 }
 
 func TestParseNotFound(t *testing.T) {
-	_, err := File("test2.proto")
+	_, err := File("test2.proto", "")
 	assert.Error(t, err)
 }
 

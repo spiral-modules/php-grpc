@@ -38,19 +38,19 @@ type Method struct {
 }
 
 // File parses given proto file or returns error.
-func File(file string) ([]Service, error) {
+func File(file string, importPath string) ([]Service, error) {
 	reader, _ := os.Open(file)
 	defer reader.Close()
 
-	return parse(reader)
+	return parse(reader, importPath)
 }
 
 // Bytes parses string into proto definition.
 func Bytes(data []byte) ([]Service, error) {
-	return parse(bytes.NewBuffer(data))
+	return parse(bytes.NewBuffer(data), "")
 }
 
-func parse(reader io.Reader) ([]Service, error) {
+func parse(reader io.Reader, importPath string) ([]Service, error) {
 	proto, err := pp.NewParser(reader).Parse()
 	if err != nil {
 		return nil, err
@@ -59,6 +59,7 @@ func parse(reader io.Reader) ([]Service, error) {
 	return parseServices(
 		proto,
 		parsePackage(proto),
+		importPath,
 	)
 }
 
@@ -72,8 +73,7 @@ func parsePackage(proto *pp.Proto) string {
 	return ""
 }
 
-func parseServices(proto *pp.Proto, pkg string) ([]Service, error) {
-
+func parseServices(proto *pp.Proto, pkg string, importPath string) ([]Service, error) {
 	services := make([]Service, 0)
 
 	pp.Walk(proto, pp.WithService(func(service *pp.Service) {
@@ -86,7 +86,7 @@ func parseServices(proto *pp.Proto, pkg string) ([]Service, error) {
 
 	pp.Walk(proto, func(v pp.Visitee) {
 		if i, ok := v.(*pp.Import); ok {
-			if im, err := File(i.Filename); err == nil {
+			if im, err := File(importPath+i.Filename, importPath); err == nil {
 				services = append(services, im...)
 			}
 		}

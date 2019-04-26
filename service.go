@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/encoding"
+	"path"
 	"sync"
 )
 
@@ -126,7 +127,7 @@ func (s *Service) createGPRCServer() (*grpc.Server, error) {
 	server := grpc.NewServer(opts...)
 
 	// php proxy registerServices
-	services, err := parser.File(s.cfg.Proto)
+	services, err := parser.File(s.cfg.Proto, path.Dir(s.cfg.Proto))
 	if err != nil {
 		return nil, err
 	}
