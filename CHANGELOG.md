@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+v1.0.4 (26.04.2019)
+-------------------
+- bugfix, support for imported services in proto annotation
+
 v1.0.2 (18.03.2019)
 -------------------
 - added support for `php_namespace` option
