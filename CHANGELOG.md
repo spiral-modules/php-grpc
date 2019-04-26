@@ -1,9 +1,9 @@
 CHANGELOG
 =========
 
-v1.0.4 (26.04.2019)
+v1.0.4-1.0.6 (26.04.2019)
 -------------------
-- bugfix, support for imported services in proto annotation
+- bugfix, support for imported services in proto annotation by @oneslash 
 
 v1.0.2 (18.03.2019)
 -------------------
