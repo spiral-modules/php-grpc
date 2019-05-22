@@ -16,25 +16,47 @@ import (
 // ID sets public GRPC service ID for roadrunner.Container.
 const ID = "grpc"
 
-// Service manages set of GPRC registerServices, options and connections.
+// Service manages set of GPRC services, options and connections.
 type Service struct {
-	cfg              *Config
-	env              env.Environment
-	list             []func(event int, ctx interface{})
-	opts             []grpc.ServerOption
-	registerServices []func(server *grpc.Server)
-	mu               sync.Mutex
-	rr               *roadrunner.Server
-	grpc             *grpc.Server
+	cfg      *Config
+	env      env.Environment
+	list     []func(event int, ctx interface{})
+	opts     []grpc.ServerOption
+	services []func(server *grpc.Server)
+	mu       sync.Mutex
+	rr       *roadrunner.Server
+	cr       roadrunner.Controller
+	grpc     *grpc.Server
+}
+
+// Attach attaches cr. Currently only one cr is supported.
+func (svc *Service) Attach(ctr roadrunner.Controller) {
+	svc.cr = ctr
+}
+
+// AddListener attaches grpc event watcher.
+func (svc *Service) AddListener(l func(event int, ctx interface{})) {
+	svc.list = append(svc.list, l)
+}
+
+// AddService would be invoked after GRPC service creation.
+func (svc *Service) AddService(r func(server *grpc.Server)) error {
+	svc.services = append(svc.services, r)
+	return nil
+}
+
+// AddOption adds new GRPC server option. Codec and TLS options are controlled by service internally.
+func (svc *Service) AddOption(opt grpc.ServerOption) {
+	svc.opts = append(svc.opts, opt)
 }
 
 // Init service.
-func (s *Service) Init(cfg *Config, r *rpc.Service, e env.Environment) (ok bool, err error) {
-	s.cfg = cfg
-	s.env = e
+func (svc *Service) Init(cfg *Config, r *rpc.Service, e env.Environment) (ok bool, err error) {
+	svc.cfg = cfg
+	svc.env = e
 
 	if r != nil {
-		if err := r.Register(ID, &rpcServer{s}); err != nil {
+		if err := r.Register(ID, &rpcServer{svc}); err != nil {
 			return false, err
 		}
 	}
@@ -43,97 +65,85 @@ func (s *Service) Init(cfg *Config, r *rpc.Service, e env.Environment) (ok bool,
 }
 
 // Serve GRPC grpc.
-func (s *Service) Serve() (err error) {
-	s.mu.Lock()
+func (svc *Service) Serve() (err error) {
+	svc.mu.Lock()
 
-	if s.env != nil {
-		if err := s.env.Copy(s.cfg.Workers); err != nil {
+	if svc.env != nil {
+		if err := svc.env.Copy(svc.cfg.Workers); err != nil {
 			return err
 		}
 	}
 
-	s.cfg.Workers.SetEnv("RR_GRPC", "true")
+	svc.cfg.Workers.SetEnv("RR_GRPC", "true")
 
-	s.rr = roadrunner.NewServer(s.cfg.Workers)
-	s.rr.Listen(s.throw)
+	svc.rr = roadrunner.NewServer(svc.cfg.Workers)
+	svc.rr.Listen(svc.throw)
 
-	if s.grpc, err = s.createGPRCServer(); err != nil {
+	if svc.cr != nil {
+		svc.rr.Attach(svc.cr)
+	}
+
+	if svc.grpc, err = svc.createGPRCServer(); err != nil {
 		return err
 	}
 
-	lis, err := s.cfg.Listener()
+	lis, err := svc.cfg.Listener()
 	if err != nil {
 		return err
 	}
 
 	defer lis.Close()
 
-	s.mu.Unlock()
+	svc.mu.Unlock()
 
-	if err := s.rr.Start(); err != nil {
+	if err := svc.rr.Start(); err != nil {
 		return err
 	}
-	defer s.rr.Stop()
+	defer svc.rr.Stop()
 
-	return s.grpc.Serve(lis)
+	return svc.grpc.Serve(lis)
 }
 
 // Stop the service.
-func (s *Service) Stop() {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	if s.grpc == nil {
+func (svc *Service) Stop() {
+	svc.mu.Lock()
+	defer svc.mu.Unlock()
+	if svc.grpc == nil {
 		return
 	}
 
-	go s.grpc.GracefulStop()
-}
-
-// AddService would be invoked after GRPC service creation.
-func (s *Service) AddService(r func(server *grpc.Server)) error {
-	s.registerServices = append(s.registerServices, r)
-	return nil
-}
-
-// AddOption adds new GRPC server option. Codec and TLS options are controlled by service internally.
-func (s *Service) AddOption(opt grpc.ServerOption) {
-	s.opts = append(s.opts, opt)
-}
-
-// AddListener attaches grpc event watcher.
-func (s *Service) AddListener(l func(event int, ctx interface{})) {
-	s.list = append(s.list, l)
+	go svc.grpc.GracefulStop()
 }
 
 // throw handles service, grpc and pool events.
-func (s *Service) throw(event int, ctx interface{}) {
-	for _, l := range s.list {
+func (svc *Service) throw(event int, ctx interface{}) {
+	for _, l := range svc.list {
 		l(event, ctx)
 	}
 
 	if event == roadrunner.EventServerFailure {
 		// underlying rr grpc is dead
-		s.Stop()
+		svc.Stop()
 	}
 }
 
 // new configured GRPC server
-func (s *Service) createGPRCServer() (*grpc.Server, error) {
-	opts, err := s.serverOptions()
+func (svc *Service) createGPRCServer() (*grpc.Server, error) {
+	opts, err := svc.serverOptions()
 	if err != nil {
 		return nil, err
 	}
 
 	server := grpc.NewServer(opts...)
 
-	// php proxy registerServices
-	services, err := parser.File(s.cfg.Proto, path.Dir(s.cfg.Proto))
+	// php proxy services
+	services, err := parser.File(svc.cfg.Proto, path.Dir(svc.cfg.Proto))
 	if err != nil {
 		return nil, err
 	}
 
 	for _, service := range services {
-		p := NewProxy(fmt.Sprintf("%s.%s", service.Package, service.Name), s.cfg.Proto, s.rr)
+		p := NewProxy(fmt.Sprintf("%s.%s", service.Package, service.Name), svc.cfg.Proto, svc.rr)
 		for _, m := range service.Methods {
 			p.RegisterMethod(m.Name)
 		}
@@ -141,8 +151,8 @@ func (s *Service) createGPRCServer() (*grpc.Server, error) {
 		server.RegisterService(p.ServiceDesc(), p)
 	}
 
-	// external registerServices
-	for _, r := range s.registerServices {
+	// external services
+	for _, r := range svc.services {
 		r(server)
 	}
 
@@ -150,9 +160,9 @@ func (s *Service) createGPRCServer() (*grpc.Server, error) {
 }
 
 // server options
-func (s *Service) serverOptions() (opts []grpc.ServerOption, err error) {
-	if s.cfg.EnableTLS() {
-		creds, err := credentials.NewServerTLSFromFile(s.cfg.TLS.Cert, s.cfg.TLS.Key)
+func (svc *Service) serverOptions() (opts []grpc.ServerOption, err error) {
+	if svc.cfg.EnableTLS() {
+		creds, err := credentials.NewServerTLSFromFile(svc.cfg.TLS.Cert, svc.cfg.TLS.Key)
 		if err != nil {
 			return nil, err
 		}
@@ -160,7 +170,7 @@ func (s *Service) serverOptions() (opts []grpc.ServerOption, err error) {
 		opts = append(opts, grpc.Creds(creds))
 	}
 
-	opts = append(opts, s.opts...)
+	opts = append(opts, svc.opts...)
 
 	// custom codec is required to bypass protobuf
 	return append(opts, grpc.CustomCodec(&codec{encoding.GetCodec("proto")})), nil

@@ -1,9 +1,10 @@
 CHANGELOG
 =========
 
-v1.0.7
+v1.0.7 (22.05.2019)
 -------------------
-- Server and Invoker are final 
+- Server and Invoker are final
+- added support for pool controller (roadrunner 1.4.0) 
 - added strict_types=1
 
 v1.0.4-1.0.6 (26.04.2019)
