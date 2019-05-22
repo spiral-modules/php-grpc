@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+v1.0.7
+-------------------
+- Server and Invoker are final 
+- added strict_types=1
+
 v1.0.4-1.0.6 (26.04.2019)
 -------------------
 - bugfix, support for imported services in proto annotation by @oneslash 
