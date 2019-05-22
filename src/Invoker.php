@@ -5,13 +5,14 @@
  * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+declare(strict_types=1);
 
 namespace Spiral\GRPC;
 
 use Google\Protobuf\Internal\Message;
 use Spiral\GRPC\Exception\InvokeException;
 
-class Invoker implements InvokerInterface
+final class Invoker implements InvokerInterface
 {
     /**
      * @inheritdoc

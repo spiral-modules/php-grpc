@@ -5,6 +5,7 @@
  * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+declare(strict_types=1);
 
 namespace Spiral\GRPC;
 
@@ -16,7 +17,7 @@ use Spiral\RoadRunner\Worker;
 /**
  * Manages group of services and communication with RoadRunner server.
  */
-class Server
+final class Server
 {
     /** @var InvokerInterface */
     private $invoker;
@@ -51,9 +52,10 @@ class Server
     /**
      * Serve GRPC over given RoadRunner worker.
      *
-     * @param Worker $worker
+     * @param Worker        $worker
+     * @param callable|null $finalize
      */
-    public function serve(Worker $worker)
+    public function serve(Worker $worker, callable $finalize = null)
     {
         while (true) {
             $body = $worker->receive($ctx);
@@ -74,7 +76,11 @@ class Server
             } catch (GRPCException $e) {
                 $worker->error($this->packError($e));
             } catch (\Throwable $e) {
-                $worker->error($e);
+                $worker->error((string)$e);
+            } finally {
+                if ($finalize !== null) {
+                    call_user_func($finalize, $e ?? null);
+                }
             }
         }
     }

@@ -5,6 +5,7 @@
  * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+declare(strict_types=1);
 
 namespace Spiral\GRPC;
 
@@ -17,7 +18,7 @@ interface ContextInterface
      * Create context with new value.
      *
      * @param string $key
-     * @param mixed $value
+     * @param mixed  $value
      * @return ContextInterface
      */
     public function withValue(string $key, $value): ContextInterface;
