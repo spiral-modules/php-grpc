@@ -16,3 +16,4 @@ test:
 	go test -v -race -cover
 	go test -v -race -cover ./parser
 	go test -v -race -cover ./cmd/protoc-gen-php-grpc
+	vendor/bin/phpunit
