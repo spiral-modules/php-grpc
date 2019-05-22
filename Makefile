@@ -12,6 +12,7 @@ uninstall:
 	rm -f /usr/local/bin/protoc-gen-php-grpc
 	rm -f /usr/local/bin/rr-grpc
 test:
+	composer update
 	go test -v -race -cover
 	go test -v -race -cover ./parser
 	go test -v -race -cover ./cmd/protoc-gen-php-grpc
