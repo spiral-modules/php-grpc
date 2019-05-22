@@ -56,7 +56,7 @@ $ rr-grpc grpc:workers -i
 
 > See [example](https://github.com/spiral/php-grpc/tree/master/example).
 
-You can find more details regarding server configuration at [RoadRunner Wiki](https://github.com/spiral/roadrunner/wiki).
+You can find more details regarding server configuration at [RoadRunner Wiki](https://roadrunner.dev/docs).
 
 License:
 --------
