@@ -61,6 +61,20 @@ func Test_Proxy_Error(t *testing.T) {
 	se, _ := status.FromError(err)
 	assert.Equal(t, "nothing here", se.Message())
 	assert.Equal(t, codes.NotFound, se.Code())
+
+	_, errWithDetails := cl.Throw(context.Background(), &tests.Message{Msg: "withDetails"})
+
+	assert.Error(t, errWithDetails)
+	statusWithDetails, _ := status.FromError(errWithDetails)
+	assert.Equal(t, "main exception message", statusWithDetails.Message())
+	assert.Equal(t, codes.InvalidArgument, statusWithDetails.Code())
+
+	details := statusWithDetails.Details()
+
+	detailsMessageForException := details[0].(*tests.DetailsMessageForException)
+
+	assert.Equal(t, detailsMessageForException.Code, uint64(1))
+	assert.Equal(t, detailsMessageForException.Message, "details message")
 }
 
 func Test_Proxy_Metadata(t *testing.T) {
