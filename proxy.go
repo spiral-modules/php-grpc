@@ -3,6 +3,8 @@ package grpc
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/ptypes/any"
 	"github.com/spiral/roadrunner"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -160,7 +162,20 @@ func wrapError(err error) error {
 			code = codes.Code(phpCode)
 		}
 
-		return status.Error(code, chunks[1])
+		st := status.New(code, chunks[1]).Proto()
+
+		for _, detailsMessage := range chunks[2:] {
+
+			anyDetailsMessage := any.Any{}
+
+			err := proto.Unmarshal([]byte(detailsMessage), &anyDetailsMessage)
+
+			if err == nil {
+				st.Details = append(st.Details, &anyDetailsMessage)
+			}
+		}
+
+		return status.ErrorProto(st)
 	}
 
 	return status.Error(codes.Internal, err.Error())
