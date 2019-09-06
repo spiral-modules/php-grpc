@@ -28,7 +28,6 @@ import (
 	rr "github.com/spiral/roadrunner/cmd/rr/cmd"
 	"github.com/spiral/roadrunner/cmd/util"
 	"golang.org/x/net/context"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/peer"
 	"google.golang.org/grpc/status"
@@ -42,7 +41,6 @@ func init() {
 			if svc, ok := svc.(*rrpc.Service); ok {
 				debug := &debugger{logger: rr.Logger}
 				svc.AddListener(debug.listener)
-				svc.AddOption(grpc.UnaryInterceptor(debug.interceptor))
 			}
 		}
 	})
@@ -53,69 +51,60 @@ type debugger struct{ logger *logrus.Logger }
 
 // listener listens to http events and generates nice looking output.
 func (d *debugger) listener(event int, ctx interface{}) {
+	if event == rrpc.EventUnaryCall {
+		uc := ctx.(*rrpc.UnaryCallEvent)
+
+		if uc.Error == nil {
+			d.logger.Info(util.Sprintf(
+				"<cyan+h>%s</reset> <green+h>Ok</reset> %s %s",
+				getPeer(uc.Context),
+				elapsed(uc.Elapsed()),
+				uc.Info.FullMethod,
+			))
+			return
+		}
+		if st, ok := status.FromError(uc.Error); ok {
+			d.logger.Error(util.Sprintf(
+				"<cyan+h>%s</reset> %s %s %s <red>%s</reset>",
+				getPeer(uc.Context),
+				wrapStatus(st),
+				elapsed(uc.Elapsed()),
+				uc.Info.FullMethod,
+				st.Message(),
+			))
+		} else {
+			d.logger.Error(util.Sprintf(
+				"<cyan+h>%s</reset> %s %s <red>%s</reset>",
+				getPeer(uc.Context),
+				elapsed(uc.Elapsed()),
+				uc.Info.FullMethod,
+				uc.Error.Error(),
+			))
+		}
+	}
+
 	if util.LogEvent(d.logger, event, ctx) {
 		// handler by default debug package
 		return
 	}
 }
 
-// call info
-func (d *debugger) interceptor(
-	ctx context.Context,
-	req interface{},
-	info *grpc.UnaryServerInfo,
-	handler grpc.UnaryHandler,
-) (resp interface{}, err error) {
-	start := time.Now()
-	resp, err = handler(ctx, req)
-
-	if err == nil {
-		d.logger.Info(util.Sprintf(
-			"<cyan+h>%s</reset> <green+h>Ok</reset> %s %s",
-			d.getPeer(ctx),
-			elapsed(time.Since(start)),
-			info.FullMethod,
-		))
-	} else {
-		if st, ok := status.FromError(err); ok {
-			d.logger.Error(util.Sprintf(
-				"<cyan+h>%s</reset> %s %s %s <red>%s</reset>",
-				d.getPeer(ctx),
-				d.wrapStatus(st),
-				elapsed(time.Since(start)),
-				info.FullMethod,
-				st.Message(),
-			))
-		} else {
-			d.logger.Error(util.Sprintf(
-				"<cyan+h>%s</reset> %s %s <red>%s</reset>",
-				d.getPeer(ctx),
-				elapsed(time.Since(start)),
-				info.FullMethod,
-				err.Error(),
-			))
-		}
-	}
-
-	return resp, err
-}
-
-func (d *debugger) getPeer(ctx context.Context) string {
-	pr, ok := peer.FromContext(ctx)
-	if ok {
-		return pr.Addr.String()
-	}
-
-	return "unknown"
-}
-
-func (d *debugger) wrapStatus(st *status.Status) string {
+func wrapStatus(st *status.Status) string {
 	switch st.Code() {
 	case codes.NotFound, codes.Canceled, codes.Unavailable:
 		return util.Sprintf("<yellow+h>%s</reset>", st.Code().String())
 	}
 
 	return util.Sprintf("<red+h>%s</reset>", st.Code().String())
+}
+
+func getPeer(ctx context.Context) string {
+	pr, ok := peer.FromContext(ctx)
+	if ok {
+		return pr.Addr.String()
+	}
+
+	return "unknown"
 }
 
 // fits duration into 5 characters

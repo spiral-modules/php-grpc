@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+v1.0.8 (06.09.2019)
+-------------------
+- included `limit` and `metrics` service
+- ability to expose GRPC stats to Prometheus
+
 v1.0.7 (22.05.2019)
 -------------------
 - Server and Invoker are final

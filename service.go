@@ -1,6 +1,7 @@
 package grpc
 
 import (
+	"context"
 	"fmt"
 	"github.com/spiral/php-grpc/parser"
 	"github.com/spiral/roadrunner"
@@ -11,6 +12,7 @@ import (
 	"google.golang.org/grpc/encoding"
 	"path"
 	"sync"
+	"time"
 )
 
 // ID sets public GRPC service ID for roadrunner.Container.
@@ -115,6 +117,35 @@ func (svc *Service) Stop() {
 	go svc.grpc.GracefulStop()
 }
 
+// Server returns associated rr server (if any).
+func (svc *Service) Server() *roadrunner.Server {
+	svc.mu.Lock()
+	defer svc.mu.Unlock()
+
+	return svc.rr
+}
+
+// call info
+func (svc *Service) interceptor(
+	ctx context.Context,
+	req interface{},
+	info *grpc.UnaryServerInfo,
+	handler grpc.UnaryHandler,
+) (resp interface{}, err error) {
+	start := time.Now()
+	resp, err = handler(ctx, req)
+
+	svc.throw(EventUnaryCall, &UnaryCallEvent{
+		Info:    info,
+		Context: ctx,
+		Error:   err,
+		start:   start,
+		elapsed: time.Since(start),
+	})
+
+	return resp, err
+}
+
 // throw handles service, grpc and pool events.
 func (svc *Service) throw(event int, ctx interface{}) {
 	for _, l := range svc.list {
@@ -172,6 +203,10 @@ func (svc *Service) serverOptions() (opts []grpc.ServerOption, err error) {
 
 	opts = append(opts, svc.opts...)
 
-	// custom codec is required to bypass protobuf
-	return append(opts, grpc.CustomCodec(&codec{encoding.GetCodec("proto")})), nil
+	// custom codec is required to bypass protobuf, common interceptor used for debug and stats
+	return append(
+		opts,
+		grpc.UnaryInterceptor(svc.interceptor),
+		grpc.CustomCodec(&codec{encoding.GetCodec("proto")}),
+	), nil
 }

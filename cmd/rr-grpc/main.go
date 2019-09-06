@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/sirupsen/logrus"
 	"github.com/spiral/php-grpc"
+	"github.com/spiral/roadrunner/service/limit"
+	"github.com/spiral/roadrunner/service/metrics"
 	"github.com/spiral/roadrunner/service/rpc"
 
 	rr "github.com/spiral/roadrunner/cmd/rr/cmd"
@@ -15,6 +16,8 @@ func main() {
 	rr.Container.Register(rpc.ID, &rpc.Service{})
 	rr.Container.Register(grpc.ID, &grpc.Service{})
 
-	rr.Logger.Formatter = &logrus.TextFormatter{ForceColors: true}
+	rr.Container.Register(metrics.ID, &metrics.Service{})
+	rr.Container.Register(limit.ID, &limit.Service{})
+
 	rr.Execute()
 }

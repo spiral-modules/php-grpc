@@ -1,7 +1,7 @@
 all:
-	@./build.sh
-build:
 	@./build.sh all
+build:
+	@./build.sh
 clean:
 	rm -rf protoc-gen-php-grpc
 	rm -rf rr-grpc
@@ -17,3 +17,6 @@ test:
 	go test -v -race -cover ./parser
 	go test -v -race -cover ./cmd/protoc-gen-php-grpc
 	vendor/bin/phpunit
+lint:
+	go fmt ./...
+	golint ./...
