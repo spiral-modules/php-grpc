@@ -2,11 +2,11 @@ package main
 
 import (
 	"github.com/spiral/php-grpc"
+
+	rr "github.com/spiral/roadrunner/cmd/rr/cmd"
 	"github.com/spiral/roadrunner/service/limit"
 	"github.com/spiral/roadrunner/service/metrics"
 	"github.com/spiral/roadrunner/service/rpc"
-
-	rr "github.com/spiral/roadrunner/cmd/rr/cmd"
 
 	// grpc specific commands
 	_ "github.com/spiral/php-grpc/cmd/rr-grpc/grpc"
