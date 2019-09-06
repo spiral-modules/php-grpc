@@ -24,3 +24,8 @@ message Message {
 
 message EmptyMessage {
 }
+
+message DetailsMessageForException {
+    uint64 code = 1;
+    string message = 2;
+}

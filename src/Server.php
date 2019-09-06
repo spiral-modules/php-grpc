@@ -9,6 +9,8 @@ declare(strict_types=1);
 
 namespace Spiral\GRPC;
 
+use Google\Protobuf\Any;
+use Google\Protobuf\Internal\Message;
 use Spiral\GRPC\Exception\GRPCException;
 use Spiral\GRPC\Exception\NotFoundException;
 use Spiral\GRPC\Exception\ServiceException;
@@ -113,11 +115,29 @@ final class Server
     /**
      * Packs exception message and code into one string.
      *
+     * Internal agreement:
+     *
+     * Details will be sent as serialized google.protobuf.Any messages after code and exception message separated with |:| delimeter.
+     *
      * @param GRPCException $e
      * @return string
      */
     private function packError(GRPCException $e): string
     {
-        return sprintf("%s|:|%s", $e->getCode(), $e->getMessage());
+        $data = [$e->getCode(), $e->getMessage()];
+
+        foreach ($e->getDetails() as $detail) {
+            /**
+             * @var Message $detail
+             */
+
+            $anyMessage = new Any();
+
+            $anyMessage->pack($detail);
+
+            $data[] = $anyMessage->serializeToString();
+        }
+
+        return implode("|:|", $data);
     }
 }

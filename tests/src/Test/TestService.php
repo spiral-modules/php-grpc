@@ -2,11 +2,13 @@
 
 namespace Test;
 
+use Service\DetailsMessageForException;
 use Service\EmptyMessage;
 use Service\Message;
 use Service\TestInterface;
 use Spiral\GRPC;
 use Spiral\GRPC\ContextInterface;
+use Spiral\GRPC\Exception\GRPCException;
 use Spiral\GRPC\Exception\NotFoundException;
 
 class TestService implements TestInterface
@@ -19,9 +21,18 @@ class TestService implements TestInterface
     public function Throw(ContextInterface $ctx, Message $in): Message
     {
         $out = new Message();
+
         switch ($in->getMsg()) {
             case "notFound":
                 throw new NotFoundException("nothing here");
+            case "withDetails":
+                $detailsMessage = new DetailsMessageForException();
+                $detailsMessage->setCode(1);
+                $detailsMessage->setMessage("details message");
+
+                $grpcException = new GRPCException("main exception message", 3, [$detailsMessage]);
+
+                throw $grpcException;
         }
     }
 
