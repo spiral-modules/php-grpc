@@ -489,15 +489,6 @@ func Test_Service_Kill(t *testing.T) {
 	assert.NotNil(t, s)
 	assert.Equal(t, service.StatusOK, st)
 
-	gotint := make(chan interface{}, 1)
-	s.(*Service).AddOption(ngrpc.UnaryInterceptor(func(ctx context.Context, req interface{}, info *ngrpc.UnaryServerInfo, handler ngrpc.UnaryHandler) (resp interface{}, err error) {
-		if info.FullMethod == "/service.Test/Echo" {
-			gotint <- nil
-		}
-
-		return handler(ctx, req)
-	}))
-
 	go func() { c.Serve() }()
 	time.Sleep(time.Millisecond * 100)
 
