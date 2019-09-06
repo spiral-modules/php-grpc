@@ -460,58 +460,6 @@ func Test_Service_External_Service_Test(t *testing.T) {
 	assert.Equal(t, int64(90), out.Value)
 }
 
-func Test_Service_Interceptor(t *testing.T) {
-	logger, _ := test.NewNullLogger()
-	logger.SetLevel(logrus.DebugLevel)
-
-	c := service.NewContainer(logger)
-	c.Register(ID, &Service{})
-
-	assert.NoError(t, c.Init(&testCfg{grpcCfg: `{
-			"listen": "tcp://:9080",
-			"tls": {
-				"key": "tests/server.key",
-				"cert": "tests/server.crt"
-			},
-			"proto": "tests/test.proto",
-			"workers":{
-				"command": "php tests/worker.php",
-				"relay": "pipes",
-				"pool": {
-					"numWorkers": 1, 
-					"allocateTimeout": 10,
-					"destroyTimeout": 10 
-				}
-			}
-	}`}))
-
-	s, st := c.Get(ID)
-	assert.NotNil(t, s)
-	assert.Equal(t, service.StatusOK, st)
-
-	gotint := make(chan interface{}, 1)
-	s.(*Service).AddOption(ngrpc.UnaryInterceptor(func(ctx context.Context, req interface{}, info *ngrpc.UnaryServerInfo, handler ngrpc.UnaryHandler) (resp interface{}, err error) {
-		if info.FullMethod == "/service.Test/Echo" {
-			gotint <- nil
-		}
-
-		return handler(ctx, req)
-	}))
-
-	go func() { assert.NoError(t, c.Serve()) }()
-	time.Sleep(time.Millisecond * 100)
-	defer c.Stop()
-
-	cl, cn := getClient("localhost:9080")
-	defer cn.Close()
-
-	out, err := cl.Echo(context.Background(), &tests.Message{Msg: "world"})
-
-	<-gotint
-	assert.NoError(t, err)
-	assert.Equal(t, "world", out.Msg)
-}
-
 func Test_Service_Kill(t *testing.T) {
 	logger, _ := test.NewNullLogger()
 	logger.SetLevel(logrus.DebugLevel)
