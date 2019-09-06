@@ -41,7 +41,7 @@ limit:
   # custom watch configuration for each service
   services:
     # monitor http workers
-    http:
+    grpc:
       # maximum allowed memory consumption per worker (soft)
       maxMemory: 100
 
