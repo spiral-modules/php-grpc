@@ -16,6 +16,7 @@ Features:
 - very fast, low footprint proxy
 - simple TLS configuration
 - debug tools included
+- Prometheus metrics
 - middleware and server customization support
 - code generation using `protoc` plugin (`go get github.com/spiral/php-grpc/cmd/protoc-gen-php-grpc`)
 - transport, message, worker error management
