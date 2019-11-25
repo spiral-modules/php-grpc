@@ -13,12 +13,12 @@ use Spiral\GRPC\Exception\NotFoundException;
 
 class TestService implements TestInterface
 {
-    public function Echo(ContextInterface $ctx, Message $in): Message
+    public function Echo(ContextInterface $ctx, Message $in, array &$metadata = []): Message
     {
         return $in;
     }
 
-    public function Throw(ContextInterface $ctx, Message $in): Message
+    public function Throw(ContextInterface $ctx, Message $in, array &$metadata = []): Message
     {
         $out = new Message();
 
@@ -34,16 +34,18 @@ class TestService implements TestInterface
 
                 throw $grpcException;
         }
+
+        return $out;
     }
 
-    public function Die(ContextInterface $ctx, Message $in): Message
+    public function Die(ContextInterface $ctx, Message $in, array &$metadata = []): Message
     {
         error_log($in->getMsg());
 
         return $in;
     }
 
-    public function Info(ContextInterface $ctx, Message $in): Message
+    public function Info(ContextInterface $ctx, Message $in, array &$metadata = []): Message
     {
         $out = new Message();
         switch ($in->getMsg()) {
@@ -59,10 +61,12 @@ class TestService implements TestInterface
                 break;
         }
 
+        $metadata['foo'] = 'bar';
+
         return $out;
     }
 
-    public function Ping(GRPC\ContextInterface $ctx, EmptyMessage $in): EmptyMessage
+    public function Ping(GRPC\ContextInterface $ctx, EmptyMessage $in, array &$metadata = []): EmptyMessage
     {
         return new EmptyMessage();
     }

@@ -25,10 +25,11 @@ package php
 import (
 	"bytes"
 	"fmt"
-	"github.com/golang/protobuf/protoc-gen-go/descriptor"
-	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
 	"strings"
 	"text/template"
+
+	"github.com/golang/protobuf/protoc-gen-go/descriptor"
+	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
 )
 
 const phpBody = `<?php
@@ -51,11 +52,12 @@ interface {{ .Service.Name | interface }} extends GRPC\ServiceInterface
     /**
     * @param GRPC\ContextInterface $ctx
     * @param {{ name $ns $m.InputType }} $in
+    * @param array $metadata
     * @return {{ name $ns $m.OutputType }}
     *
     * @throws GRPC\Exception\InvokeException
     */
-    public function {{ $m.Name }}(GRPC\ContextInterface $ctx, {{ name $ns $m.InputType }} $in): {{ name $ns $m.OutputType }};
+    public function {{ $m.Name }}(GRPC\ContextInterface $ctx, {{ name $ns $m.InputType }} $in, array &$metadata = []): {{ name $ns $m.OutputType }};
 {{end -}}
 }
 `
