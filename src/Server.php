@@ -75,8 +75,11 @@ final class Server
                     $body,
                     $metadata
                 );
-
-                $worker->send($resp, json_encode($metadata));
+                $header = null;
+                if (!empty($metadata)) {
+                    $header = json_encode($metadata);
+                }
+                $worker->send($resp, $header);
             } catch (GRPCException $e) {
                 $worker->error($this->packError($e));
             } catch (\Throwable $e) {
