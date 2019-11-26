@@ -21,14 +21,11 @@ final class Invoker implements InvokerInterface
         ServiceInterface $service,
         Method $method,
         ContextInterface $context,
-        ?string $input,
-        array &$metadata = []
+        ?string $input
     ): string {
         $out = call_user_func_array(
             [$service, $method->getName()],
-            [$context,
-            $this->makeInput($method, $input),
-            &$metadata]
+            [&$context,$this->makeInput($method, $input)]
         );
 
         try {

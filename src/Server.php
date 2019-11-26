@@ -67,19 +67,18 @@ final class Server
 
             try {
                 $ctx = json_decode($ctx, true);
-                $metadata = [];
+                $grpcCtx = new Context($ctx['context'] ?? []);
                 $resp = $this->invoke(
                     $ctx['service'],
                     $ctx['method'],
-                    $ctx['context'] ?? [],
-                    $body,
-                    $metadata
+                    $grpcCtx,
+                    $body
                 );
-                $header = null;
-                if (!empty($metadata)) {
-                    $header = json_encode($metadata);
+                $headers = null;
+                if (!empty($grpcCtx->getOutgoingHeaders())){
+                    $headers = json_encode($grpcCtx->getOutgoingHeaders());
                 }
-                $worker->send($resp, $header);
+                $worker->send($resp, $headers);
             } catch (GRPCException $e) {
                 $worker->error($this->packError($e));
             } catch (\Throwable $e) {
@@ -97,9 +96,8 @@ final class Server
      *
      * @param string $service
      * @param string $method
-     * @param array  $context
+     * @param Context  $context
      * @param string $body
-     * @param string $metadata
      * @return string
      *
      * @throws GRPCException
@@ -108,15 +106,14 @@ final class Server
     protected function invoke(
         string $service,
         string $method,
-        array $context,
-        ?string $body,
-        ?array &$metadata
+        Context $context,
+        ?string $body
     ): string {
         if (!isset($this->services[$service])) {
             throw new NotFoundException("Service `{$service}` not found.", StatusCode::NOT_FOUND);
         }
 
-        return $this->services[$service]->invoke($method, new Context($context ?? []), $body, $metadata);
+        return $this->services[$service]->invoke($method, $context, $body);
     }
 
     /**

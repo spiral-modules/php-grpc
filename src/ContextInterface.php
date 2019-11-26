@@ -37,4 +37,24 @@ interface ContextInterface
      * @return array
      */
     public function getValues(): array;
+
+    /**
+     * Get outgoing header value or return null.
+     *
+     * @param string $key
+     * @return mixed|null
+     */
+    public function getOutgoingHeader(string $key);
+
+    /**
+     * Return all outgoing header values.
+     *
+     * @return array
+     */
+    public function getOutgoingHeaders(): array;
+
+    /**
+     * Augments the outgoing headers of the current instance
+     */
+    public function appendOutgoingHeader(array $headers): void;
 }

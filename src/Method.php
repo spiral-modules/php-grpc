@@ -59,7 +59,7 @@ final class Method
      */
     public static function match(\ReflectionMethod $method): bool
     {
-        if ($method->getNumberOfParameters() != 3) {
+        if ($method->getNumberOfParameters() != 2) {
             return false;
         }
 

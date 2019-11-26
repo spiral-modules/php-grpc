@@ -18,7 +18,7 @@ interface TestInterface extends GRPC\ServiceInterface
     *
     * @throws GRPC\Exception\InvokeException
     */
-    public function Echo(GRPC\ContextInterface $ctx, Message $in, array &$metadata = []): Message;
+    public function Echo(GRPC\ContextInterface $ctx, Message $in): Message;
 
     /**
     * @param GRPC\ContextInterface $ctx
@@ -27,7 +27,7 @@ interface TestInterface extends GRPC\ServiceInterface
     *
     * @throws GRPC\Exception\InvokeException
     */
-    public function Throw(GRPC\ContextInterface $ctx, Message $in, array &$metadata = []): Message;
+    public function Throw(GRPC\ContextInterface $ctx, Message $in): Message;
 
     /**
     * @param GRPC\ContextInterface $ctx
@@ -36,7 +36,7 @@ interface TestInterface extends GRPC\ServiceInterface
     *
     * @throws GRPC\Exception\InvokeException
     */
-    public function Die(GRPC\ContextInterface $ctx, Message $in, array &$metadata = []): Message;
+    public function Die(GRPC\ContextInterface $ctx, Message $in): Message;
 
     /**
     * @param GRPC\ContextInterface $ctx
@@ -45,7 +45,7 @@ interface TestInterface extends GRPC\ServiceInterface
     *
     * @throws GRPC\Exception\InvokeException
     */
-    public function Info(GRPC\ContextInterface $ctx, Message $in, array &$metadata = []): Message;
+    public function Info(GRPC\ContextInterface $ctx, Message $in): Message;
 
     /**
     * @param GRPC\ContextInterface $ctx
@@ -54,5 +54,5 @@ interface TestInterface extends GRPC\ServiceInterface
     *
     * @throws GRPC\Exception\InvokeException
     */
-    public function Ping(GRPC\ContextInterface $ctx, EmptyMessage $in, array &$metadata = []): EmptyMessage;
+    public function Ping(GRPC\ContextInterface $ctx, EmptyMessage $in): EmptyMessage;
 }

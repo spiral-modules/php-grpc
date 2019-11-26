@@ -21,7 +21,6 @@ interface InvokerInterface
      * @param Method           $method
      * @param ContextInterface $context
      * @param string           $input
-     * @param array            $metadata
      * @return string
      *
      * @throws InvokeException
@@ -30,7 +29,6 @@ interface InvokerInterface
         ServiceInterface $service,
         Method $method,
         ContextInterface $context,
-        string $input,
-        array &$metadata = []
+        string $input
     ): string;
 }
