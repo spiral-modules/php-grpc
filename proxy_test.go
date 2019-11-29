@@ -1,17 +1,19 @@
 package grpc
 
 import (
+	"testing"
+	"time"
+
 	"github.com/sirupsen/logrus"
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/spiral/php-grpc/tests"
 	"github.com/spiral/roadrunner/service"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/net/context"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-	"testing"
-	"time"
 )
 
 func Test_Proxy_Error(t *testing.T) {
@@ -118,11 +120,15 @@ func Test_Proxy_Metadata(t *testing.T) {
 	cl, cn := getClient("localhost:9080")
 	defer cn.Close()
 
+	ctx := metadata.AppendToOutgoingContext(context.Background(), "key", "proxy-value")
+	var header metadata.MD
 	out, err := cl.Info(
-		metadata.AppendToOutgoingContext(context.Background(), "key", "proxy-value"),
+		ctx,
 		&tests.Message{Msg: "MD"},
+		grpc.Header(&header),
+		grpc.WaitForReady(true),
 	)
-
+	assert.Equal(t, []string{"bar"}, header.Get("foo"))
 	assert.NoError(t, err)
 	assert.Equal(t, `["proxy-value"]`, out.Msg)
 }

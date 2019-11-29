@@ -59,4 +59,33 @@ class ContextTest extends TestCase
         $this->assertSame(['value2'], $ctx2->getValue('key'));
         $this->assertSame('another', $ctx2->getValue('new'));
     }
+
+    public function testGetOutgoingHeader() {
+        $outgoingHeaders = [
+            'Set-Cookie' => 'foobar'
+        ];
+        $ctx = new Context([], $outgoingHeaders);
+        $this->assertSame($outgoingHeaders['Set-Cookie'], $ctx->getOutgoingHeader('Set-Cookie'));
+        $this->assertNull($ctx->getOutgoingHeader('not-existing'));
+    }
+
+    public function testGetOutgoingHeaders()
+    {
+        $outgoingHeaders = [
+            'Set-Cookie' => 'foobar'
+        ];
+        $ctx = new Context([], $outgoingHeaders);
+        $this->assertSame($outgoingHeaders, $ctx->getOutgoingHeaders());
+    }
+
+    public function testAppendOutgoingHeader()
+    {
+        $outgoingHeaders = [
+            'Set-Cookie' => 'foobar'
+        ];
+        $ctx = new Context([]);
+        $this->assertEmpty($ctx->getOutgoingHeaders());
+        $ctx->appendOutgoingHeader($outgoingHeaders);
+        $this->assertSame($outgoingHeaders, $ctx->getOutgoingHeaders());
+    }
 }

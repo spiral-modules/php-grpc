@@ -121,13 +121,13 @@ class TestWorker extends Worker
         return $this->sequence[$this->pos]['send'];
     }
 
-    public function send(string $payload = null, string $header = null)
+    public function send(string $payload = null, string $header = null): void
     {
         $this->t->assertSame($this->sequence[$this->pos]['receive'], $payload);
         $this->pos++;
     }
 
-    public function error(string $message)
+    public function error(string $message): void
     {
         $this->t->assertSame($this->sequence[$this->pos]['error'], $message);
         $this->pos++;

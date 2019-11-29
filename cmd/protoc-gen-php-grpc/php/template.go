@@ -25,10 +25,11 @@ package php
 import (
 	"bytes"
 	"fmt"
-	"github.com/golang/protobuf/protoc-gen-go/descriptor"
-	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
 	"strings"
 	"text/template"
+
+	"github.com/golang/protobuf/protoc-gen-go/descriptor"
+	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
 )
 
 const phpBody = `<?php

@@ -3,6 +3,9 @@ package grpc
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
+	"strings"
+
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/spiral/roadrunner"
@@ -12,8 +15,6 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/peer"
 	"google.golang.org/grpc/status"
-	"strconv"
-	"strings"
 )
 
 // base interface for Proxy class
@@ -122,7 +123,31 @@ func (p *Proxy) invoke(ctx context.Context, method string, in rawMessage) (inter
 		return nil, wrapError(err)
 	}
 
+	md, err := p.responseMetadata(resp)
+	if err != nil {
+		return nil, err
+	}
+	ctx = metadata.NewIncomingContext(ctx, md)
+	grpc.SetHeader(ctx, md)
+
 	return rawMessage(resp.Body), nil
+}
+
+// responseMetadata extracts metadata from roadrunner response Payload.Context and converts it to metadata.MD
+func (p *Proxy) responseMetadata(resp *roadrunner.Payload) (metadata.MD, error) {
+	var md metadata.MD
+	if resp == nil || len(resp.Context) == 0 {
+		return md, nil
+	}
+	var rpcMetadata map[string]string
+	err := json.Unmarshal(resp.Context, &rpcMetadata)
+	if err != nil {
+		return md, err
+	}
+	if len(rpcMetadata) > 0 {
+		md = metadata.New(rpcMetadata)
+	}
+	return md, nil
 }
 
 // makePayload generates RoadRunner compatible payload based on GRPC message. todo: return error

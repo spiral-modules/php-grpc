@@ -74,18 +74,19 @@ final class ServiceWrapper
      * @param string           $method
      * @param ContextInterface $context
      * @param string           $input
+     * @param array            $metadata
      * @return string
      *
      * @throws NotFoundException
      * @throws InvokeException
      */
-    public function invoke(string $method, ContextInterface $context, ?string $input): string
+    public function invoke(string $method, ContextInterface $context, ?string $input, array &$metadata = []): string
     {
         if (!isset($this->methods[$method])) {
             throw new NotFoundException("Method `{$method}` not found in service `{$this->name}`.");
         }
 
-        return $this->invoker->invoke($this->service, $this->methods[$method], $context, $input);
+        return $this->invoker->invoke($this->service, $this->methods[$method], $context, $input, $metadata);
     }
 
     /**

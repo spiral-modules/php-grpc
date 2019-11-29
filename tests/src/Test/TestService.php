@@ -34,6 +34,8 @@ class TestService implements TestInterface
 
                 throw $grpcException;
         }
+
+        return $out;
     }
 
     public function Die(ContextInterface $ctx, Message $in): Message
@@ -58,6 +60,8 @@ class TestService implements TestInterface
                 $out->setMsg(json_encode($ctx->getValue('key')));
                 break;
         }
+
+        $ctx->appendOutgoingHeader(['foo' => 'bar']);
 
         return $out;
     }
