@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+v1.1.0 (30.11.2019)
+-------------------
+- added automatic CS fixing
+- the minimum PHP version is set to 7.2
+- added ResponseHeaders and metadata generation by server by @wolfgang-braun
+
 v1.0.8 (06.09.2019)
 -------------------
 - included `limit` and `metrics` service

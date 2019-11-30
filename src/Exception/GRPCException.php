@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Spiral Framework.
  *
  * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+
 declare(strict_types=1);
 
 namespace Spiral\GRPC\Exception;
@@ -33,7 +35,7 @@ class GRPCException extends \RuntimeException
      * @param array          $details
      * @param Throwable|null $previous
      */
-    public function __construct(string $message = "", int $code = 0, $details = [], Throwable $previous = null)
+    public function __construct(string $message = '', int $code = 0, $details = [], Throwable $previous = null)
     {
         if ($code == 0) {
             $code = static::CODE;

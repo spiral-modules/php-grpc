@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Spiral Framework.
  *
@@ -6,14 +7,17 @@
  * @author    Anton Titov (Wolfy-J)
  */
 
+declare(strict_types=1);
+
 namespace Spiral\GRPC\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Spiral\GRPC\Context;
+use Spiral\GRPC\ResponseHeaders;
 
 class ContextTest extends TestCase
 {
-    public function testGetValue()
+    public function testGetValue(): void
     {
         $ctx = new Context([
             'key' => ['value']
@@ -22,7 +26,7 @@ class ContextTest extends TestCase
         $this->assertSame(['value'], $ctx->getValue('key'));
     }
 
-    public function testGetNullValue()
+    public function testGetNullValue(): void
     {
         $ctx = new Context([
             'key' => ['value']
@@ -31,7 +35,7 @@ class ContextTest extends TestCase
         $this->assertSame(null, $ctx->getValue('other'));
     }
 
-    public function testGetValues()
+    public function testGetValues(): void
     {
         $ctx = new Context([
             'key' => ['value']
@@ -43,7 +47,7 @@ class ContextTest extends TestCase
     }
 
 
-    public function testWithValue()
+    public function testWithValue(): void
     {
         $ctx = new Context([
             'key' => ['value']
@@ -60,32 +64,23 @@ class ContextTest extends TestCase
         $this->assertSame('another', $ctx2->getValue('new'));
     }
 
-    public function testGetOutgoingHeader() {
-        $outgoingHeaders = [
-            'Set-Cookie' => 'foobar'
-        ];
-        $ctx = new Context([], $outgoingHeaders);
-        $this->assertSame($outgoingHeaders['Set-Cookie'], $ctx->getOutgoingHeader('Set-Cookie'));
-        $this->assertNull($ctx->getOutgoingHeader('not-existing'));
-    }
-
-    public function testGetOutgoingHeaders()
+    public function testGetOutgoingHeader(): void
     {
         $outgoingHeaders = [
             'Set-Cookie' => 'foobar'
         ];
-        $ctx = new Context([], $outgoingHeaders);
-        $this->assertSame($outgoingHeaders, $ctx->getOutgoingHeaders());
+        $ctx = new Context([ResponseHeaders::class => new ResponseHeaders($outgoingHeaders)]);
+
+        $this->assertSame($outgoingHeaders['Set-Cookie'], $ctx->getValue(ResponseHeaders::class)->get('Set-Cookie'));
+        $this->assertNull($ctx->getValue(ResponseHeaders::class)->get('not-existing'));
     }
 
-    public function testAppendOutgoingHeader()
+    public function testGetOutgoingHeaders(): void
     {
-        $outgoingHeaders = [
+        $outgoingHeaders = new ResponseHeaders([
             'Set-Cookie' => 'foobar'
-        ];
-        $ctx = new Context([]);
-        $this->assertEmpty($ctx->getOutgoingHeaders());
-        $ctx->appendOutgoingHeader($outgoingHeaders);
-        $this->assertSame($outgoingHeaders, $ctx->getOutgoingHeaders());
+        ]);
+        $ctx = new Context([ResponseHeaders::class => $outgoingHeaders]);
+        $this->assertSame($outgoingHeaders, $ctx->getValue(ResponseHeaders::class));
     }
 }

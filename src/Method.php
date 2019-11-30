@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Spiral Framework.
  *
  * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+
 declare(strict_types=1);
 
 namespace Spiral\GRPC;
@@ -106,7 +108,7 @@ final class Method
             );
         }
 
-        $m = new self;
+        $m = new self();
         $m->name = $method->getName();
         $m->input = $method->getParameters()[1]->getClass()->getName();
         $m->output = $method->getReturnType()->getName();

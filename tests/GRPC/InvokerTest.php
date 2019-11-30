@@ -1,10 +1,13 @@
 <?php
+
 /**
  * Spiral Framework.
  *
  * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+
+declare(strict_types=1);
 
 namespace Spiral\GRPC\Tests;
 
@@ -17,7 +20,7 @@ use Test\TestService;
 
 class InvokerTest extends TestCase
 {
-    public function testInvoke()
+    public function testInvoke(): void
     {
         $s = new TestService();
         $m = Method::parse(new \ReflectionMethod($s, 'Echo'));
@@ -40,7 +43,7 @@ class InvokerTest extends TestCase
     /**
      * @expectedException \Spiral\GRPC\Exception\InvokeException
      */
-    public function testInvokeError()
+    public function testInvokeError(): void
     {
         $s = new TestService();
         $m = Method::parse(new \ReflectionMethod($s, 'Echo'));

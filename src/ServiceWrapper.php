@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Spiral Framework.
  *
  * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+
 declare(strict_types=1);
 
 namespace Spiral\GRPC;
@@ -97,7 +99,7 @@ final class ServiceWrapper
      *
      * @throws ServiceException
      */
-    protected function configure(string $interface, ServiceInterface $service)
+    protected function configure(string $interface, ServiceInterface $service): void
     {
         try {
             $r = new \ReflectionClass($interface);

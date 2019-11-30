@@ -23,6 +23,7 @@ script:
   - go test ./parser -race -v -coverprofile=parser.txt -covermode=atomic
   - go test -race -v -coverprofile=protoc-gen-php-grpc.txt ./cmd/protoc-gen-php-grpc -covermode=atomic
   - composer require phpunit/phpunit:~7.0 --ignore-platform-reqs
+  - vendor/bin/spiral/cs check src tests/GRPC
   - vendor/bin/phpunit --coverage-clover=coverage.xml
   - go build cmd/protoc-gen-php-grpc/main.go
   - go build cmd/rr-grpc/main.go

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Spiral Framework.
  *
@@ -6,18 +7,19 @@
  * @author    Anton Titov (Wolfy-J)
  */
 
+declare(strict_types=1);
+
 namespace Spiral\GRPC\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Service\Message;
 use Service\TestInterface;
 use Spiral\GRPC\Server;
-use Spiral\RoadRunner\Worker;
 use Test\TestService;
 
 class ServerTest extends TestCase
 {
-    public function testInvoke()
+    public function testInvoke(): void
     {
         $s = new Server();
         $s->registerService(TestInterface::class, new TestService());
@@ -39,7 +41,7 @@ class ServerTest extends TestCase
         $this->assertTrue($w->done());
     }
 
-    public function testNotFound()
+    public function testNotFound(): void
     {
         $s = new Server();
         $s->registerService(TestInterface::class, new TestService());
@@ -61,7 +63,7 @@ class ServerTest extends TestCase
         $this->assertTrue($w->done());
     }
 
-    public function testNotFound2()
+    public function testNotFound2(): void
     {
         $s = new Server();
         $s->registerService(TestInterface::class, new TestService());
@@ -89,47 +91,5 @@ class ServerTest extends TestCase
         $m->setMsg($message);
 
         return $m->serializeToString();
-    }
-}
-
-class TestWorker extends Worker
-{
-    private $t;
-    private $sequence = [];
-    private $pos = 0;
-
-    public function __construct(TestCase $t, array $sequence)
-    {
-        $this->t = $t;
-        $this->sequence = $sequence;
-    }
-
-    public function done()
-    {
-        return $this->pos == count($this->sequence);
-    }
-
-    public function receive(&$header)
-    {
-        if (!isset($this->sequence[$this->pos])) {
-            $header = null;
-            return null;
-        }
-
-        $header = json_encode($this->sequence[$this->pos]['ctx']);
-
-        return $this->sequence[$this->pos]['send'];
-    }
-
-    public function send(string $payload = null, string $header = null): void
-    {
-        $this->t->assertSame($this->sequence[$this->pos]['receive'], $payload);
-        $this->pos++;
-    }
-
-    public function error(string $message): void
-    {
-        $this->t->assertSame($this->sequence[$this->pos]['error'], $message);
-        $this->pos++;
     }
 }

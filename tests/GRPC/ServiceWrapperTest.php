@@ -1,10 +1,13 @@
 <?php
+
 /**
  * Spiral Framework.
  *
  * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+
+declare(strict_types=1);
 
 namespace Spiral\GRPC\Tests;
 
@@ -19,7 +22,7 @@ use Test\TestService;
 
 class ServiceWrapperTest extends TestCase implements ServiceInterface
 {
-    public function testName()
+    public function testName(): void
     {
         $w = new ServiceWrapper(
             new Invoker(),
@@ -30,7 +33,7 @@ class ServiceWrapperTest extends TestCase implements ServiceInterface
         $this->assertSame('service.Test', $w->getName());
     }
 
-    public function testService()
+    public function testService(): void
     {
         $w = new ServiceWrapper(
             new Invoker(),
@@ -41,7 +44,7 @@ class ServiceWrapperTest extends TestCase implements ServiceInterface
         $this->assertSame($t, $w->getService());
     }
 
-    public function testMethods()
+    public function testMethods(): void
     {
         $w = new ServiceWrapper(
             new Invoker(),
@@ -55,7 +58,7 @@ class ServiceWrapperTest extends TestCase implements ServiceInterface
     /**
      * @expectedException \Spiral\GRPC\Exception\NotFoundException
      */
-    public function testInvokeNotFound()
+    public function testInvokeNotFound(): void
     {
         $w = new ServiceWrapper(
             new Invoker(),
@@ -66,7 +69,7 @@ class ServiceWrapperTest extends TestCase implements ServiceInterface
         $w->invoke('NotFound', new Context([]), '');
     }
 
-    public function testInvoke()
+    public function testInvoke(): void
     {
         $w = new ServiceWrapper(
             new Invoker(),
@@ -85,7 +88,7 @@ class ServiceWrapperTest extends TestCase implements ServiceInterface
     /**
      * @expectedException \Spiral\GRPC\Exception\ServiceException
      */
-    public function testNotImplemented()
+    public function testNotImplemented(): void
     {
         $w = new ServiceWrapper(
             new Invoker(),
@@ -97,11 +100,11 @@ class ServiceWrapperTest extends TestCase implements ServiceInterface
     /**
      * @expectedException \Spiral\GRPC\Exception\ServiceException
      */
-    public function testInvalidInterface()
+    public function testInvalidInterface(): void
     {
         $w = new ServiceWrapper(
             new Invoker(),
-            XX::class,
+            InvalidInterface::class,
             $this
         );
     }
@@ -109,7 +112,7 @@ class ServiceWrapperTest extends TestCase implements ServiceInterface
     /**
      * @expectedException \Spiral\GRPC\Exception\ServiceException
      */
-    public function testInvalidInterface2()
+    public function testInvalidInterface2(): void
     {
         $w = new ServiceWrapper(
             new Invoker(),
@@ -125,9 +128,4 @@ class ServiceWrapperTest extends TestCase implements ServiceInterface
 
         return $m->serializeToString();
     }
-}
-
-interface XX
-{
-
 }

@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Spiral Framework.
  *
  * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+
 declare(strict_types=1);
 
 namespace Spiral\GRPC;
@@ -14,17 +16,12 @@ final class Context implements ContextInterface
     /** @var array */
     private $values;
 
-    /** @var array */
-    private $outgoingHeaders;
-
     /**
      * @param array $values
-     * @param array $outgoingHeaders
      */
-    public function __construct(array $values, ?array $outgoingHeaders = [])
+    public function __construct(array $values)
     {
         $this->values = $values;
-        $this->outgoingHeaders = $outgoingHeaders;
     }
 
     /**
@@ -52,29 +49,5 @@ final class Context implements ContextInterface
     public function getValues(): array
     {
         return $this->values;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getOutgoingHeader(string $key)
-    {
-        return $this->outgoingHeaders[$key] ?? null;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getOutgoingHeaders(): array
-    {
-        return $this->outgoingHeaders;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function appendOutgoingHeader(array $headers): void
-    {
-        $this->outgoingHeaders = array_merge($this->outgoingHeaders, $headers);
     }
 }

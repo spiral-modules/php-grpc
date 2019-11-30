@@ -1,10 +1,13 @@
 <?php
+
 /**
  * Spiral Framework.
  *
  * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+
+declare(strict_types=1);
 
 namespace Spiral\GRPC\Tests;
 
@@ -19,85 +22,80 @@ class MethodTest extends TestCase
     /**
      * @expectedException \Spiral\GRPC\Exception\GRPCException
      */
-    public function testInvalidParse()
+    public function testInvalidParse(): void
     {
         Method::parse(new \ReflectionMethod($this, 'testInvalidParse'));
     }
 
-    public function testMatch()
+    public function testMatch(): void
     {
         $s = new TestService();
         $this->assertTrue(Method::match(new \ReflectionMethod($s, 'Info')));
     }
 
-    public function testNoMatch()
+    public function testNoMatch(): void
     {
-        $this->assertFalse(Method::match(new \ReflectionMethod($this, 't_M')));
+        $this->assertFalse(Method::match(new \ReflectionMethod($this, 'tM')));
     }
 
-    public function testNoMatch2()
+    public function testNoMatch2(): void
     {
-        $this->assertFalse(Method::match(new \ReflectionMethod($this, 't_M2')));
+        $this->assertFalse(Method::match(new \ReflectionMethod($this, 'tM2')));
     }
 
-    public function testNoMatch3()
+    public function testNoMatch3(): void
     {
-        $this->assertFalse(Method::match(new \ReflectionMethod($this, 't_M3')));
+        $this->assertFalse(Method::match(new \ReflectionMethod($this, 'tM3')));
     }
 
-    public function testNoMatch4()
+    public function testNoMatch4(): void
     {
-        $this->assertFalse(Method::match(new \ReflectionMethod($this, 't_M4')));
+        $this->assertFalse(Method::match(new \ReflectionMethod($this, 'tM4')));
     }
 
-    public function testNoMatch5()
+    public function testNoMatch5(): void
     {
-        $this->assertFalse(Method::match(new \ReflectionMethod($this, 't_M5')));
+        $this->assertFalse(Method::match(new \ReflectionMethod($this, 'tM5')));
     }
 
-    public function testMethodName()
+    public function testMethodName(): void
     {
         $s = new TestService();
         $m = Method::parse(new \ReflectionMethod($s, 'Info'));
         $this->assertSame('Info', $m->getName());
     }
 
-    public function testMethodInputType()
+    public function testMethodInputType(): void
     {
         $s = new TestService();
         $m = Method::parse(new \ReflectionMethod($s, 'Info'));
         $this->assertSame(Message::class, $m->getInputType());
     }
 
-    public function testMethodOutputType()
+    public function testMethodOutputType(): void
     {
         $s = new TestService();
         $m = Method::parse(new \ReflectionMethod($s, 'Info'));
         $this->assertSame(Message::class, $m->getOutputType());
     }
 
-    public function t_M(ContextInterface $context, TestService $input): Message
+    public function tM(ContextInterface $context, TestService $input): Message
     {
-
     }
 
-    public function t_M2(ContextInterface $context, Message $input): TestService
+    public function tM2(ContextInterface $context, Message $input): TestService
     {
-
     }
 
-    public function t_M3(TestService $context, Message $input): TestService
+    public function tM3(TestService $context, Message $input): TestService
     {
-
     }
 
-    public function t_M4(TestService $context, Message $input): Invalid
+    public function tM4(TestService $context, Message $input): Invalid
     {
-
     }
 
-    public function t_M5(TestService $context, Message $input)
+    public function tM5(TestService $context, Message $input): void
     {
-
     }
 }

@@ -1,10 +1,12 @@
 <?php
+
 /**
  * Spiral Framework.
  *
  * @license   MIT
  * @author    Anton Titov (Wolfy-J)
  */
+
 declare(strict_types=1);
 
 namespace Spiral\GRPC;
@@ -48,7 +50,7 @@ final class Invoker implements InvokerInterface
             $class = $method->getInputType();
 
             /** @var Message $in */
-            $in = new $class;
+            $in = new $class();
             $in->mergeFromString($body);
 
             return $in;

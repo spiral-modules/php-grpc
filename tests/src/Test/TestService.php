@@ -61,7 +61,7 @@ class TestService implements TestInterface
                 break;
         }
 
-        $ctx->appendOutgoingHeader(['foo' => 'bar']);
+        $ctx->getValue(GRPC\ResponseHeaders::class)->set('foo', 'bar');
 
         return $out;
     }
