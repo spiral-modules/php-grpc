@@ -82,7 +82,7 @@ final class Server
 
                 /** @var ResponseHeaders|null $responseHeaders */
                 $responseHeaders = $grpcCtx->getValue(ResponseHeaders::class);
-                $worker->send($resp, $responseHeaders ? $responseHeaders->packHeaders() : null);
+                $worker->send($resp, $responseHeaders ? $responseHeaders->packHeaders() : '{}');
             } catch (GRPCException $e) {
                 $worker->error($this->packError($e));
             } catch (\Throwable $e) {

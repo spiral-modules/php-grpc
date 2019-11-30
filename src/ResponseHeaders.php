@@ -19,26 +19,26 @@ final class ResponseHeaders implements \IteratorAggregate
     /**
      * @param array $headers
      */
-    public function __construct(array $headers)
+    public function __construct(array $headers = [])
     {
         $this->headers = $headers;
     }
 
     /**
      * @param string $key
-     * @param mixed  $value
+     * @param string $value
      */
-    public function set(string $key, $value): void
+    public function set(string $key, string $value): void
     {
         $this->headers[$key] = $value;
     }
 
     /**
      * @param string $key
-     * @param null   $default
-     * @return mixed|null
+     * @param string $default $default
+     * @return string $default|null
      */
-    public function get(string $key, $default = null)
+    public function get(string $key, string $default = null): ?string
     {
         return $this->headers[$key] ?? $default;
     }
@@ -56,6 +56,10 @@ final class ResponseHeaders implements \IteratorAggregate
      */
     public function packHeaders(): string
     {
+        if ($this->headers === []) {
+            return '{}';
+        }
+
         return json_encode($this->headers);
     }
 }

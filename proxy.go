@@ -82,7 +82,7 @@ func (p *Proxy) methodHandler(method string) func(
 	srv interface{},
 	ctx context.Context,
 	dec func(interface{},
-	) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	return func(
 		srv interface{},
 		ctx context.Context,
@@ -139,14 +139,17 @@ func (p *Proxy) responseMetadata(resp *roadrunner.Payload) (metadata.MD, error) 
 	if resp == nil || len(resp.Context) == 0 {
 		return md, nil
 	}
+	
 	var rpcMetadata map[string]string
 	err := json.Unmarshal(resp.Context, &rpcMetadata)
 	if err != nil {
 		return md, err
 	}
+
 	if len(rpcMetadata) > 0 {
 		md = metadata.New(rpcMetadata)
 	}
+
 	return md, nil
 }
 
