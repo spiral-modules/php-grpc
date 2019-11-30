@@ -26,7 +26,8 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "": "tests/src/"
+      "": "tests/src/",
+      "Spiral\\GRPC\\Tests\\": "tests/GRPC/"
     }
   }
 }
