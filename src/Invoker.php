@@ -51,7 +51,7 @@ final class Invoker implements InvokerInterface
 
             /** @var Message $in */
             $in = new $class();
-            if (!empty($body)) {
+            if ($body !== null) {
                 $in->mergeFromString($body);
             }
 
