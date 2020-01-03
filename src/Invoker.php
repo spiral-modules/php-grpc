@@ -33,7 +33,7 @@ final class Invoker implements InvokerInterface
         try {
             return $out->serializeToString();
         } catch (\Throwable $e) {
-            throw new InvokeException($e->getMessage(), StatusCode::INTERNAL, $e);
+            throw new InvokeException($e->getMessage(), StatusCode::INTERNAL, [], $e);
         }
     }
 
@@ -51,11 +51,13 @@ final class Invoker implements InvokerInterface
 
             /** @var Message $in */
             $in = new $class();
-            $in->mergeFromString($body);
+            if (!empty($body)) {
+                $in->mergeFromString($body);
+            }
 
             return $in;
         } catch (\Throwable $e) {
-            throw new InvokeException($e->getMessage(), StatusCode::INTERNAL, $e);
+            throw new InvokeException($e->getMessage(), StatusCode::INTERNAL, [], $e);
         }
     }
 }
