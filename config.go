@@ -55,12 +55,14 @@ func (c *Config) Valid() error {
 		return errors.New("proto file is required")
 	}
 
-	if _, err := os.Stat(c.Proto); err != nil {
-		if os.IsNotExist(err) {
-			return fmt.Errorf("proto file '%s' does not exists", c.Proto)
-		}
+	if c.Proto != "" {
+		if _, err := os.Stat(c.Proto); err != nil {
+			if os.IsNotExist(err) {
+				return fmt.Errorf("proto file '%s' does not exists", c.Proto)
+			}
 
-		return err
+			return err
+		}
 	}
 
 	if c.Workers.Command != "" {
