@@ -113,6 +113,7 @@ final class ServiceWrapper
             throw new ServiceException(
                 "Invalid service interface `{$interface}`.",
                 StatusCode::INTERNAL,
+                [],
                 $e
             );
         }
