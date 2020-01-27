@@ -37,11 +37,9 @@ type TLS struct {
 
 // Hydrate the config and validate it's values.
 func (c *Config) Hydrate(cfg service.Config) error {
-	if c.Workers == nil {
-		c.Workers = &roadrunner.ServerConfig{}
-	}
-
+	c.Workers = &roadrunner.ServerConfig{}
 	c.Workers.InitDefaults()
+
 	if err := cfg.Unmarshal(c); err != nil {
 		return err
 	}
@@ -52,7 +50,8 @@ func (c *Config) Hydrate(cfg service.Config) error {
 
 // Valid validates the configuration.
 func (c *Config) Valid() error {
-	if c.Proto == "" {
+	if c.Proto == "" && c.Workers.Command != "" {
+		// only when rr server is set
 		return errors.New("proto file is required")
 	}
 
@@ -64,8 +63,10 @@ func (c *Config) Valid() error {
 		return err
 	}
 
-	if err := c.Workers.Pool.Valid(); err != nil {
-		return err
+	if c.Workers.Command != "" {
+		if err := c.Workers.Pool.Valid(); err != nil {
+			return err
+		}
 	}
 
 	if !strings.Contains(c.Listen, ":") {

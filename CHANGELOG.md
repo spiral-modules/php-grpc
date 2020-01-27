@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+v1.2.0 (27.01.2020)
+-------------------
+- added the ability to work on Golang level only (without roadrunner worker and proto file)
+
+v1.1.1 (27.01.2020)
+-------------------
+- [bugfix] invalid constructor parameters in ServiceException by @everflux
+
 v1.1.0 (30.11.2019)
 -------------------
 - added automatic CS fixing

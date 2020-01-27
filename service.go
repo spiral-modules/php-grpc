@@ -63,6 +63,10 @@ func (svc *Service) Init(cfg *Config, r *rpc.Service, e env.Environment) (ok boo
 		}
 	}
 
+	if svc.cfg.Workers.Command != "" {
+		svc.rr = roadrunner.NewServer(svc.cfg.Workers)
+	}
+
 	return true, nil
 }
 
@@ -70,40 +74,44 @@ func (svc *Service) Init(cfg *Config, r *rpc.Service, e env.Environment) (ok boo
 func (svc *Service) Serve() (err error) {
 	svc.mu.Lock()
 
-	if svc.env != nil {
-		if err := svc.env.Copy(svc.cfg.Workers); err != nil {
+	if svc.grpc, err = svc.createGPRCServer(); err != nil {
+		svc.mu.Unlock()
+		return err
+	}
+
+	ls, err := svc.cfg.Listener()
+	if err != nil {
+		svc.mu.Unlock()
+		return err
+	}
+	defer ls.Close()
+
+	if svc.rr != nil {
+		if svc.env != nil {
+			if err := svc.env.Copy(svc.cfg.Workers); err != nil {
+				svc.mu.Unlock()
+				return err
+			}
+		}
+
+		svc.cfg.Workers.SetEnv("RR_GRPC", "true")
+
+		svc.rr.Listen(svc.throw)
+
+		if svc.cr != nil {
+			svc.rr.Attach(svc.cr)
+		}
+
+		if err := svc.rr.Start(); err != nil {
+			svc.mu.Unlock()
 			return err
 		}
+		defer svc.rr.Stop()
 	}
-
-	svc.cfg.Workers.SetEnv("RR_GRPC", "true")
-
-	svc.rr = roadrunner.NewServer(svc.cfg.Workers)
-	svc.rr.Listen(svc.throw)
-
-	if svc.cr != nil {
-		svc.rr.Attach(svc.cr)
-	}
-
-	if svc.grpc, err = svc.createGPRCServer(); err != nil {
-		return err
-	}
-
-	lis, err := svc.cfg.Listener()
-	if err != nil {
-		return err
-	}
-
-	defer lis.Close()
 
 	svc.mu.Unlock()
 
-	if err := svc.rr.Start(); err != nil {
-		return err
-	}
-	defer svc.rr.Stop()
-
-	return svc.grpc.Serve(lis)
+	return svc.grpc.Serve(ls)
 }
 
 // Stop the service.
@@ -167,22 +175,24 @@ func (svc *Service) createGPRCServer() (*grpc.Server, error) {
 
 	server := grpc.NewServer(opts...)
 
-	// php proxy services
-	services, err := parser.File(svc.cfg.Proto, path.Dir(svc.cfg.Proto))
-	if err != nil {
-		return nil, err
-	}
-
-	for _, service := range services {
-		p := NewProxy(fmt.Sprintf("%s.%s", service.Package, service.Name), svc.cfg.Proto, svc.rr)
-		for _, m := range service.Methods {
-			p.RegisterMethod(m.Name)
+	if svc.cfg.Proto != "" && svc.rr != nil {
+		// php proxy services
+		services, err := parser.File(svc.cfg.Proto, path.Dir(svc.cfg.Proto))
+		if err != nil {
+			return nil, err
 		}
 
-		server.RegisterService(p.ServiceDesc(), p)
+		for _, service := range services {
+			p := NewProxy(fmt.Sprintf("%s.%s", service.Package, service.Name), svc.cfg.Proto, svc.rr)
+			for _, m := range service.Methods {
+				p.RegisterMethod(m.Name)
+			}
+
+			server.RegisterService(p.ServiceDesc(), p)
+		}
 	}
 
-	// external services
+	// external and native  services
 	for _, r := range svc.services {
 		r(server)
 	}
