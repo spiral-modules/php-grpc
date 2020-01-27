@@ -8,7 +8,7 @@ require (
 	github.com/prometheus/client_golang v1.0.0
 	github.com/sirupsen/logrus v1.3.0
 	github.com/spf13/cobra v0.0.3
-	github.com/spiral/roadrunner v1.4.8
+	github.com/spiral/roadrunner v1.5.3
 	github.com/stretchr/testify v1.3.0
 	golang.org/x/net v0.0.0-20181114220301-adae6a3d119a
 	google.golang.org/grpc v1.18.0
