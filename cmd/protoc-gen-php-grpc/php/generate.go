@@ -25,15 +25,34 @@ package php
 import (
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
 	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
+	"strconv"
+	"strings"
 )
 
 // Generate generates needed service classes
 func Generate(req *plugin.CodeGeneratorRequest) *plugin.CodeGeneratorResponse {
 	resp := &plugin.CodeGeneratorResponse{}
 
+	filePerMethod := false
+	configName := "FilePerMethod="
+	for _, config := range strings.Split(req.GetParameter(), ",") {
+		if strings.HasPrefix(config, configName) {
+			val, err :=  strconv.ParseBool(strings.TrimPrefix(config, configName))
+			if err != nil {
+				panic(err)
+			}
+			filePerMethod = val
+		}
+	}
 	for _, file := range req.ProtoFile {
 		for _, service := range file.Service {
-			resp.File = append(resp.File, generate(req, file, service))
+			if filePerMethod == true {
+				for _, method := range service.Method {
+					resp.File = append(resp.File, generateMethod(req, file, service, method))
+				}
+			} else {
+				resp.File = append(resp.File, generate(req, file, service))
+			}
 		}
 	}
 
@@ -48,6 +67,18 @@ func generate(
 	return &plugin.CodeGeneratorResponse_File{
 		Name:    str(filename(file, service.Name)),
 		Content: str(body(req, file, service)),
+	}
+}
+
+func generateMethod(
+	req *plugin.CodeGeneratorRequest,
+	file *descriptor.FileDescriptorProto,
+	service *descriptor.ServiceDescriptorProto,
+	method *descriptor.MethodDescriptorProto,
+) *plugin.CodeGeneratorResponse_File {
+	return &plugin.CodeGeneratorResponse_File{
+		Name:    str(methodInterfaceFilename(file, method.Name)),
+		Content: str(methodInterfaceBody(req, file, service, method)),
 	}
 }
 
