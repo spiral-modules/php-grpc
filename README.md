@@ -15,7 +15,7 @@ Documentation:
   * [Service Code](https://spiral.dev/docs/grpc-service)
   * [Client SDK](https://spiral.dev/docs/grpc-client)
   * [Golang Services](https://spiral.dev/docs/grpc-golang)
-  * [Streaming and Batch processing](https://spiral.dev/docs/grpc-streaming)
+  * [Data Streaming](https://spiral.dev/docs/grpc-streaming)
 
 Features:
 --------
