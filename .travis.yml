@@ -3,10 +3,10 @@ language: go
 sudo: required
 
 go:
-  - "1.12.x"
+  - "1.14.x"
 
 install:
-  - PROTOBUF_VERSION=3.7.0
+  - PROTOBUF_VERSION=3.11.4
   - PROTOC_FILENAME=protoc-${PROTOBUF_VERSION}-linux-x86_64.zip
   - pushd /home/travis
   - wget https://github.com/google/protobuf/releases/download/v${PROTOBUF_VERSION}/${PROTOC_FILENAME}
