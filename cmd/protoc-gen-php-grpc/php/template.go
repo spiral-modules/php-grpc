@@ -61,8 +61,6 @@ interface {{ .Service.Name | interface }} extends GRPC\ServiceInterface
 }
 `
 
-type imports []string
-
 var tpl *template.Template
 
 func init() {

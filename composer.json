@@ -19,6 +19,9 @@
     "phpunit/phpunit": "~7.0",
     "spiral/code-style": "^1.0"
   },
+  "config": {
+    "vendor-dir": "vendor_php"
+  },
   "autoload": {
     "psr-4": {
       "Spiral\\GRPC\\": "src/"

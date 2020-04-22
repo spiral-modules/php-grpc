@@ -29,7 +29,7 @@ func newNamespace(
 	ns := &ns{
 		Package:   *file.Package,
 		Namespace: namespace(file.Package, "\\"),
-		Import:    make(map[string]string, 0),
+		Import:    make(map[string]string),
 	}
 
 	if file.Options != nil && file.Options.PhpNamespace != nil {
