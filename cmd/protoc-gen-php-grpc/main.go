@@ -23,12 +23,13 @@
 package main
 
 import (
-	"github.com/golang/protobuf/proto"
-	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
-	"github.com/spiral/php-grpc/cmd/protoc-gen-php-grpc/php"
 	"io"
 	"io/ioutil"
 	"os"
+
+	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
+	"github.com/spiral/php-grpc/cmd/protoc-gen-php-grpc/php"
+	"google.golang.org/protobuf/proto"
 )
 
 func main() {

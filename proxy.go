@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/spiral/roadrunner"
 	"golang.org/x/net/context"
@@ -15,6 +14,7 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/peer"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 )
 
 // base interface for Proxy class
@@ -182,7 +182,7 @@ func (p *Proxy) makePayload(ctx context.Context, method string, body rawMessage)
 // mounts proper error code for the error
 func wrapError(err error) error {
 	// internal agreement
-	if strings.Index(err.Error(), "|:|") != -1 {
+	if strings.Contains(err.Error(), "|:|") {
 		chunks := strings.Split(err.Error(), "|:|")
 		code := codes.Internal
 
