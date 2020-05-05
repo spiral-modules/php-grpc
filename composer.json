@@ -13,7 +13,7 @@
     "php": "^7.2",
     "ext-json": "*",
     "google/protobuf": "^3.7",
-    "spiral/roadrunner": "^1.2"
+    "spiral/roadrunner": "^1.8"
   },
   "require-dev": {
     "phpunit/phpunit": "~7.0",
