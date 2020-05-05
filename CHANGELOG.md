@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+v1.2.2 (05.05.2020)
+-------------------
+- roadrunner version bump to 1.8.0
+
 v1.2.1 (22.04.2020)
 -------------------
 - replaced deprecated github.com/golang/protobuf/proto with new google.golang.org/protobuf/proto

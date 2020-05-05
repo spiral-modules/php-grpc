@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"errors"
+
 	"github.com/spiral/roadrunner/util"
 )
 

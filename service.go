@@ -3,6 +3,10 @@ package grpc
 import (
 	"context"
 	"fmt"
+	"path"
+	"sync"
+	"time"
+
 	"github.com/spiral/php-grpc/parser"
 	"github.com/spiral/roadrunner"
 	"github.com/spiral/roadrunner/service/env"
@@ -10,9 +14,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/encoding"
-	"path"
-	"sync"
-	"time"
 )
 
 // ID sets public GRPC service ID for roadrunner.Container.
