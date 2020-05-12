@@ -36,11 +36,15 @@ import (
 
 func init() {
 	cobra.OnInitialize(func() {
-		if rr.Debug {
-			svc, _ := rr.Container.Get(rrpc.ID)
-			if svc, ok := svc.(*rrpc.Service); ok {
+		svc, _ := rr.Container.Get(rrpc.ID)
+		if svc, ok := svc.(*rrpc.Service); ok {
+			if rr.Debug {
 				debug := &debugger{logger: rr.Logger}
 				svc.AddListener(debug.listener)
+			} else {
+				svc.AddListener(func(event int, ctx interface{}) {
+					util.StdErrOutput(event, ctx)
+				})
 			}
 		}
 	})
