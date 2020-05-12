@@ -1,4 +1,4 @@
-module github.com/real-digital/php-grpc
+module github.com/spiral/php-grpc
 
 go 1.13
 
