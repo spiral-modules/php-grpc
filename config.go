@@ -125,6 +125,6 @@ func (c *Config) Listener() (net.Listener, error) {
 
 // EnableTLS returns true if rr must listen TLS connections.
 func (c *Config) EnableTLS() bool {
-	// Key and Cert OR Key and Cert and
-	return (c.TLS.Key != "" && c.TLS.Cert != "") || (c.TLS.RootCA != "" && c.TLS.Key != "" && c.TLS.Cert != "")
+	// Key and Cert OR Key and Cert and RootCA
+	return (c.TLS.RootCA != "" && c.TLS.Key != "" && c.TLS.Cert != "") || (c.TLS.Key != "" && c.TLS.Cert != "")
 }

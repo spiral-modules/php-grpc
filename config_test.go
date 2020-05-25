@@ -26,8 +26,9 @@ func Test_Config_Valid_TLS(t *testing.T) {
 	cfg := &Config{
 		Listen: "tcp://:8080",
 		TLS: TLS{
-			Key:  "tests/server.key",
-			Cert: "tests/server.crt",
+			Key:    "tests/server.key",
+			Cert:   "tests/server.crt",
+			RootCA: "tests/server.crt",
 		},
 		Proto: "tests/test.proto",
 		Workers: &roadrunner.ServerConfig{
@@ -179,6 +180,52 @@ func Test_Config_TLS_No_key(t *testing.T) {
 		},
 	}
 
+	// should return nil, because c.EnableTLS will be false in case of missed certs
+	assert.Nil(t, cfg.Valid())
+}
+
+func Test_Config_TLS_WrongKeyPath(t *testing.T) {
+	cfg := &Config{
+		Listen: "tcp://:8080",
+		TLS: TLS{
+			Cert: "testss/server.crt",
+			Key:  "testss/server.key",
+		},
+		Proto: "tests/test.proto",
+		Workers: &roadrunner.ServerConfig{
+			Command: "php tests/worker.php",
+			Relay:   "pipes",
+			Pool: &roadrunner.Config{
+				NumWorkers:      1,
+				AllocateTimeout: time.Second,
+				DestroyTimeout:  time.Second,
+			},
+		},
+	}
+
+	assert.Error(t, cfg.Valid())
+}
+
+func Test_Config_TLS_WrongRootCAPath(t *testing.T) {
+	cfg := &Config{
+		Listen: "tcp://:8080",
+		TLS: TLS{
+			Cert: "tests/server.crt",
+			Key:  "tests/server.key",
+			RootCA: "testss/server.crt",
+		},
+		Proto: "tests/test.proto",
+		Workers: &roadrunner.ServerConfig{
+			Command: "php tests/worker.php",
+			Relay:   "pipes",
+			Pool: &roadrunner.Config{
+				NumWorkers:      1,
+				AllocateTimeout: time.Second,
+				DestroyTimeout:  time.Second,
+			},
+		},
+	}
+
 	assert.Error(t, cfg.Valid())
 }
 
@@ -200,5 +247,6 @@ func Test_Config_TLS_No_Cert(t *testing.T) {
 		},
 	}
 
-	assert.Error(t, cfg.Valid())
+	// should return nil, because c.EnableTLS will be false in case of missed certs
+	assert.Nil(t, cfg.Valid())
 }
