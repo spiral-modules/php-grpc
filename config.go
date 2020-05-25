@@ -33,6 +33,9 @@ type TLS struct {
 
 	// Cert is https certificate.
 	Cert string
+
+	// Root CA
+	RootCA string
 }
 
 // Hydrate the config and validate it's values.
@@ -91,6 +94,16 @@ func (c *Config) Valid() error {
 
 			return err
 		}
+
+		// RootCA is optional, but if provided - check it
+		if c.TLS.RootCA != "" {
+			if _, err := os.Stat(c.TLS.RootCA); err != nil {
+				if os.IsNotExist(err) {
+					return fmt.Errorf("root ca path provided, but key file '%s' does not exists", c.TLS.RootCA)
+				}
+				return err
+			}
+		}
 	}
 
 	return nil
@@ -112,5 +125,6 @@ func (c *Config) Listener() (net.Listener, error) {
 
 // EnableTLS returns true if rr must listen TLS connections.
 func (c *Config) EnableTLS() bool {
-	return c.TLS.Key != "" || c.TLS.Cert != ""
+	// Key and Cert OR Key and Cert and
+	return (c.TLS.Key != "" && c.TLS.Cert != "") || (c.TLS.RootCA != "" && c.TLS.Key != "" && c.TLS.Cert != "")
 }

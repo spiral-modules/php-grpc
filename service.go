@@ -2,7 +2,11 @@ package grpc
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
+	"errors"
 	"fmt"
+	"io/ioutil"
 	"path"
 	"sync"
 	"time"
@@ -18,6 +22,8 @@ import (
 
 // ID sets public GRPC service ID for roadrunner.Container.
 const ID = "grpc"
+
+var couldNotAppendPemError = errors.New("could not append Certs from PEM")
 
 // Service manages set of GPRC services, options and connections.
 type Service struct {
@@ -203,13 +209,44 @@ func (svc *Service) createGPRCServer() (*grpc.Server, error) {
 
 // server options
 func (svc *Service) serverOptions() (opts []grpc.ServerOption, err error) {
+	var tcreds credentials.TransportCredentials
 	if svc.cfg.EnableTLS() {
-		creds, err := credentials.NewServerTLSFromFile(svc.cfg.TLS.Cert, svc.cfg.TLS.Key)
-		if err != nil {
-			return nil, err
+		// if client CA is not empty we combine it with Cert and Key
+		if svc.cfg.TLS.RootCA != "" {
+			cert, err := tls.LoadX509KeyPair(svc.cfg.TLS.Cert, svc.cfg.TLS.Key)
+			if err != nil {
+				return nil, err
+			}
+
+			certPool, err := x509.SystemCertPool()
+			if err != nil {
+				return nil, err
+			}
+			if certPool == nil {
+				certPool = x509.NewCertPool()
+			}
+			rca, err := ioutil.ReadFile(svc.cfg.TLS.RootCA)
+			if err != nil {
+				return nil, err
+			}
+
+			if ok := certPool.AppendCertsFromPEM(rca); !ok {
+				return nil, couldNotAppendPemError
+			}
+
+			tcreds = credentials.NewTLS(&tls.Config{
+				ClientAuth:   tls.RequireAndVerifyClientCert,
+				Certificates: []tls.Certificate{cert},
+				ClientCAs:    certPool,
+			})
+		} else {
+			tcreds, err = credentials.NewServerTLSFromFile(svc.cfg.TLS.Cert, svc.cfg.TLS.Key)
+			if err != nil {
+				return nil, err
+			}
 		}
 
-		opts = append(opts, grpc.Creds(creds))
+		opts = append(opts, grpc.Creds(tcreds))
 	}
 
 	opts = append(opts, svc.opts...)
