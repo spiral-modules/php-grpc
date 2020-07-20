@@ -1,19 +1,23 @@
 CHANGELOG
 =========
 
+v1.3.1 (20.07.2020)
+-------------------
+- RoadRunner version updated to 1.8.2
+
 v1.3.0 (25.05.2020)
 -------------------
 - Add the ability to append the certificate authority in the config under the `tls: rootCA` key
-- RoadRunner version bump to 1.8.1
+- RoadRunner version updated to 1.8.1
 
 v1.2.2 (05.05.2020)
 -------------------
-- RoadRunner version bump to 1.8.0
+- RoadRunner version updated to 1.8.0
 
 v1.2.1 (22.04.2020)
 -------------------
 - Replaced deprecated github.com/golang/protobuf/proto with new google.golang.org/protobuf/proto
-- RoadRunner version bump to 1.7.1
+- RoadRunner version updated to 1.7.1
 
 v1.2.0 (27.01.2020)
 -------------------
