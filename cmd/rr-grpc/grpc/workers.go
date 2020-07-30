@@ -21,16 +21,17 @@
 package grpc
 
 import (
-	tm "github.com/buger/goterm"
-	"github.com/spf13/cobra"
-	rrpc "github.com/spiral/php-grpc"
-	rr "github.com/spiral/roadrunner/cmd/rr/cmd"
-	"github.com/spiral/roadrunner/cmd/util"
 	"net/rpc"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	tm "github.com/buger/goterm"
+	"github.com/spf13/cobra"
+	rrpc "github.com/spiral/php-grpc"
+	rr "github.com/spiral/roadrunner/cmd/rr/cmd"
+	"github.com/spiral/roadrunner/cmd/util"
 )
 
 var (

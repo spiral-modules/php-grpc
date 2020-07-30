@@ -22,6 +22,8 @@ package grpc
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	rrpc "github.com/spiral/php-grpc"
@@ -31,7 +33,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/peer"
 	"google.golang.org/grpc/status"
-	"time"
 )
 
 func init() {

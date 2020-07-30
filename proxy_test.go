@@ -16,6 +16,8 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+const addr = "localhost:9080"
+
 func Test_Proxy_Error(t *testing.T) {
 	logger, _ := test.NewNullLogger()
 	logger.SetLevel(logrus.DebugLevel)
@@ -54,7 +56,7 @@ func Test_Proxy_Error(t *testing.T) {
 	time.Sleep(time.Millisecond * 100)
 	defer c.Stop()
 
-	cl, cn := getClient("localhost:9080")
+	cl, cn := getClient(addr)
 	defer cn.Close()
 
 	_, err := cl.Throw(context.Background(), &tests.Message{Msg: "notFound"})
@@ -117,7 +119,7 @@ func Test_Proxy_Metadata(t *testing.T) {
 	time.Sleep(time.Millisecond * 100)
 	defer c.Stop()
 
-	cl, cn := getClient("localhost:9080")
+	cl, cn := getClient(addr)
 	defer cn.Close()
 
 	ctx := metadata.AppendToOutgoingContext(context.Background(), "key", "proxy-value")

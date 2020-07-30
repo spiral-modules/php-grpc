@@ -24,8 +24,9 @@ package php
 
 import (
 	"bytes"
-	"github.com/c9s/inflect"
 	"strings"
+
+	"github.com/c9s/inflect"
 )
 
 // @see https://github.com/protocolbuffers/protobuf/blob/master/php/ext/google/protobuf/protobuf.c#L168

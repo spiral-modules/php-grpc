@@ -21,14 +21,16 @@
 package grpc
 
 import (
+	"time"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/spf13/cobra"
 	rrpc "github.com/spiral/php-grpc"
+	"github.com/spiral/roadrunner"
 	rr "github.com/spiral/roadrunner/cmd/rr/cmd"
 	"github.com/spiral/roadrunner/service/metrics"
 	"github.com/spiral/roadrunner/util"
 	"google.golang.org/grpc/status"
-	"time"
 )
 
 func init() {
@@ -107,7 +109,7 @@ func (c *metricCollector) listener(event int, ctx interface{}) {
 }
 
 // collect memory usage by server workers
-func (c *metricCollector) collectMemory(service *rrpc.Service, tick time.Duration) {
+func (c *metricCollector) collectMemory(service roadrunner.Controllable, tick time.Duration) {
 	started := false
 	for {
 		server := service.Server()
@@ -121,7 +123,7 @@ func (c *metricCollector) collectMemory(service *rrpc.Service, tick time.Duratio
 		if workers, err := util.ServerState(server); err == nil {
 			sum := 0.0
 			for _, w := range workers {
-				sum = sum + float64(w.MemoryUsage)
+				sum += float64(w.MemoryUsage)
 			}
 
 			c.workersMemory.Set(sum)
