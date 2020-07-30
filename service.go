@@ -18,6 +18,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/encoding"
+	"google.golang.org/grpc/keepalive"
 )
 
 // ID sets public GRPC service ID for roadrunner.Container.
@@ -246,7 +247,22 @@ func (svc *Service) serverOptions() (opts []grpc.ServerOption, err error) {
 			}
 		}
 
+		serverOptions := []grpc.ServerOption{
+			grpc.MaxSendMsgSize(int(svc.cfg.MaxSendMsgSize)),
+			grpc.MaxRecvMsgSize(int(svc.cfg.MaxRecvMsgSize)),
+			grpc.KeepaliveParams(keepalive.ServerParameters{
+				MaxConnectionIdle:     svc.cfg.MaxConnectionIdle,
+				MaxConnectionAge:      svc.cfg.MaxConnectionAge,
+				MaxConnectionAgeGrace: svc.cfg.MaxConnectionAge,
+				Time:                  svc.cfg.PingTime,
+				Timeout:               svc.cfg.Timeout,
+			}),
+			grpc.MaxConcurrentStreams(uint32(svc.cfg.MaxConcurrentStreams)),
+		}
+
+
 		opts = append(opts, grpc.Creds(tcreds))
+		opts = append(opts, serverOptions...)
 	}
 
 	opts = append(opts, svc.opts...)
