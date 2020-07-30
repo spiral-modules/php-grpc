@@ -1,6 +1,10 @@
 package grpc
 
 import (
+	"strconv"
+	"testing"
+	"time"
+
 	"github.com/sirupsen/logrus"
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/spiral/php-grpc/tests"
@@ -8,9 +12,6 @@ import (
 	"github.com/spiral/roadrunner/service/rpc"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/net/context"
-	"strconv"
-	"testing"
-	"time"
 )
 
 func Test_RPC(t *testing.T) {
@@ -52,7 +53,7 @@ func Test_RPC(t *testing.T) {
 	time.Sleep(time.Millisecond * 100)
 	defer c.Stop()
 
-	cl, cn := getClient("localhost:9080")
+	cl, cn := getClient(addr)
 	defer cn.Close()
 
 	rcl, err := rs.Client()
@@ -114,7 +115,7 @@ func Test_Workers(t *testing.T) {
 	time.Sleep(time.Millisecond * 100)
 	defer c.Stop()
 
-	cl, cn := getClient("localhost:9080")
+	cl, cn := getClient(addr)
 	defer cn.Close()
 
 	rcl, err := rs.Client()

@@ -24,7 +24,7 @@ import (
 // ID sets public GRPC service ID for roadrunner.Container.
 const ID = "grpc"
 
-var couldNotAppendPemError = errors.New("could not append Certs from PEM")
+var errCouldNotAppendPemError = errors.New("could not append Certs from PEM")
 
 // Service manages set of GPRC services, options and connections.
 type Service struct {
@@ -232,7 +232,7 @@ func (svc *Service) serverOptions() (opts []grpc.ServerOption, err error) {
 			}
 
 			if ok := certPool.AppendCertsFromPEM(rca); !ok {
-				return nil, couldNotAppendPemError
+				return nil, errCouldNotAppendPemError
 			}
 
 			tcreds = credentials.NewTLS(&tls.Config{
@@ -259,7 +259,6 @@ func (svc *Service) serverOptions() (opts []grpc.ServerOption, err error) {
 			}),
 			grpc.MaxConcurrentStreams(uint32(svc.cfg.MaxConcurrentStreams)),
 		}
-
 
 		opts = append(opts, grpc.Creds(tcreds))
 		opts = append(opts, serverOptions...)

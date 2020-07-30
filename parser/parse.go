@@ -2,9 +2,10 @@ package parser
 
 import (
 	"bytes"
-	pp "github.com/emicklei/proto"
 	"io"
 	"os"
+
+	pp "github.com/emicklei/proto"
 )
 
 // Service contains information about singular GRPC service.

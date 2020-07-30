@@ -78,11 +78,7 @@ func (p *Proxy) ServiceDesc() *grpc.ServiceDesc {
 }
 
 // Generate method handler proxy.
-func (p *Proxy) methodHandler(method string) func(
-	srv interface{},
-	ctx context.Context,
-	dec func(interface{},
-) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func (p *Proxy) methodHandler(method string) func(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	return func(
 		srv interface{},
 		ctx context.Context,
@@ -139,7 +135,7 @@ func (p *Proxy) responseMetadata(resp *roadrunner.Payload) (metadata.MD, error) 
 	if resp == nil || len(resp.Context) == 0 {
 		return md, nil
 	}
-	
+
 	var rpcMetadata map[string]string
 	err := json.Unmarshal(resp.Context, &rpcMetadata)
 	if err != nil {
@@ -193,11 +189,8 @@ func wrapError(err error) error {
 		st := status.New(code, chunks[1]).Proto()
 
 		for _, detailsMessage := range chunks[2:] {
-
 			anyDetailsMessage := any.Any{}
-
 			err := proto.Unmarshal([]byte(detailsMessage), &anyDetailsMessage)
-
 			if err == nil {
 				st.Details = append(st.Details, &anyDetailsMessage)
 			}

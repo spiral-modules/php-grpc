@@ -2,6 +2,9 @@ package grpc
 
 import (
 	"encoding/json"
+	"testing"
+	"time"
+
 	"github.com/sirupsen/logrus"
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/spiral/php-grpc/tests"
@@ -14,8 +17,6 @@ import (
 	"golang.org/x/net/context"
 	ngrpc "google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
-	"testing"
-	"time"
 )
 
 type testCfg struct {
@@ -244,7 +245,7 @@ func Test_Service_Echo(t *testing.T) {
 	time.Sleep(time.Millisecond * 100)
 	defer c.Stop()
 
-	cl, cn := getClient("localhost:9080")
+	cl, cn := getClient(addr)
 	defer cn.Close()
 
 	out, err := cl.Echo(context.Background(), &tests.Message{Msg: "ping"})
@@ -291,7 +292,7 @@ func Test_Service_Empty(t *testing.T) {
 	time.Sleep(time.Millisecond * 100)
 	defer c.Stop()
 
-	cl, cn := getClient("localhost:9080")
+	cl, cn := getClient(addr)
 	defer cn.Close()
 
 	_, err := cl.Ping(context.Background(), &tests.EmptyMessage{})
@@ -346,7 +347,7 @@ func Test_Service_ErrorBuffer(t *testing.T) {
 	time.Sleep(time.Millisecond * 100)
 	defer c.Stop()
 
-	cl, cn := getClient("localhost:9080")
+	cl, cn := getClient(addr)
 	defer cn.Close()
 
 	out, err := cl.Die(context.Background(), &tests.Message{Msg: "WORLD"})
@@ -399,7 +400,7 @@ func Test_Service_Env(t *testing.T) {
 	time.Sleep(time.Millisecond * 100)
 	defer c.Stop()
 
-	cl, cn := getClient("localhost:9080")
+	cl, cn := getClient(addr)
 	defer cn.Close()
 
 	out, err := cl.Info(context.Background(), &tests.Message{Msg: "RR_GRPC"})

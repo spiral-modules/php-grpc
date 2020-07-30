@@ -2,12 +2,13 @@ package grpc
 
 import (
 	"encoding/json"
-	"github.com/spiral/roadrunner"
-	"github.com/spiral/roadrunner/service"
-	"github.com/stretchr/testify/assert"
 	"runtime"
 	"testing"
 	"time"
+
+	"github.com/spiral/roadrunner"
+	"github.com/spiral/roadrunner/service"
+	"github.com/stretchr/testify/assert"
 )
 
 type mockCfg struct{ cfg string }
@@ -210,8 +211,8 @@ func Test_Config_TLS_WrongRootCAPath(t *testing.T) {
 	cfg := &Config{
 		Listen: "tcp://:8080",
 		TLS: TLS{
-			Cert: "tests/server.crt",
-			Key:  "tests/server.key",
+			Cert:   "tests/server.crt",
+			Key:    "tests/server.key",
 			RootCA: "testss/server.crt",
 		},
 		Proto: "tests/test.proto",
