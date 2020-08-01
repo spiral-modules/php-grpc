@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+v1.4.0 (1.08.2020)
+-------------------
+- Add all major gRPC configuration options. [Docs](https://github.com/spiral/docs/blob/master/grpc/configuration.md#application-server)
+
 v1.3.1 (20.07.2020)
 -------------------
 - RoadRunner version updated to 1.8.2
