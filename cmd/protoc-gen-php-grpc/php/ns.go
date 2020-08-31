@@ -3,9 +3,10 @@ package php
 import (
 	"bytes"
 	"fmt"
+	"strings"
+
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
 	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
-	"strings"
 )
 
 // manages internal name representation of the package
@@ -89,7 +90,6 @@ func (ns *ns) resolve(msg *string) string {
 
 	for iPkg, ns := range ns.Import {
 		if pkg == iPkg {
-
 			// use last namespace chunk
 			nsChunks := strings.Split(ns, `\`)
 			identifier := identifier(chunks[len(chunks)-1], "")

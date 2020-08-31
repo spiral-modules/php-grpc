@@ -2,8 +2,9 @@ package grpc
 
 import (
 	"context"
-	"google.golang.org/grpc"
 	"time"
+
+	"google.golang.org/grpc"
 )
 
 // EventUnaryCall thrown after every unary call.

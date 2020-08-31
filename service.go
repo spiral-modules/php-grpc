@@ -2,7 +2,11 @@ package grpc
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
+	"errors"
 	"fmt"
+	"io/ioutil"
 	"path"
 	"sync"
 	"time"
@@ -14,10 +18,13 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/encoding"
+	"google.golang.org/grpc/keepalive"
 )
 
 // ID sets public GRPC service ID for roadrunner.Container.
 const ID = "grpc"
+
+var errCouldNotAppendPemError = errors.New("could not append Certs from PEM")
 
 // Service manages set of GPRC services, options and connections.
 type Service struct {
@@ -203,13 +210,58 @@ func (svc *Service) createGPRCServer() (*grpc.Server, error) {
 
 // server options
 func (svc *Service) serverOptions() (opts []grpc.ServerOption, err error) {
+	var tcreds credentials.TransportCredentials
 	if svc.cfg.EnableTLS() {
-		creds, err := credentials.NewServerTLSFromFile(svc.cfg.TLS.Cert, svc.cfg.TLS.Key)
-		if err != nil {
-			return nil, err
+		// if client CA is not empty we combine it with Cert and Key
+		if svc.cfg.TLS.RootCA != "" {
+			cert, err := tls.LoadX509KeyPair(svc.cfg.TLS.Cert, svc.cfg.TLS.Key)
+			if err != nil {
+				return nil, err
+			}
+
+			certPool, err := x509.SystemCertPool()
+			if err != nil {
+				return nil, err
+			}
+			if certPool == nil {
+				certPool = x509.NewCertPool()
+			}
+			rca, err := ioutil.ReadFile(svc.cfg.TLS.RootCA)
+			if err != nil {
+				return nil, err
+			}
+
+			if ok := certPool.AppendCertsFromPEM(rca); !ok {
+				return nil, errCouldNotAppendPemError
+			}
+
+			tcreds = credentials.NewTLS(&tls.Config{
+				ClientAuth:   tls.RequireAndVerifyClientCert,
+				Certificates: []tls.Certificate{cert},
+				ClientCAs:    certPool,
+			})
+		} else {
+			tcreds, err = credentials.NewServerTLSFromFile(svc.cfg.TLS.Cert, svc.cfg.TLS.Key)
+			if err != nil {
+				return nil, err
+			}
 		}
 
-		opts = append(opts, grpc.Creds(creds))
+		serverOptions := []grpc.ServerOption{
+			grpc.MaxSendMsgSize(int(svc.cfg.MaxSendMsgSize)),
+			grpc.MaxRecvMsgSize(int(svc.cfg.MaxRecvMsgSize)),
+			grpc.KeepaliveParams(keepalive.ServerParameters{
+				MaxConnectionIdle:     svc.cfg.MaxConnectionIdle,
+				MaxConnectionAge:      svc.cfg.MaxConnectionAge,
+				MaxConnectionAgeGrace: svc.cfg.MaxConnectionAge,
+				Time:                  svc.cfg.PingTime,
+				Timeout:               svc.cfg.Timeout,
+			}),
+			grpc.MaxConcurrentStreams(uint32(svc.cfg.MaxConcurrentStreams)),
+		}
+
+		opts = append(opts, grpc.Creds(tcreds))
+		opts = append(opts, serverOptions...)
 	}
 
 	opts = append(opts, svc.opts...)
