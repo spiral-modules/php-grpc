@@ -33,6 +33,9 @@ class TestService implements TestInterface
                 $grpcException = new GRPCException("main exception message", 3, [$detailsMessage]);
 
                 throw $grpcException;
+            case "regularException": {
+                throw new \Exception("Just another exception");
+            }
         }
 
         return $out;
