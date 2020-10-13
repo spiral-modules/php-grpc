@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+v1.4.1 (13.10.2020)
+-------------------
+- RoadRunner version update to 1.8.3
+- Golang version in go.mod bump to 1.15
+- Add server configuration options (debug) (@aldump)
+
 v1.4.0 (1.08.2020)
 -------------------
 - Add all major gRPC configuration options. [Docs](https://github.com/spiral/docs/blob/master/grpc/configuration.md#application-server)
