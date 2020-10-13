@@ -85,6 +85,28 @@ class ServerTest extends TestCase
         $this->assertTrue($w->done());
     }
 
+    public function testServerDebugModeNotEnabled(): void
+    {
+        $s = new Server();
+        $s->registerService(TestInterface::class, new TestService());
+
+        $w = new TestWorker($this, [
+            [
+                'ctx'   => [
+                    'service' => 'service.Test',
+                    'method'  => 'Throw',
+                    'context' => [],
+                ],
+                'send'  => $this->packMessage('regularException'),
+                'error' => 'Just another exception'
+            ]
+        ]);
+
+        $s->serve($w);
+
+        $this->assertTrue($w->done());
+    }
+
     private function packMessage(string $message): string
     {
         $m = new Message();

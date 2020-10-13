@@ -30,11 +30,18 @@ final class Server
     private $services = [];
 
     /**
-     * @param InvokerInterface|null $invoker
+     * @var array
      */
-    public function __construct(InvokerInterface $invoker = null)
+    private $options;
+
+    /**
+     * @param InvokerInterface|null $invoker
+     * @param array $options
+     */
+    public function __construct(InvokerInterface $invoker = null, array $options = [])
     {
         $this->invoker = $invoker ?? new Invoker();
+        $this->options = $options;
     }
 
     /**
@@ -86,7 +93,13 @@ final class Server
             } catch (GRPCException $e) {
                 $worker->error($this->packError($e));
             } catch (\Throwable $e) {
-                $worker->error((string)$e);
+                if ($this->isDebugMode()) {
+                    $errorText = $e->__toString();
+                } else {
+                    $errorText = $e->getMessage();
+                }
+
+                $worker->error($errorText);
             } finally {
                 if ($finalize !== null) {
                     call_user_func($finalize, $e ?? null);
@@ -147,5 +160,21 @@ final class Server
         }
 
         return implode('|:|', $data);
+    }
+
+    /**
+     * If server runs in debug mode
+     *
+     * @return bool
+     */
+    private function isDebugMode(): bool
+    {
+        $debug = false;
+
+        if (isset($this->options['debug'])) {
+            $debug = filter_var($this->options['debug'], FILTER_VALIDATE_BOOLEAN);
+        }
+
+        return $debug;
     }
 }
