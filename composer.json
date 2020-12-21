@@ -10,7 +10,7 @@
     }
   ],
   "require": {
-    "php": "^7.2",
+    "php": ">=7.2",
     "ext-json": "*",
     "google/protobuf": "^3.7",
     "spiral/roadrunner": "^1.8"
