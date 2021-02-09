@@ -64,9 +64,12 @@ final class Method
         if ($method->getNumberOfParameters() != 2) {
             return false;
         }
+        
+        $ctxType = $method->getParameters()[0]->getType();
+        $inType = $method->getParameters()[1]->getType();
 
-        $ctx = $method->getParameters()[0]->getClass();
-        $in = $method->getParameters()[1]->getClass();
+        $ctx = $ctxType && ! $ctxType->isBuiltin() ? new \ReflectionClass($ctxType->getName()) : null;
+        $in = $inType && ! $inType->isBuiltin() ? new \ReflectionClass($inType->getName()) : null;
 
         if (empty($ctx) || !$ctx->implementsInterface(ContextInterface::class)) {
             return false;
@@ -110,7 +113,7 @@ final class Method
 
         $m = new self();
         $m->name = $method->getName();
-        $m->input = $method->getParameters()[1]->getClass()->getName();
+        $m->input = $method->getParameters()[1]->getType()->getName();
         $m->output = $method->getReturnType()->getName();
 
         return $m;
