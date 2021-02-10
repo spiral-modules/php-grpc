@@ -64,10 +64,8 @@ final class Method
         if ($method->getNumberOfParameters() != 2) {
             return false;
         }
-        
         $ctxType = $method->getParameters()[0]->getType();
         $inType = $method->getParameters()[1]->getType();
-
         $ctx = $ctxType && ! $ctxType->isBuiltin() ? new \ReflectionClass($ctxType->getName()) : null;
         $in = $inType && ! $inType->isBuiltin() ? new \ReflectionClass($inType->getName()) : null;
 
