@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Spiral Framework.
+ * This file is part of RoadRunner GRPC package.
  *
- * @license   MIT
- * @author    Anton Titov (Wolfy-J)
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 declare(strict_types=1);
@@ -114,7 +114,7 @@ final class Server
      * @param string  $service
      * @param string  $method
      * @param Context $context
-     * @param string  $body
+     * @param string|null  $body
      * @return string
      *
      * @throws GRPCException
@@ -127,7 +127,7 @@ final class Server
         ?string $body
     ): string {
         if (!isset($this->services[$service])) {
-            throw new NotFoundException("Service `{$service}` not found.", StatusCode::NOT_FOUND);
+            throw NotFoundException::create("Service `{$service}` not found.", StatusCode::NOT_FOUND);
         }
 
         return $this->services[$service]->invoke($method, $context, $body);

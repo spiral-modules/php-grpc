@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Spiral Framework.
+ * This file is part of RoadRunner GRPC package.
  *
- * @license   MIT
- * @author    Anton Titov (Wolfy-J)
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 declare(strict_types=1);
@@ -20,10 +20,10 @@ interface ContextInterface
      * Create context with new value.
      *
      * @param string $key
-     * @param mixed  $value
-     * @return ContextInterface
+     * @param mixed $value
+     * @return $this
      */
-    public function withValue(string $key, $value): ContextInterface;
+    public function withValue(string $key, $value): self;
 
     /**
      * Get context value or return null.
@@ -36,7 +36,7 @@ interface ContextInterface
     /**
      * Return all context values.
      *
-     * @return array
+     * @return array<string, mixed>
      */
     public function getValues(): array;
 }

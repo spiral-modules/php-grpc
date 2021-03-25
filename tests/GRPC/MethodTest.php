@@ -19,11 +19,10 @@ use Test\TestService;
 
 class MethodTest extends TestCase
 {
-    /**
-     * @expectedException \Spiral\GRPC\Exception\GRPCException
-     */
     public function testInvalidParse(): void
     {
+        $this->expectException(\Spiral\GRPC\Exception\GRPCException::class);
+
         Method::parse(new \ReflectionMethod($this, 'testInvalidParse'));
     }
 

@@ -55,11 +55,10 @@ class ServiceWrapperTest extends TestCase implements ServiceInterface
         $this->assertCount(5, $w->getMethods());
     }
 
-    /**
-     * @expectedException \Spiral\GRPC\Exception\NotFoundException
-     */
     public function testInvokeNotFound(): void
     {
+        $this->expectException(\Spiral\GRPC\Exception\NotFoundException::class);
+
         $w = new ServiceWrapper(
             new Invoker(),
             TestInterface::class,
@@ -85,11 +84,10 @@ class ServiceWrapperTest extends TestCase implements ServiceInterface
         $this->assertSame('hello world', $m->getMsg());
     }
 
-    /**
-     * @expectedException \Spiral\GRPC\Exception\ServiceException
-     */
     public function testNotImplemented(): void
     {
+        $this->expectException(\Spiral\GRPC\Exception\ServiceException::class);
+
         $w = new ServiceWrapper(
             new Invoker(),
             TestInterface::class,
@@ -97,11 +95,10 @@ class ServiceWrapperTest extends TestCase implements ServiceInterface
         );
     }
 
-    /**
-     * @expectedException \Spiral\GRPC\Exception\ServiceException
-     */
     public function testInvalidInterface(): void
     {
+        $this->expectException(\Spiral\GRPC\Exception\ServiceException::class);
+
         $w = new ServiceWrapper(
             new Invoker(),
             InvalidInterface::class,
@@ -109,11 +106,10 @@ class ServiceWrapperTest extends TestCase implements ServiceInterface
         );
     }
 
-    /**
-     * @expectedException \Spiral\GRPC\Exception\ServiceException
-     */
     public function testInvalidInterface2(): void
     {
+        $this->expectException(\Spiral\GRPC\Exception\ServiceException::class);
+
         $w = new ServiceWrapper(
             new Invoker(),
             'NotFound',

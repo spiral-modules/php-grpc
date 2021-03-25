@@ -27,12 +27,7 @@ class InvokerTest extends TestCase
 
         $i = new Invoker();
 
-        $out = $i->invoke(
-            $s,
-            $m,
-            new Context([]),
-            $this->packMessage('hello')
-        );
+        $out = $i->invoke($s, $m, new Context([]), $this->packMessage('hello'));
 
         $m = new Message();
         $m->mergeFromString($out);
@@ -40,22 +35,16 @@ class InvokerTest extends TestCase
         $this->assertSame('hello', $m->getMsg());
     }
 
-    /**
-     * @expectedException \Spiral\GRPC\Exception\InvokeException
-     */
     public function testInvokeError(): void
     {
+        $this->expectException(\Spiral\GRPC\Exception\InvokeException::class);
+
         $s = new TestService();
         $m = Method::parse(new \ReflectionMethod($s, 'Echo'));
 
         $i = new Invoker();
 
-        $i->invoke(
-            $s,
-            $m,
-            new Context([]),
-            'invalid-message'
-        );
+        $i->invoke($s, $m, new Context([]), 'invalid-message');
     }
 
     private function packMessage(string $message): string

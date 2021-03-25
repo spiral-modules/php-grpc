@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Spiral Framework.
+ * This file is part of RoadRunner GRPC package.
  *
- * @license   MIT
- * @author    Anton Titov (Wolfy-J)
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 declare(strict_types=1);
@@ -34,7 +34,7 @@ final class ServiceWrapper
 
     /**
      * @param InvokerInterface $invoker
-     * @param string           $interface Service interface name.
+     * @param string $interface Service interface name.
      * @param ServiceInterface $service
      *
      * @throws ServiceException
@@ -73,10 +73,10 @@ final class ServiceWrapper
     }
 
     /**
-     * @param string           $method
+     * @param string $method
      * @param ContextInterface $context
-     * @param string           $input
-     * @param array            $metadata
+     * @param string|null $input
+     * @param array $metadata
      * @return string
      *
      * @throws NotFoundException
@@ -84,8 +84,8 @@ final class ServiceWrapper
      */
     public function invoke(string $method, ContextInterface $context, ?string $input, array &$metadata = []): string
     {
-        if (!isset($this->methods[$method])) {
-            throw new NotFoundException("Method `{$method}` not found in service `{$this->name}`.");
+        if (! isset($this->methods[$method])) {
+            throw NotFoundException::create("Method `{$method}` not found in service `{$this->name}`.");
         }
 
         return $this->invoker->invoke($this->service, $this->methods[$method], $context, $input, $metadata);
@@ -94,7 +94,7 @@ final class ServiceWrapper
     /**
      * Configure service name and methods.
      *
-     * @param string           $interface
+     * @param string $interface
      * @param ServiceInterface $service
      *
      * @throws ServiceException
@@ -103,23 +103,20 @@ final class ServiceWrapper
     {
         try {
             $r = new \ReflectionClass($interface);
-            if (!$r->hasConstant('NAME')) {
-                throw new ServiceException(
-                    "Invalid service interface `{$interface}`, constant `NAME` not found."
-                );
+
+            if (! $r->hasConstant('NAME')) {
+                $message = "Invalid service interface `{$interface}`, constant `NAME` not found.";
+                throw ServiceException::create($message);
             }
+
             $this->name = $r->getConstant('NAME');
         } catch (\ReflectionException $e) {
-            throw new ServiceException(
-                "Invalid service interface `{$interface}`.",
-                StatusCode::INTERNAL,
-                [],
-                $e
-            );
+            $message = "Invalid service interface `{$interface}`.";
+            throw ServiceException::create($message, StatusCode::INTERNAL, $e);
         }
 
-        if (!$service instanceof $interface) {
-            throw new ServiceException("Service handler does not implement `{$interface}`.");
+        if (! $service instanceof $interface) {
+            throw ServiceException::create("Service handler does not implement `{$interface}`.");
         }
 
         $this->service = $service;
