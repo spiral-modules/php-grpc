@@ -91,7 +91,7 @@ final class Context implements ContextInterface, \IteratorAggregate, \Countable,
     {
         assert(\is_string($offset), 'Offset argument must be a type of string');
 
-        throw new \LogicException(__METHOD__ . ' not implemented yet');
+        $this->values[$offset] = $value;
     }
 
     /**
