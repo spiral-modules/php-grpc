@@ -7,3 +7,4 @@ clover.xml
 example/vendor/
 go.sum
 builds/
+.phpunit.result.cache
