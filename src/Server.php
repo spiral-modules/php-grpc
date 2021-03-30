@@ -18,6 +18,7 @@ use Spiral\GRPC\Exception\GRPCException;
 use Spiral\GRPC\Exception\NotFoundException;
 use Spiral\GRPC\Exception\ServiceException;
 use Spiral\GRPC\Internal\Json;
+use Spiral\RoadRunner\Payload;
 use Spiral\RoadRunner\Worker;
 
 /**
@@ -106,6 +107,44 @@ final class Server
     }
 
     /**
+     * @param Worker $worker
+     * @param string $body
+     * @param string $headers
+     */
+    private function workerSend(Worker $worker, string $body, string $headers): void
+    {
+        // RoadRunner 1.x
+        if (\method_exists($worker, 'send')) {
+            $worker->send($body, $headers);
+
+            return;
+        }
+
+        // RoadRunner 2.x
+        $worker->respond(new Payload($body, $headers));
+    }
+
+    /**
+     * @param Worker $worker
+     * @param string $message
+     */
+    private function workerError(Worker $worker, string $message): void
+    {
+        $worker->error($message);
+    }
+
+    /**
+     * @param Worker $worker
+     * @return array { 0: string, 1: string } | null
+     */
+    private function workerReceive(Worker $worker): ?array
+    {
+        $body = $worker->receive($ctx);
+
+        return [(string)$body, (string)$ctx];
+    }
+
+    /**
      * Serve GRPC over given RoadRunner worker.
      *
      * @param Worker $worker
@@ -114,22 +153,24 @@ final class Server
     public function serve(Worker $worker, callable $finalize = null): void
     {
         try {
-            $body = $worker->receive($ctx);
+            $request = $this->workerReceive($worker);
 
-            if (!$body && !$ctx) {
+            if (! $request) {
                 return;
             }
 
+            [$body, $headers] = $request;
+
             /** @var ContextResponse $context */
-            $context = Json::decode((string)$ctx);
+            $context = Json::decode((string)$headers);
 
             [$answerBody, $answerHeaders] = $this->tick((string)$body, $context);
 
-            $worker->send($answerBody, $answerHeaders);
+            $this->workerSend($worker, $answerBody, $answerHeaders);
         } catch (GRPCException $e) {
-            $worker->error($this->packError($e));
+            $this->workerError($worker, $this->packError($e));
         } catch (\Throwable $e) {
-            $worker->error($this->isDebugMode() ? (string)$e : $e->getMessage());
+            $this->workerError($worker, $this->isDebugMode() ? (string)$e : $e->getMessage());
         } finally {
             if ($finalize !== null) {
                 isset($e) ? $finalize($e) : $finalize();
