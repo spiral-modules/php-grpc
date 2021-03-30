@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace Spiral\GRPC;
 
+use Spiral\GRPC\Internal\Json;
+
 /**
  * @template-implements \IteratorAggregate<string, string>
  */
@@ -78,28 +80,6 @@ final class ResponseHeaders implements \IteratorAggregate, \Countable
             return '{}';
         }
 
-        $flags = \defined('\\JSON_THROW_ON_ERROR')
-            // Avoid PHP DCE constant inlining
-            ? \constant('\\JSON_THROW_ON_ERROR')
-            : 0;
-
-        return $this->toJsonString($this->headers, $flags);
-    }
-
-    /**
-     * @param array $payload
-     * @param int $flags
-     * @return string
-     * @throws \JsonException
-     */
-    private function toJsonString(array $payload, int $flags = 0): string
-    {
-        $result = @\json_encode($payload, $flags);
-
-        if (($code = \json_last_error()) !== \JSON_ERROR_NONE) {
-            throw new \JsonException(\json_last_error_msg(), $code);
-        }
-
-        return $result;
+        return Json::encode($this->headers);
     }
 }
