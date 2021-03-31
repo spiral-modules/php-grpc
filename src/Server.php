@@ -15,6 +15,7 @@ use Google\Protobuf\Any;
 use Google\Protobuf\Internal\Message;
 use JetBrains\PhpStorm\ArrayShape;
 use Spiral\GRPC\Exception\GRPCException;
+use Spiral\GRPC\Exception\GRPCExceptionInterface;
 use Spiral\GRPC\Exception\NotFoundException;
 use Spiral\GRPC\Exception\ServiceException;
 use Spiral\GRPC\Internal\Json;
@@ -172,7 +173,7 @@ final class Server
                 [$answerBody, $answerHeaders] = $this->tick((string)$body, $context);
 
                 $this->workerSend($worker, $answerBody, $answerHeaders);
-            } catch (GRPCException $e) {
+            } catch (GRPCExceptionInterface $e) {
                 $this->workerError($worker, $this->packError($e));
             } catch (\Throwable $e) {
                 $this->workerError($worker, $this->isDebugMode() ? (string)$e : $e->getMessage());
@@ -211,10 +212,10 @@ final class Server
      * Details will be sent as serialized google.protobuf.Any messages after
      * code and exception message separated with |:| delimiter.
      *
-     * @param GRPCException $e
+     * @param GRPCExceptionInterface $e
      * @return string
      */
-    private function packError(GRPCException $e): string
+    private function packError(GRPCExceptionInterface $e): string
     {
         $data = [$e->getCode(), $e->getMessage()];
 

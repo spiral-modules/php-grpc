@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Spiral\GRPC;
 
 use Google\Protobuf\Internal\Message;
+use Spiral\GRPC\Exception\GRPCExceptionInterface;
 use Spiral\GRPC\Exception\InvokeException;
 
 final class Invoker implements InvokerInterface
@@ -39,15 +40,17 @@ final class Invoker implements InvokerInterface
         /** @var callable $callable */
         $callable = [$service, $method->getName()];
 
-        /** @var Message $message */
-        $message = $callable($ctx, $this->makeInput($method, $input));
-
-        // Note: This validation will only work if the
-        // assertions option ("zend.assertions") is enabled.
-        assert($this->assertResultType($method, $message));
-
         try {
+            /** @var Message $message */
+            $message = $callable($ctx, $this->makeInput($method, $input));
+
+            // Note: This validation will only work if the
+            // assertions option ("zend.assertions") is enabled.
+            assert($this->assertResultType($method, $message));
+
             return $message->serializeToString();
+        } catch (GRPCExceptionInterface $e) {
+            throw $e;
         } catch (\Throwable $e) {
             throw InvokeException::create($e->getMessage(), StatusCode::INTERNAL, $e);
         }
