@@ -12,8 +12,6 @@ declare(strict_types=1);
 namespace Spiral\GRPC;
 
 use Google\Protobuf\Any;
-use Google\Protobuf\Internal\Message;
-use JetBrains\PhpStorm\ArrayShape;
 use Spiral\GRPC\Exception\GRPCException;
 use Spiral\GRPC\Exception\GRPCExceptionInterface;
 use Spiral\GRPC\Exception\NotFoundException;
@@ -50,18 +48,14 @@ final class Server
     /**
      * @var ServerOptions
      */
-    #[ArrayShape(['debug' => 'bool'])]
     private $options;
 
     /**
      * @param InvokerInterface|null $invoker
      * @param ServerOptions $options
      */
-    public function __construct(
-        InvokerInterface $invoker = null,
-        #[ArrayShape(['debug' => 'bool'])]
-        array $options = []
-    ) {
+    public function __construct(InvokerInterface $invoker = null, array $options = [])
+    {
         $this->invoker = $invoker ?? new Invoker();
         $this->options = $options;
     }
