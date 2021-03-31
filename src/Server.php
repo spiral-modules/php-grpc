@@ -157,15 +157,15 @@ final class Server
     public function serve(Worker $worker, callable $finalize = null): void
     {
         while (true) {
+            $request = $this->workerReceive($worker);
+
+            if (! $request) {
+                return;
+            }
+
+            [$body, $headers] = $request;
+
             try {
-                $request = $this->workerReceive($worker);
-
-                if (! $request) {
-                    return;
-                }
-
-                [$body, $headers] = $request;
-
                 /** @var ContextResponse $context */
                 $context = Json::decode((string)$headers);
 
