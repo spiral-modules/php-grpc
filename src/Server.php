@@ -141,6 +141,10 @@ final class Server
     {
         $body = $worker->receive($ctx);
 
+        if (empty($body) && empty($ctx)) {
+            return null;
+        }
+
         return [(string)$body, (string)$ctx];
     }
 
@@ -152,28 +156,30 @@ final class Server
      */
     public function serve(Worker $worker, callable $finalize = null): void
     {
-        try {
-            $request = $this->workerReceive($worker);
+        while (true) {
+            try {
+                $request = $this->workerReceive($worker);
 
-            if (! $request) {
-                return;
-            }
+                if (! $request) {
+                    return;
+                }
 
-            [$body, $headers] = $request;
+                [$body, $headers] = $request;
 
-            /** @var ContextResponse $context */
-            $context = Json::decode((string)$headers);
+                /** @var ContextResponse $context */
+                $context = Json::decode((string)$headers);
 
-            [$answerBody, $answerHeaders] = $this->tick((string)$body, $context);
+                [$answerBody, $answerHeaders] = $this->tick((string)$body, $context);
 
-            $this->workerSend($worker, $answerBody, $answerHeaders);
-        } catch (GRPCException $e) {
-            $this->workerError($worker, $this->packError($e));
-        } catch (\Throwable $e) {
-            $this->workerError($worker, $this->isDebugMode() ? (string)$e : $e->getMessage());
-        } finally {
-            if ($finalize !== null) {
-                isset($e) ? $finalize($e) : $finalize();
+                $this->workerSend($worker, $answerBody, $answerHeaders);
+            } catch (GRPCException $e) {
+                $this->workerError($worker, $this->packError($e));
+            } catch (\Throwable $e) {
+                $this->workerError($worker, $this->isDebugMode() ? (string)$e : $e->getMessage());
+            } finally {
+                if ($finalize !== null) {
+                    isset($e) ? $finalize($e) : $finalize();
+                }
             }
         }
     }
