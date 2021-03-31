@@ -15,7 +15,7 @@ install:
   - popd
   - export GO111MODULE=on
   - go mod download
-  - composer install --no-interaction --prefer-source --ignore-platform-reqs
+  - composer update --no-interaction --prefer-source --ignore-platform-reqs
   - go get
 
 script:
