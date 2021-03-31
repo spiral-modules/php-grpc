@@ -15,14 +15,13 @@ install:
   - popd
   - export GO111MODULE=on
   - go mod download
-  - composer install --no-interaction --prefer-source --ignore-platform-reqs
+  - composer install --no-interaction --prefer-source
   - go get
 
 script:
   - go test -race -v -coverprofile=grpc.txt -covermode=atomic
   - go test ./parser -race -v -coverprofile=parser.txt -covermode=atomic
   - go test -race -v -coverprofile=protoc-gen-php-grpc.txt ./cmd/protoc-gen-php-grpc -covermode=atomic
-  - composer require phpunit/phpunit:~7.0 --ignore-platform-reqs
   - vendor/bin/spiral-cs check src tests/GRPC
   - vendor/bin/phpunit --coverage-clover=coverage.xml
   - go build cmd/protoc-gen-php-grpc/main.go
@@ -60,5 +59,14 @@ jobs:
       - sudo apt-get update
       - sudo apt-get install -y php7.4-cli php7.4-xml php7.4-xdebug
       - sudo cp `which php7.4` `which php`
+      - php -v
+      - composer self-update
+  - stage: Test
+    env: "PHP=8.0"
+    before_install:
+      - sudo add-apt-repository -y ppa:ondrej/php
+      - sudo apt-get update
+      - sudo apt-get install -y php8.0-cli php8.0-xml php8.0-xdebug
+      - sudo cp `which php8.0` `which php`
       - php -v
       - composer self-update

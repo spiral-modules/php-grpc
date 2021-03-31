@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Spiral Framework.
+ * This file is part of RoadRunner GRPC package.
  *
- * @license   MIT
- * @author    Anton Titov (Wolfy-J)
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 declare(strict_types=1);
@@ -12,42 +12,70 @@ declare(strict_types=1);
 namespace Spiral\GRPC\Exception;
 
 use Google\Protobuf\Internal\Message;
+use JetBrains\PhpStorm\Deprecated;
+use JetBrains\PhpStorm\ExpectedValues;
 use Spiral\GRPC\StatusCode;
-use Throwable;
 
-class GRPCException extends \RuntimeException
+/**
+ * @psalm-import-type StatusCodeType from StatusCode
+ */
+class GRPCException extends \RuntimeException implements MutableGRPCExceptionInterface
 {
+    /**
+     * Can be overridden by child classes.
+     *
+     * @psalm-var StatusCodeType
+     * @var int
+     */
     protected const CODE = StatusCode::UNKNOWN;
 
     /**
-     * Collection of protobuf messages for describing error which will be converted to google.protobuf.Any during
-     * sending as response.
+     * Collection of protobuf messages for describing error which will be
+     * converted to google.protobuf. Any during sending as response.
      *
      * @see https://cloud.google.com/apis/design/errors
      *
-     * @var array|Message[]
+     * @var array<Message>
      */
     private $details;
 
     /**
-     * @param string         $message
-     * @param int            $code
-     * @param array          $details
-     * @param Throwable|null $previous
+     * @param string $message
+     * @param StatusCodeType|null $code
+     * @param array<Message> $details
+     * @param \Throwable|null $previous
      */
-    public function __construct(string $message = '', int $code = 0, $details = [], Throwable $previous = null)
-    {
-        if ($code == 0) {
-            $code = static::CODE;
-        }
-
-        parent::__construct($message, $code, $previous);
+    final public function __construct(
+        string $message = '',
+        #[ExpectedValues(valuesFromClass: StatusCode::class)]
+        int $code = null,
+        array $details = [],
+        \Throwable $previous = null
+    ) {
+        parent::__construct($message, (int)($code ?? static::CODE), $previous);
 
         $this->details = $details;
     }
 
     /**
-     * @return array
+     * @param string $message
+     * @param StatusCodeType|null $code
+     * @param array<Message> $details
+     * @param \Throwable|null $previous
+     * @return static
+     */
+    public static function create(
+        string $message,
+        #[ExpectedValues(valuesFromClass: StatusCode::class)]
+        int $code = null,
+        \Throwable $previous = null,
+        array $details = []
+    ): self {
+        return new static($message, $code, $details, $previous);
+    }
+
+    /**
+     * {@inheritDoc}
      */
     public function getDetails(): array
     {
@@ -55,7 +83,7 @@ class GRPCException extends \RuntimeException
     }
 
     /**
-     * @param array $details
+     * {@inheritDoc}
      */
     public function setDetails(array $details): void
     {
@@ -63,14 +91,24 @@ class GRPCException extends \RuntimeException
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function addDetails(Message $message): void
+    {
+        $this->details[] = $message;
+    }
+
+    /**
      * Push details message to the exception.
      *
-     * @param $details
-     *
+     * @param Message $details
      * @return $this
+     * @deprecated Please use {@see GRPCException::addDetails()} method instead.
      */
-    public function withDetails($details)
-    {
+    #[Deprecated('Please use GRPCException::addDetails() instead', '%class%::addDetails(%parameter0%)')]
+    public function withDetails(
+        $details
+    ): self {
         $this->details[] = $details;
 
         return $this;

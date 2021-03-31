@@ -1,27 +1,36 @@
 <?php
 
 /**
- * Spiral Framework.
+ * This file is part of RoadRunner GRPC package.
  *
- * @license   MIT
- * @author    Anton Titov (Wolfy-J)
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 declare(strict_types=1);
 
 namespace Spiral\GRPC;
 
-final class ResponseHeaders implements \IteratorAggregate
+use Spiral\GRPC\Internal\Json;
+
+/**
+ * @template-implements \IteratorAggregate<string, string>
+ */
+final class ResponseHeaders implements \IteratorAggregate, \Countable
 {
-    /** @var array */
-    private $headers;
+    /**
+     * @var array<string, string>
+     */
+    private $headers = [];
 
     /**
-     * @param array $headers
+     * @param iterable<string, string> $headers
      */
-    public function __construct(array $headers = [])
+    public function __construct(iterable $headers = [])
     {
-        $this->headers = $headers;
+        foreach ($headers as $key => $value) {
+            $this->set($key, $value);
+        }
     }
 
     /**
@@ -35,8 +44,8 @@ final class ResponseHeaders implements \IteratorAggregate
 
     /**
      * @param string $key
-     * @param string $default $default
-     * @return string $default|null
+     * @param string|null $default
+     * @return string|null
      */
     public function get(string $key, string $default = null): ?string
     {
@@ -44,22 +53,33 @@ final class ResponseHeaders implements \IteratorAggregate
     }
 
     /**
-     * @return array
+     * {@inheritDoc}
      */
-    public function getIterator(): array
+    public function getIterator(): \Traversable
     {
-        return $this->headers;
+        return new \ArrayIterator($this->headers);
+    }
+
+    /**
+     * @return int
+     */
+    public function count(): int
+    {
+        return \count($this->headers);
     }
 
     /**
      * @return string
+     * @throws \JsonException
      */
     public function packHeaders(): string
     {
+        // If an empty array is serialized, it is cast to the string "[]"
+        // instead of object string "{}"
         if ($this->headers === []) {
             return '{}';
         }
 
-        return json_encode($this->headers);
+        return Json::encode($this->headers);
     }
 }
