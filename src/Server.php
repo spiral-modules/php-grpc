@@ -68,8 +68,10 @@ final class Server
      *  $server->registerService(EchoServiceInterface::class, new EchoService());
      * </code>
      *
-     * @param string $interface Generated service interface.
-     * @param ServiceInterface $service Must implement interface.
+     * @template T of ServiceInterface
+     *
+     * @param class-string<T> $interface Generated service interface.
+     * @param T $service Must implement interface.
      * @throws ServiceException
      */
     public function registerService(string $interface, ServiceInterface $service): void
@@ -105,6 +107,7 @@ final class Server
      * @param Worker $worker
      * @param string $body
      * @param string $headers
+     * @psalm-suppress InaccessibleMethod
      */
     private function workerSend(Worker $worker, string $body, string $headers): void
     {
@@ -131,9 +134,13 @@ final class Server
     /**
      * @param Worker $worker
      * @return array { 0: string, 1: string } | null
+     *
+     * @psalm-suppress UndefinedMethod
+     * @psalm-suppress PossiblyUndefinedVariable
      */
     private function workerReceive(Worker $worker): ?array
     {
+        /** @var string|\Stringable $body */
         $body = $worker->receive($ctx);
 
         if (empty($body) && empty($ctx)) {

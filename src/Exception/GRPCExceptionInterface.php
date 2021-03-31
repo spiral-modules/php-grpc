@@ -23,6 +23,7 @@ interface GRPCExceptionInterface extends \Throwable
     /**
      * Returns GRPC exception status code.
      *
+     * @psalm-suppress MissingImmutableAnnotation
      * @psalm-return StatusCodeType
      * @return int
      */

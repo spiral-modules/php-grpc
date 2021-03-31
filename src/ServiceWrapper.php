@@ -34,17 +34,14 @@ final class ServiceWrapper
 
     /**
      * @param InvokerInterface $invoker
-     * @param string $interface Service interface name.
+     * @param class-string $interface Service interface name.
      * @param ServiceInterface $service
-     *
      * @throws ServiceException
      */
-    public function __construct(
-        InvokerInterface $invoker,
-        string $interface,
-        ServiceInterface $service
-    ) {
+    public function __construct(InvokerInterface $invoker, string $interface, ServiceInterface $service)
+    {
         $this->invoker = $invoker;
+
         $this->configure($interface, $service);
     }
 
@@ -76,40 +73,44 @@ final class ServiceWrapper
      * @param string $method
      * @param ContextInterface $context
      * @param string|null $input
-     * @param array $metadata
      * @return string
-     *
      * @throws NotFoundException
      * @throws InvokeException
      */
-    public function invoke(string $method, ContextInterface $context, ?string $input, array &$metadata = []): string
+    public function invoke(string $method, ContextInterface $context, ?string $input): string
     {
         if (! isset($this->methods[$method])) {
             throw NotFoundException::create("Method `{$method}` not found in service `{$this->name}`.");
         }
 
-        return $this->invoker->invoke($this->service, $this->methods[$method], $context, $input, $metadata);
+        return $this->invoker->invoke($this->service, $this->methods[$method], $context, $input);
     }
 
     /**
      * Configure service name and methods.
      *
-     * @param string $interface
+     * @param class-string $interface
      * @param ServiceInterface $service
-     *
      * @throws ServiceException
      */
     protected function configure(string $interface, ServiceInterface $service): void
     {
         try {
-            $r = new \ReflectionClass($interface);
+            $reflection = new \ReflectionClass($interface);
 
-            if (! $r->hasConstant('NAME')) {
+            if (! $reflection->hasConstant('NAME')) {
                 $message = "Invalid service interface `{$interface}`, constant `NAME` not found.";
                 throw ServiceException::create($message);
             }
 
-            $this->name = $r->getConstant('NAME');
+            $name = $reflection->getConstant('NAME');
+
+            if (! \is_string($name)) {
+                $message = "Constant `NAME` of service interface `{$interface}` must be a type of string";
+                throw ServiceException::create($message);
+            }
+
+            $this->name = $name;
         } catch (\ReflectionException $e) {
             $message = "Invalid service interface `{$interface}`.";
             throw ServiceException::create($message, StatusCode::INTERNAL, $e);
@@ -127,7 +128,7 @@ final class ServiceWrapper
 
     /**
      * @param ServiceInterface $service
-     * @return array
+     * @return array<string, Method>
      */
     protected function fetchMethods(ServiceInterface $service): array
     {

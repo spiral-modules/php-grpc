@@ -81,7 +81,6 @@ final class Invoker implements InvokerInterface
      * @param string|null $body
      * @return Message
      * @throws InvokeException
-     * @psalm-suppress InvalidStringClass
      */
     private function makeInput(Method $method, ?string $body): Message
     {
@@ -92,7 +91,7 @@ final class Invoker implements InvokerInterface
             // assertions option ("zend.assertions") is enabled.
             assert($this->assertInputType($method, $class));
 
-            /** @var Message $in */
+            /** @psalm-suppress UnsafeInstantiation */
             $in = new $class();
 
             if ($body !== null) {

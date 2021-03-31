@@ -124,6 +124,7 @@ final class Method
     private static function getReflectionClassByType(?\ReflectionType $type): ?\ReflectionClass
     {
         if ($type instanceof \ReflectionNamedType && ! $type->isBuiltin()) {
+            /** @psalm-suppress ArgumentTypeCoercion */
             return new \ReflectionClass($type->getName());
         }
 
@@ -319,6 +320,7 @@ final class Method
         /** @var \ReflectionNamedType $returnType */
         $returnType = $method->getReturnType();
 
+        /** @psalm-suppress ArgumentTypeCoercion */
         return new self($method->getName(), $inputType->getName(), $returnType->getName());
     }
 }

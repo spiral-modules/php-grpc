@@ -16,6 +16,7 @@
     <issueHandlers>
         <RedundantConditionGivenDocblockType errorLevel="suppress" />
         <MixedReturnStatement errorLevel="suppress" />
+        <UnusedPsalmSuppress errorLevel="suppress" />
     </issueHandlers>
     <projectFiles>
         <directory name="src" />
