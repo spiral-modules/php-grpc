@@ -39,14 +39,14 @@ final class Invoker implements InvokerInterface
         /** @var callable $callable */
         $callable = [$service, $method->getName()];
 
+        /** @var Message $message */
+        $message = $callable($ctx, $this->makeInput($method, $input));
+
+        // Note: This validation will only work if the
+        // assertions option ("zend.assertions") is enabled.
+        assert($this->assertResultType($method, $message));
+
         try {
-            /** @var Message $message */
-            $message = $callable($ctx, $this->makeInput($method, $input));
-
-            // Note: This validation will only work if the
-            // assertions option ("zend.assertions") is enabled.
-            assert($this->assertResultType($method, $message));
-
             return $message->serializeToString();
         } catch (\Throwable $e) {
             throw InvokeException::create($e->getMessage(), StatusCode::INTERNAL, $e);
