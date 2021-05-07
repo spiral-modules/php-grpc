@@ -3,14 +3,24 @@
  * Sample GRPC PHP server.
  */
 
-use Spiral\Goridge;
-use Spiral\RoadRunner;
+use Service\EchoInterface;
+use Spiral\Goridge\StreamRelay;
+use Spiral\GRPC\Server;
+use Spiral\RoadRunner\Worker;
 
-ini_set('display_errors', 'stderr');
-require "vendor/autoload.php";
+require __DIR__ . '/vendor/autoload.php';
 
-$server = new \Spiral\GRPC\Server();
-$server->registerService(\Service\EchoInterface::class, new EchoService());
+$server = new Server(null, [
+    'debug' => false, // optional (default: false)
+]);
 
-$w = new RoadRunner\Worker(new Goridge\StreamRelay(STDIN, STDOUT));
-$server->serve($w);
+$server->registerService(EchoInterface::class, new EchoService());
+
+$worker = \method_exists(Worker::class, 'create')
+    // RoadRunner >= 2.x
+    ? Worker::create()
+    // RoadRunner 1.x
+    : new Worker(new StreamRelay(STDIN, STDOUT))
+;
+
+$server->serve($worker);

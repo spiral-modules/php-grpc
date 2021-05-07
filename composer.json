@@ -1,33 +1,55 @@
 {
-  "name": "spiral/php-grpc",
-  "type": "server",
-  "description": "High-Performance GRPC server for PHP applications",
-  "license": "MIT",
-  "authors": [
-    {
-      "name": "Anton Titov / Wolfy-J",
-      "email": "wolfy.jd@gmail.com"
-    }
-  ],
-  "require": {
-    "php": "^7.2",
-    "ext-json": "*",
-    "google/protobuf": "^3.7",
-    "spiral/roadrunner": "^1.8"
-  },
-  "require-dev": {
-    "phpunit/phpunit": "~7.0",
-    "spiral/code-style": "^1.0"
-  },
-  "autoload": {
-    "psr-4": {
-      "Spiral\\GRPC\\": "src/"
-    }
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "": "tests/src/",
-      "Spiral\\GRPC\\Tests\\": "tests/GRPC/"
-    }
-  }
+    "name": "spiral/php-grpc",
+    "type": "library",
+    "description": "High-Performance GRPC server for PHP applications",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Anton Titov / Wolfy-J",
+            "email": "wolfy.jd@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.2",
+        "ext-json": "*",
+        "symfony/polyfill-php80": "^1.22",
+        "symfony/polyfill-php73": "^1.22",
+        "google/protobuf": "^3.7",
+        "spiral/roadrunner": "^1.8"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.5|^9.0",
+        "spiral/code-style": "^1.0",
+        "jetbrains/phpstorm-attributes": "^1.0",
+        "symfony/var-dumper": ">=4.4",
+        "vimeo/psalm": "^4.6"
+    },
+    "autoload": {
+        "psr-4": {
+            "Spiral\\GRPC\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "": "tests/src",
+            "Spiral\\GRPC\\Tests\\": "tests/GRPC"
+        }
+    },
+    "scripts": {
+        "test": [
+            "spiral-cs check src tests/GRPC",
+            "psalm --no-cache",
+            "phpunit"
+        ]
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.0.x-dev"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

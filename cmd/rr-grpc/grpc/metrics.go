@@ -73,14 +73,14 @@ func newCollector() *metricCollector {
 				Name: "rr_grpc_call_total",
 				Help: "Total number of handled grpc requests after server restart.",
 			},
-			[]string{"code"},
+			[]string{"code", "method"},
 		),
 		callDuration: prometheus.NewHistogramVec(
 			prometheus.HistogramOpts{
 				Name: "rr_grpc_call_duration_seconds",
 				Help: "GRPC call duration.",
 			},
-			[]string{"code"},
+			[]string{"code", "method"},
 		),
 		workersMemory: prometheus.NewGauge(
 			prometheus.GaugeOpts{
@@ -103,8 +103,12 @@ func (c *metricCollector) listener(event int, ctx interface{}) {
 			code = st.Code().String()
 		}
 
-		c.callDuration.With(prometheus.Labels{"code": code}).Observe(uc.Elapsed().Seconds())
-		c.callCounter.With(prometheus.Labels{"code": code}).Inc()
+		method := "Unknown"
+		if uc.Info != nil {
+			method = uc.Info.FullMethod
+		}
+		c.callDuration.With(prometheus.Labels{"code": code, "method": method}).Observe(uc.Elapsed().Seconds())
+		c.callCounter.With(prometheus.Labels{"code": code, "method": method}).Inc()
 	}
 }
 

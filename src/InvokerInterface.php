@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Spiral Framework.
+ * This file is part of RoadRunner GRPC package.
  *
- * @license   MIT
- * @author    Anton Titov (Wolfy-J)
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
  */
 
 declare(strict_types=1);
@@ -20,17 +20,11 @@ interface InvokerInterface
 {
     /**
      * @param ServiceInterface $service
-     * @param Method           $method
-     * @param ContextInterface $context
-     * @param string           $input
+     * @param Method $method
+     * @param ContextInterface $ctx
+     * @param string|null $input
      * @return string
-     *
      * @throws InvokeException
      */
-    public function invoke(
-        ServiceInterface $service,
-        Method $method,
-        ContextInterface $context,
-        string $input
-    ): string;
+    public function invoke(ServiceInterface $service, Method $method, ContextInterface $ctx, ?string $input): string;
 }

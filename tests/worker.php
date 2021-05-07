@@ -7,7 +7,7 @@ use Spiral\Goridge;
 use Spiral\RoadRunner;
 
 ini_set('display_errors', 'stderr');
-require "vendor/autoload.php";
+require __DIR__ . '/../vendor/autoload.php';
 
 $server = new \Spiral\GRPC\Server();
 $server->registerService(\Service\TestInterface::class, new \Test\TestService());
