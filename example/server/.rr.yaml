@@ -1,7 +1,6 @@
 grpc:
   listen: "tcp://:9001"
-  proto:
-    - "service.proto"
+  proto: "service.proto"
   tls:
     key:  "server.key"
     cert: "server.crt"
