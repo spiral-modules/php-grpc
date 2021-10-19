@@ -32,7 +32,7 @@ func Test_Proxy_Error(t *testing.T) {
 				"key": "tests/server.key",
 				"cert": "tests/server.crt"
 			},
-			"proto": "tests/test.proto",
+			"proto": ["tests/test.proto"],
 			"workers":{
 				"command": "php tests/worker.php",
 				"relay": "pipes",

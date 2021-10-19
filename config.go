@@ -19,11 +19,8 @@ type Config struct {
 	// Address to listen.
 	Listen string
 
-	// Proto file associated with the service.
-	Proto string
-
-	// 	ProtoFiles associated with the service.
-	ProtoFiles []string
+	// Proto files associated with the service.
+	Proto []string
 
 	// TLS defined authentication method (TLS for now).
 	TLS TLS
@@ -64,25 +61,20 @@ func (c *Config) Hydrate(cfg service.Config) error {
 	}
 	c.Workers.UpscaleDurations()
 
-	// keep compatibility with old config
-	if c.Proto != "" {
-		c.ProtoFiles = append(c.ProtoFiles, c.Proto)
-	}
-
 	return c.Valid()
 }
 
 // Valid validates the configuration.
 func (c *Config) Valid() error {
-	if len(c.ProtoFiles) == 0 && c.Workers.Command != "" {
+	if len(c.Proto) == 0 && c.Workers.Command != "" {
 		// only when rr server is set
 		return errors.New("at least one proto file is required")
 	}
 
-	for _, proto := range c.ProtoFiles {
+	for _, proto := range c.Proto {
 		if _, err := os.Stat(proto); err != nil {
 			if os.IsNotExist(err) {
-				return fmt.Errorf("proto file '%s' does not exists", c.Proto)
+				return fmt.Errorf("proto file '%s' does not exists", proto)
 			}
 
 			return err

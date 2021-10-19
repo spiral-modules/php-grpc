@@ -183,8 +183,8 @@ func (svc *Service) createGPRCServer() (*grpc.Server, error) {
 
 	server := grpc.NewServer(opts...)
 
-	if len(svc.cfg.ProtoFiles) > 0 && svc.rr != nil {
-		for _, proto := range svc.cfg.ProtoFiles {
+	if len(svc.cfg.Proto) > 0 && svc.rr != nil {
+		for _, proto := range svc.cfg.Proto {
 			// php proxy services
 			services, err := parser.File(proto, path.Dir(proto))
 			if err != nil {
@@ -192,7 +192,7 @@ func (svc *Service) createGPRCServer() (*grpc.Server, error) {
 			}
 
 			for _, service := range services {
-				p := NewProxy(fmt.Sprintf("%s.%s", service.Package, service.Name), svc.cfg.Proto, svc.rr)
+				p := NewProxy(fmt.Sprintf("%s.%s", service.Package, service.Name), proto, svc.rr)
 				for _, m := range service.Methods {
 					p.RegisterMethod(m.Name)
 				}
