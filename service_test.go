@@ -78,7 +78,7 @@ func Test_Service_Configure_Enable(t *testing.T) {
 				"key": "tests/server.key",
 				"cert": "tests/server.crt"
 			},
-			"proto": "tests/test.proto",
+			"proto": ["tests/test.proto"],
 			"workers":{
 				"command": "php tests/worker.php",
 				"relay": "pipes",
@@ -110,7 +110,7 @@ func Test_Service_Dead(t *testing.T) {
 				"key": "tests/server.key",
 				"cert": "tests/server.crt"
 			},
-			"proto": "tests/test.proto",
+			"proto": ["tests/test.proto"],
 			"workers":{
 				"command": "php tests/worker-bad.php",
 				"relay": "pipes",
@@ -147,7 +147,7 @@ func Test_Service_Invalid_TLS(t *testing.T) {
 				"key": "tests/server.key",
 				"cert": "tests/test.proto"
 			},
-			"proto": "tests/test.proto",
+			"proto": ["tests/test.proto"],
 			"workers":{
 				"command": "php tests/worker.php",
 				"relay": "pipes",
@@ -184,7 +184,7 @@ func Test_Service_Invalid_Proto(t *testing.T) {
 				"key": "tests/server.key",
 				"cert": "tests/server.crt"
 			},
-			"proto": "tests/server.key",
+			"proto": ["tests/server.key"],
 			"workers":{
 				"command": "php tests/worker.php",
 				"relay": "pipes",
@@ -221,7 +221,7 @@ func Test_Service_Echo(t *testing.T) {
 				"key": "tests/server.key",
 				"cert": "tests/server.crt"
 			},
-			"proto": "tests/test.proto",
+			"proto": ["tests/test.proto"],
 			"workers":{
 				"command": "php tests/worker.php",
 				"relay": "pipes",
@@ -268,7 +268,7 @@ func Test_Service_Empty(t *testing.T) {
 				"key": "tests/server.key",
 				"cert": "tests/server.crt"
 			},
-			"proto": "tests/test.proto",
+			"proto": ["tests/test.proto"],
 			"workers":{
 				"command": "php tests/worker.php",
 				"relay": "pipes",
@@ -314,7 +314,7 @@ func Test_Service_ErrorBuffer(t *testing.T) {
 				"key": "tests/server.key",
 				"cert": "tests/server.crt"
 			},
-			"proto": "tests/test.proto",
+			"proto": ["tests/test.proto"],
 			"workers":{
 				"command": "php tests/worker.php",
 				"relay": "pipes",
@@ -372,7 +372,7 @@ func Test_Service_Env(t *testing.T) {
 				"key": "tests/server.key",
 				"cert": "tests/server.crt"
 			},
-			"proto": "tests/test.proto",
+			"proto": ["tests/test.proto"],
 			"workers":{
 				"command": "php tests/worker.php",
 				"relay": "pipes",
@@ -427,7 +427,7 @@ func Test_Service_External_Service_Test(t *testing.T) {
 				"key": "tests/server.key",
 				"cert": "tests/server.crt"
 			},
-			"proto": "tests/test.proto",
+			"proto": ["tests/test.proto"],
 			"workers":{
 				"command": "php tests/worker.php",
 				"relay": "pipes",
@@ -474,7 +474,7 @@ func Test_Service_Kill(t *testing.T) {
 				"key": "tests/server.key",
 				"cert": "tests/server.crt"
 			},
-			"proto": "tests/test.proto",
+			"proto": ["tests/test.proto"],
 			"workers":{
 				"command": "php tests/worker.php",
 				"relay": "pipes",

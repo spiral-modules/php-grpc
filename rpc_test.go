@@ -30,7 +30,7 @@ func Test_RPC(t *testing.T) {
 					"key": "tests/server.key",
 					"cert": "tests/server.crt"
 				},
-				"proto": "tests/test.proto",
+				"proto": ["tests/test.proto"],
 				"workers":{
 					"command": "php tests/worker.php",
 					"relay": "pipes",
@@ -92,7 +92,7 @@ func Test_Workers(t *testing.T) {
 					"key": "tests/server.key",
 					"cert": "tests/server.crt"
 				},
-				"proto": "tests/test.proto",
+				"proto": ["tests/test.proto"],
 				"workers":{
 					"command": "php tests/worker.php",
 					"relay": "pipes",
