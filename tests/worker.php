@@ -11,6 +11,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 $server = new \Spiral\GRPC\Server();
 $server->registerService(\Service\TestInterface::class, new \Test\TestService());
+$server->registerService(\Health\HealthInterface::class, new \HealthImpl\HealthService());
 
 $w = new RoadRunner\Worker(new Goridge\StreamRelay(STDIN, STDOUT));
 $server->serve($w);
