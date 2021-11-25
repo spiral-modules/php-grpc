@@ -207,6 +207,43 @@ func Test_Service_Invalid_Proto(t *testing.T) {
 	assert.Error(t, c.Serve())
 }
 
+func Test_Service_Multiple_Invalid_Proto(t *testing.T) {
+	logger, _ := test.NewNullLogger()
+	logger.SetLevel(logrus.DebugLevel)
+
+	c := service.NewContainer(logger)
+	c.Register(ID, &Service{})
+
+	assert.NoError(t, c.Init(&testCfg{
+		grpcCfg: `{
+			"listen": "tcp://:9080",
+			"tls": {
+				"key": "tests/server.key",
+				"cert": "tests/server.crt"
+			},
+			"proto": ["tests/health.proto", "tests/server.key"],
+			"workers":{
+				"command": "php tests/worker.php",
+				"relay": "pipes",
+				"pool": {
+					"numWorkers": 1, 
+					"allocateTimeout": 10,
+					"destroyTimeout": 10 
+				}
+			}
+	}`,
+	}))
+
+	s, st := c.Get(ID)
+	assert.NotNil(t, s)
+	assert.Equal(t, service.StatusOK, st)
+
+	// should do nothing
+	s.(*Service).Stop()
+
+	assert.Error(t, c.Serve())
+}
+
 func Test_Service_Echo(t *testing.T) {
 	logger, _ := test.NewNullLogger()
 	logger.SetLevel(logrus.DebugLevel)
@@ -222,6 +259,53 @@ func Test_Service_Echo(t *testing.T) {
 				"cert": "tests/server.crt"
 			},
 			"proto": ["tests/test.proto"],
+			"workers":{
+				"command": "php tests/worker.php",
+				"relay": "pipes",
+				"pool": {
+					"numWorkers": 1, 
+					"allocateTimeout": 10,
+					"destroyTimeout": 10 
+				}
+			}
+	}`,
+	}))
+
+	s, st := c.Get(ID)
+	assert.NotNil(t, s)
+	assert.Equal(t, service.StatusOK, st)
+
+	// should do nothing
+	s.(*Service).Stop()
+
+	go func() { assert.NoError(t, c.Serve()) }()
+	time.Sleep(time.Millisecond * 100)
+	defer c.Stop()
+
+	cl, cn := getClient(addr)
+	defer cn.Close()
+
+	out, err := cl.Echo(context.Background(), &tests.Message{Msg: "ping"})
+
+	assert.NoError(t, err)
+	assert.Equal(t, "ping", out.Msg)
+}
+
+func Test_Service_Multiple_Echo(t *testing.T) {
+	logger, _ := test.NewNullLogger()
+	logger.SetLevel(logrus.DebugLevel)
+
+	c := service.NewContainer(logger)
+	c.Register(ID, &Service{})
+
+	assert.NoError(t, c.Init(&testCfg{
+		grpcCfg: `{
+			"listen": "tcp://:9080",
+			"tls": {
+				"key": "tests/server.key",
+				"cert": "tests/server.crt"
+			},
+			"proto": ["tests/test.proto", "tests/health.proto"],
 			"workers":{
 				"command": "php tests/worker.php",
 				"relay": "pipes",
