@@ -2,13 +2,18 @@ PHP-GRPC
 =================================
 [![Latest Stable Version](https://poser.pugx.org/spiral/php-grpc/version)](https://packagist.org/packages/spiral/php-grpc)
 [![GoDoc](https://godoc.org/github.com/spiral/php-grpc?status.svg)](https://godoc.org/github.com/spiral/php-grpc)
-[![Build Status](https://travis-ci.org/spiral/php-grpc.svg?branch=master)](https://travis-ci.org/spiral/php-grpc)
+[![Tests](https://github.com/spiral/roadrunner-plugins/actions)](https://github.com/spiral/roadrunner-plugins/workflows/Linux/badge.svg)
+[![Linters](https://github.com/spiral/roadrunner-plugins/actions)](https://github.com/spiral/roadrunner-plugins/workflows/Linters/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/spiral/php-grpc)](https://goreportcard.com/report/github.com/spiral/php-grpc)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/spiral/php-grpc.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/spiral/php-grpc/alerts/)
 [![Codecov](https://codecov.io/gh/spiral/php-grpc/branch/master/graph/badge.svg)](https://codecov.io/gh/spiral/php-grpc/)
 
 PHP-GRPC is an open-source (MIT) high-performance PHP [GRPC](https://grpc.io/) server build at top of [RoadRunner](https://github.com/spiral/roadrunner).
 Server support both PHP and Golang services running within one application. 
+
+Note:
+-------
+For the RoadRunner v2, please use the [RR-GRPC](https://github.com/spiral/roadrunner-grpc) library.   
 
 Documentation:
 --------
