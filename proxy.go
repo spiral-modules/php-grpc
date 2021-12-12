@@ -3,6 +3,7 @@ package grpc
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 
@@ -185,7 +186,17 @@ func wrapError(err error) error {
 		chunks := strings.Split(err.Error(), "|:|")
 		code := codes.Internal
 
-		if phpCode, errConv := strconv.Atoi(chunks[0]); errConv == nil {
+		// protect the slice access
+		if len(chunks) < 2 {
+			return err
+		}
+
+		phpCode, errConv := strconv.ParseUint(chunks[0], 10, 32)
+		if errConv != nil {
+			return err
+		}
+
+		if phpCode > 0 && phpCode < math.MaxUint32 {
 			code = codes.Code(phpCode)
 		}
 
