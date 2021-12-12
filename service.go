@@ -75,6 +75,11 @@ func (svc *Service) Init(cfg *Config, r *rpc.Service, e env.Environment) (ok boo
 		svc.rr = roadrunner.NewServer(svc.cfg.Workers)
 	}
 
+	// register the Codec
+	encoding.RegisterCodec(&Codec{
+		Base: encoding.GetCodec(CodecName),
+	})
+
 	return true, nil
 }
 
@@ -211,24 +216,29 @@ func (svc *Service) createGPRCServer() (*grpc.Server, error) {
 }
 
 // server options
-func (svc *Service) serverOptions() (opts []grpc.ServerOption, err error) {
+func (svc *Service) serverOptions() ([]grpc.ServerOption, error) {
 	var tcreds credentials.TransportCredentials
+	var opts []grpc.ServerOption
+	var cert tls.Certificate
+	var certPool *x509.CertPool
+	var rca []byte
+	var err error
 	if svc.cfg.EnableTLS() {
 		// if client CA is not empty we combine it with Cert and Key
 		if svc.cfg.TLS.RootCA != "" {
-			cert, err := tls.LoadX509KeyPair(svc.cfg.TLS.Cert, svc.cfg.TLS.Key)
+			cert, err = tls.LoadX509KeyPair(svc.cfg.TLS.Cert, svc.cfg.TLS.Key)
 			if err != nil {
 				return nil, err
 			}
 
-			certPool, err := x509.SystemCertPool()
+			certPool, err = x509.SystemCertPool()
 			if err != nil {
 				return nil, err
 			}
 			if certPool == nil {
 				certPool = x509.NewCertPool()
 			}
-			rca, err := ioutil.ReadFile(svc.cfg.TLS.RootCA)
+			rca, err = ioutil.ReadFile(svc.cfg.TLS.RootCA)
 			if err != nil {
 				return nil, err
 			}
@@ -238,11 +248,14 @@ func (svc *Service) serverOptions() (opts []grpc.ServerOption, err error) {
 			}
 
 			tcreds = credentials.NewTLS(&tls.Config{
+				MinVersion:   tls.VersionTLS12,
 				ClientAuth:   tls.RequireAndVerifyClientCert,
 				Certificates: []tls.Certificate{cert},
 				ClientCAs:    certPool,
+				RootCAs:      certPool,
 			})
 		} else {
+			var err error
 			tcreds, err = credentials.NewServerTLSFromFile(svc.cfg.TLS.Cert, svc.cfg.TLS.Key)
 			if err != nil {
 				return nil, err
@@ -268,10 +281,10 @@ func (svc *Service) serverOptions() (opts []grpc.ServerOption, err error) {
 
 	opts = append(opts, svc.opts...)
 
-	// custom codec is required to bypass protobuf, common interceptor used for debug and stats
+	// custom Codec is required to bypass protobuf, common interceptor used for debug and stats
+	// custom Codec is required to bypass protobuf, common interceptor used for debug and stats
 	return append(
 		opts,
 		grpc.UnaryInterceptor(svc.interceptor),
-		grpc.CustomCodec(&codec{encoding.GetCodec("proto")}),
 	), nil
 }

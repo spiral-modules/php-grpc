@@ -48,7 +48,8 @@
         }
     },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "vendor-dir": "vendor_php"
     },
     "minimum-stability": "dev",
     "prefer-stable": true

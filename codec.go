@@ -6,32 +6,38 @@ import (
 
 type rawMessage []byte
 
+const CodecName string = "proto"
+
 func (r rawMessage) Reset()       {}
 func (rawMessage) ProtoMessage()  {}
 func (rawMessage) String() string { return "rawMessage" }
 
-type codec struct{ base encoding.Codec }
+type Codec struct{ Base encoding.Codec }
+
+func (c *Codec) Name() string {
+	return CodecName
+}
 
 // Marshal returns the wire format of v. rawMessages would be returned without encoding.
-func (c *codec) Marshal(v interface{}) ([]byte, error) {
+func (c *Codec) Marshal(v interface{}) ([]byte, error) {
 	if raw, ok := v.(rawMessage); ok {
 		return raw, nil
 	}
 
-	return c.base.Marshal(v)
+	return c.Base.Marshal(v)
 }
 
 // Unmarshal parses the wire format into v. rawMessages would not be unmarshalled.
-func (c *codec) Unmarshal(data []byte, v interface{}) error {
+func (c *Codec) Unmarshal(data []byte, v interface{}) error {
 	if raw, ok := v.(*rawMessage); ok {
 		*raw = data
 		return nil
 	}
 
-	return c.base.Unmarshal(data, v)
+	return c.Base.Unmarshal(data, v)
 }
 
-// String return codec name.
-func (c *codec) String() string {
-	return "raw:" + c.base.Name()
+// String return Codec name.
+func (c *Codec) String() string {
+	return "raw:" + c.Base.Name()
 }

@@ -54,7 +54,10 @@ type TLS struct {
 // Hydrate the config and validate it's values.
 func (c *Config) Hydrate(cfg service.Config) error {
 	c.Workers = &roadrunner.ServerConfig{}
-	c.Workers.InitDefaults()
+	err := c.Workers.InitDefaults()
+	if err != nil {
+		return err
+	}
 
 	if err := cfg.Unmarshal(c); err != nil {
 		return err
@@ -170,7 +173,7 @@ func (c *Config) Listener() (net.Listener, error) {
 	}
 
 	if dsn[0] == "unix" {
-		syscall.Unlink(dsn[1])
+		_ = syscall.Unlink(dsn[1])
 	}
 
 	return net.Listen(dsn[0], dsn[1])

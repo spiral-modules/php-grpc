@@ -22,7 +22,7 @@ func (jsonCodec) Name() string {
 }
 
 func TestCodec_String(t *testing.T) {
-	c := codec{jsonCodec{}}
+	c := Codec{jsonCodec{}}
 
 	assert.Equal(t, "raw:json", c.String())
 
@@ -33,7 +33,7 @@ func TestCodec_String(t *testing.T) {
 }
 
 func TestCodec_Unmarshal_ByPass(t *testing.T) {
-	c := codec{jsonCodec{}}
+	c := Codec{jsonCodec{}}
 
 	s := struct {
 		Name string
@@ -44,7 +44,7 @@ func TestCodec_Unmarshal_ByPass(t *testing.T) {
 }
 
 func TestCodec_Marshal_ByPass(t *testing.T) {
-	c := codec{jsonCodec{}}
+	c := Codec{jsonCodec{}}
 
 	s := struct {
 		Name string
@@ -59,7 +59,7 @@ func TestCodec_Marshal_ByPass(t *testing.T) {
 }
 
 func TestCodec_Unmarshal_Raw(t *testing.T) {
-	c := codec{jsonCodec{}}
+	c := Codec{jsonCodec{}}
 
 	s := rawMessage{}
 
@@ -68,7 +68,7 @@ func TestCodec_Unmarshal_Raw(t *testing.T) {
 }
 
 func TestCodec_Marshal_Raw(t *testing.T) {
-	c := codec{jsonCodec{}}
+	c := Codec{jsonCodec{}}
 
 	s := rawMessage(`{"Name":"name"}`)
 

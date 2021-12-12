@@ -61,7 +61,7 @@ interface {{ .Service.Name | interface }} extends GRPC\ServiceInterface
 }
 `
 
-var tpl *template.Template
+var tpl *template.Template //nolint:gochecknoglobals
 
 func init() {
 	tpl = template.Must(template.New("phpBody").Funcs(template.FuncMap{
@@ -78,7 +78,7 @@ func init() {
 func filename(file *descriptor.FileDescriptorProto, name *string) string {
 	ns := namespace(file.Package, "/")
 	if file.Options != nil && file.Options.PhpNamespace != nil {
-		ns = strings.Replace(*file.Options.PhpNamespace, `\`, `/`, -1)
+		ns = strings.ReplaceAll(*file.Options.PhpNamespace, `\`, `/`)
 	}
 
 	return fmt.Sprintf("%s/%s.php", ns, identifier(*name, "interface"))
