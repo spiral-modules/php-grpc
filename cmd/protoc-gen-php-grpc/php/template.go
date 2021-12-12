@@ -28,8 +28,8 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/golang/protobuf/protoc-gen-go/descriptor"
-	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
+	desc "google.golang.org/protobuf/types/descriptorpb"
+	plugin "google.golang.org/protobuf/types/pluginpb"
 )
 
 const phpBody = `<?php
@@ -61,21 +61,8 @@ interface {{ .Service.Name | interface }} extends GRPC\ServiceInterface
 }
 `
 
-var tpl *template.Template //nolint:gochecknoglobals
-
-func init() {
-	tpl = template.Must(template.New("phpBody").Funcs(template.FuncMap{
-		"interface": func(name *string) string {
-			return identifier(*name, "interface")
-		},
-		"name": func(ns *ns, name *string) string {
-			return ns.resolve(name)
-		},
-	}).Parse(phpBody))
-}
-
 // generate php filename
-func filename(file *descriptor.FileDescriptorProto, name *string) string {
+func filename(file *desc.FileDescriptorProto, name *string) string {
 	ns := namespace(file.Package, "/")
 	if file.Options != nil && file.Options.PhpNamespace != nil {
 		ns = strings.ReplaceAll(*file.Options.PhpNamespace, `\`, `/`)
@@ -85,22 +72,27 @@ func filename(file *descriptor.FileDescriptorProto, name *string) string {
 }
 
 // generate php file body
-func body(
-	req *plugin.CodeGeneratorRequest,
-	file *descriptor.FileDescriptorProto,
-	service *descriptor.ServiceDescriptorProto,
-) string {
+func body(req *plugin.CodeGeneratorRequest, file *desc.FileDescriptorProto, service *desc.ServiceDescriptorProto) string {
 	out := bytes.NewBuffer(nil)
 
 	data := struct {
 		Namespace *ns
-		File      *descriptor.FileDescriptorProto
-		Service   *descriptor.ServiceDescriptorProto
+		File      *desc.FileDescriptorProto
+		Service   *desc.ServiceDescriptorProto
 	}{
 		Namespace: newNamespace(req, file, service),
 		File:      file,
 		Service:   service,
 	}
+
+	tpl := template.Must(template.New("phpBody").Funcs(template.FuncMap{
+		"interface": func(name *string) string {
+			return identifier(*name, "interface")
+		},
+		"name": func(ns *ns, name *string) string {
+			return ns.resolve(name)
+		},
+	}).Parse(phpBody))
 
 	err := tpl.Execute(out, data)
 	if err != nil {

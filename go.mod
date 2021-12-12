@@ -4,7 +4,6 @@ go 1.17
 
 require (
 	github.com/buger/goterm v1.0.1
-	github.com/c9s/inflect v0.0.0-20130402162822-006c50878f3f
 	github.com/emicklei/proto v1.9.1
 	github.com/golang/protobuf v1.5.2
 	github.com/prometheus/client_golang v1.11.0
