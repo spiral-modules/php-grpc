@@ -2,8 +2,8 @@ PHP-GRPC
 =================================
 [![Latest Stable Version](https://poser.pugx.org/spiral/php-grpc/version)](https://packagist.org/packages/spiral/php-grpc)
 [![GoDoc](https://godoc.org/github.com/spiral/php-grpc?status.svg)](https://godoc.org/github.com/spiral/php-grpc)
-[![Tests](https://github.com/spiral/roadrunner-plugins/actions)](https://github.com/spiral/roadrunner-plugins/workflows/Linux/badge.svg)
-[![Linters](https://github.com/spiral/roadrunner-plugins/actions)](https://github.com/spiral/roadrunner-plugins/workflows/Linters/badge.svg)
+[![Tests](https://github.com/spiral/roadrunner-plugins/workflows/Linux/badge.svg)](https://github.com/spiral/roadrunner-plugins/actions)
+[![Linters](https://github.com/spiral/roadrunner-plugins/workflows/Linters/badge.svg)](https://github.com/spiral/roadrunner-plugins/actions)
 [![Go Report Card](https://goreportcard.com/badge/github.com/spiral/php-grpc)](https://goreportcard.com/report/github.com/spiral/php-grpc)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/spiral/php-grpc.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/spiral/php-grpc/alerts/)
 [![Codecov](https://codecov.io/gh/spiral/php-grpc/branch/master/graph/badge.svg)](https://codecov.io/gh/spiral/php-grpc/)
