@@ -67,7 +67,10 @@ jobs:
 
       - name: Install Go dependencies
         run: go mod download
-      
+
+      - name: Go mod tidy
+        run: go mod tidy
+
       - name: Install protoc
         uses: arduino/setup-protoc@v1
         with:

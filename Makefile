@@ -15,7 +15,7 @@ test:
 	rm -rf coverage-ci
 	mkdir ./coverage-ci
 
-	go test -v -race -cover -tags=debug -coverpkg=./... -failfast -coverprofile=./coverage-ci/root.out -covermode=atomic
+	go test -v -race -cover -tags=debug -coverpkg=./... -failfast -coverprofile=./coverage-ci/root.out -covermode=atomic .
 	go test -v -race -cover -tags=debug -coverpkg=./... -failfast -coverprofile=./coverage-ci/parser.out -covermode=atomic ./parser
 	go test -v -race -cover -tags=debug -coverpkg=./... -failfast -coverprofile=./coverage-ci/gen.out -covermode=atomic ./cmd/protoc-gen-php-grpc
 	echo 'mode: atomic' > ./coverage-ci/summary.txt

@@ -41,7 +41,9 @@ type Method struct {
 // File parses given proto file or returns error.
 func File(file string, importPath string) ([]Service, error) {
 	reader, _ := os.Open(file)
-	defer reader.Close()
+	defer func() {
+		_ = reader.Close()
+	}()
 
 	return parse(reader, importPath)
 }
