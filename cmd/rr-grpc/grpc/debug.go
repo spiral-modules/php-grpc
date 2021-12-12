@@ -91,12 +91,12 @@ func (d *debugger) listener(event int, ctx interface{}) {
 }
 
 func wrapStatus(st *status.Status) string {
-	switch st.Code() {
+	switch st.Code() { //nolint:exhaustive
 	case codes.NotFound, codes.Canceled, codes.Unavailable:
 		return util.Sprintf("<yellow+h>%s</reset>", st.Code().String())
+	default:
+		return util.Sprintf("<red+h>%s</reset>", st.Code().String())
 	}
-
-	return util.Sprintf("<red+h>%s</reset>", st.Code().String())
 }
 
 func getPeer(ctx context.Context) string {

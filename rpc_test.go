@@ -25,12 +25,12 @@ func Test_RPC(t *testing.T) {
 	assert.NoError(t, c.Init(&testCfg{
 		rpcCfg: `{"enable":true, "listen":"tcp://:5004"}`,
 		grpcCfg: `{
-				"listen": "tcp://:9080",
+				"listen": "tcp://:9095",
 				"tls": {
 					"key": "tests/server.key",
 					"cert": "tests/server.crt"
 				},
-				"proto": "tests/test.proto",
+				"proto": ["tests/test.proto"],
 				"workers":{
 					"command": "php tests/worker.php",
 					"relay": "pipes",
@@ -53,7 +53,7 @@ func Test_RPC(t *testing.T) {
 	time.Sleep(time.Millisecond * 100)
 	defer c.Stop()
 
-	cl, cn := getClient(addr)
+	cl, cn := getClient("127.0.0.1:9095")
 	defer cn.Close()
 
 	rcl, err := rs.Client()
@@ -87,12 +87,12 @@ func Test_Workers(t *testing.T) {
 	assert.NoError(t, c.Init(&testCfg{
 		rpcCfg: `{"enable":true, "listen":"tcp://:5004"}`,
 		grpcCfg: `{
-				"listen": "tcp://:9080",
+				"listen": "tcp://:9096",
 				"tls": {
 					"key": "tests/server.key",
 					"cert": "tests/server.crt"
 				},
-				"proto": "tests/test.proto",
+				"proto": ["tests/test.proto"],
 				"workers":{
 					"command": "php tests/worker.php",
 					"relay": "pipes",
@@ -115,7 +115,7 @@ func Test_Workers(t *testing.T) {
 	time.Sleep(time.Millisecond * 100)
 	defer c.Stop()
 
-	cl, cn := getClient(addr)
+	cl, cn := getClient("127.0.0.1:9096")
 	defer cn.Close()
 
 	rcl, err := rs.Client()

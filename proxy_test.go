@@ -16,8 +16,6 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-const addr = "localhost:9080"
-
 func Test_Proxy_Error(t *testing.T) {
 	logger, _ := test.NewNullLogger()
 	logger.SetLevel(logrus.DebugLevel)
@@ -27,12 +25,12 @@ func Test_Proxy_Error(t *testing.T) {
 
 	assert.NoError(t, c.Init(&testCfg{
 		grpcCfg: `{
-			"listen": "tcp://:9080",
+			"listen": "tcp://:9093",
 			"tls": {
 				"key": "tests/server.key",
 				"cert": "tests/server.crt"
 			},
-			"proto": "tests/test.proto",
+			"proto": ["tests/test.proto"],
 			"workers":{
 				"command": "php tests/worker.php",
 				"relay": "pipes",
@@ -56,7 +54,7 @@ func Test_Proxy_Error(t *testing.T) {
 	time.Sleep(time.Millisecond * 100)
 	defer c.Stop()
 
-	cl, cn := getClient(addr)
+	cl, cn := getClient("127.0.0.1:9093")
 	defer cn.Close()
 
 	_, err := cl.Throw(context.Background(), &tests.Message{Msg: "notFound"})
@@ -90,12 +88,12 @@ func Test_Proxy_Metadata(t *testing.T) {
 
 	assert.NoError(t, c.Init(&testCfg{
 		grpcCfg: `{
-			"listen": "tcp://:9080",
+			"listen": "tcp://:9094",
 			"tls": {
 				"key": "tests/server.key",
 				"cert": "tests/server.crt"
 			},
-			"proto": "tests/test.proto",
+			"proto": ["tests/test.proto"],
 			"workers":{
 				"command": "php tests/worker.php",
 				"relay": "pipes",
@@ -119,7 +117,7 @@ func Test_Proxy_Metadata(t *testing.T) {
 	time.Sleep(time.Millisecond * 100)
 	defer c.Stop()
 
-	cl, cn := getClient(addr)
+	cl, cn := getClient("127.0.0.1:9094")
 	defer cn.Close()
 
 	ctx := metadata.AppendToOutgoingContext(context.Background(), "key", "proxy-value")

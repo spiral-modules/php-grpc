@@ -25,12 +25,12 @@ package php
 import (
 	"bytes"
 	"strings"
-
-	"github.com/c9s/inflect"
+	"unicode"
 )
 
 // @see https://github.com/protocolbuffers/protobuf/blob/master/php/ext/google/protobuf/protobuf.c#L168
-var reservedKeywords = []string{
+// immutable
+var reservedKeywords = []string{ //nolint:gochecknoglobals
 	"abstract", "and", "array", "as", "break",
 	"callable", "case", "catch", "class", "clone",
 	"const", "continue", "declare", "default", "die",
@@ -77,9 +77,9 @@ func namespace(pkg *string, sep string) string {
 
 // create php identifier for class or message
 func identifier(name string, suffix string) string {
-	name = inflect.Camelize(name)
+	name = Camelize(name)
 	if suffix != "" {
-		return name + inflect.Camelize(suffix)
+		return name + Camelize(suffix)
 	}
 
 	return name
@@ -94,4 +94,47 @@ func resolveReserved(identifier string, pkg string) string {
 	}
 
 	return identifier
+}
+
+// Camelize "dino_party" -> "DinoParty"
+func Camelize(word string) string {
+	words := splitAtCaseChangeWithTitlecase(word)
+	return strings.Join(words, "")
+}
+
+func splitAtCaseChangeWithTitlecase(s string) []string {
+	words := make([]string, 0)
+	word := make([]rune, 0)
+	for _, c := range s {
+		spacer := isSpacerChar(c)
+		if len(word) > 0 {
+			if unicode.IsUpper(c) || spacer {
+				words = append(words, string(word))
+				word = make([]rune, 0)
+			}
+		}
+		if !spacer {
+			if len(word) > 0 {
+				word = append(word, unicode.ToLower(c))
+			} else {
+				word = append(word, unicode.ToUpper(c))
+			}
+		}
+	}
+	words = append(words, string(word))
+	return words
+}
+
+func isSpacerChar(c rune) bool {
+	switch {
+	case c == rune("_"[0]):
+		return true
+	case c == rune(" "[0]):
+		return true
+	case c == rune(":"[0]):
+		return true
+	case c == rune("-"[0]):
+		return true
+	}
+	return false
 }

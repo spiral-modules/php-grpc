@@ -8,3 +8,5 @@ example/vendor/
 go.sum
 builds/
 .phpunit.result.cache
+vendor_php
+coverage-ci

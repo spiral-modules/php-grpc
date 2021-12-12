@@ -1,0 +1,27 @@
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 50%
+        informational: true
+    patch:
+      default:
+        target: auto
+        threshold: 50%
+        informational: true
+
+# do not include tests folders
+ignore:
+  - ".github"
+  - "tests"
+  - "codec_test.go"
+  - "config_test.go"
+  - "proxy_test.go"
+  - "rpc_test.go"
+  - "service_test.go"
+  - "vendor_php"
+  - "src"
+  - "parser/parse_test.go"
+  - "example"
+  - "cmd/protoc-gen-php-grpc/plugin_test.go"

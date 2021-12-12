@@ -35,8 +35,8 @@ import (
 )
 
 var (
-	interactive bool
-	stopSignal  = make(chan os.Signal, 1)
+	interactive bool                      //nolint:gochecknoglobals
+	stopSignal  = make(chan os.Signal, 1) //nolint:gochecknoglobals
 )
 
 func init() {

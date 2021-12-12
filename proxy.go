@@ -3,6 +3,7 @@ package grpc
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 
@@ -124,7 +125,10 @@ func (p *Proxy) invoke(ctx context.Context, method string, in rawMessage) (inter
 		return nil, err
 	}
 	ctx = metadata.NewIncomingContext(ctx, md)
-	grpc.SetHeader(ctx, md)
+	err = grpc.SetHeader(ctx, md)
+	if err != nil {
+		return nil, err
+	}
 
 	return rawMessage(resp.Body), nil
 }
@@ -182,7 +186,17 @@ func wrapError(err error) error {
 		chunks := strings.Split(err.Error(), "|:|")
 		code := codes.Internal
 
-		if phpCode, err := strconv.Atoi(chunks[0]); err == nil {
+		// protect the slice access
+		if len(chunks) < 2 {
+			return err
+		}
+
+		phpCode, errConv := strconv.ParseUint(chunks[0], 10, 32)
+		if errConv != nil {
+			return err
+		}
+
+		if phpCode > 0 && phpCode < math.MaxUint32 {
 			code = codes.Code(phpCode)
 		}
 
@@ -190,7 +204,7 @@ func wrapError(err error) error {
 
 		for _, detailsMessage := range chunks[2:] {
 			anyDetailsMessage := any.Any{}
-			err := proto.Unmarshal([]byte(detailsMessage), &anyDetailsMessage)
+			err = proto.Unmarshal([]byte(detailsMessage), &anyDetailsMessage)
 			if err == nil {
 				st.Details = append(st.Details, &anyDetailsMessage)
 			}

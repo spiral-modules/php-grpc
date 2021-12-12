@@ -19,8 +19,8 @@ type Config struct {
 	// Address to listen.
 	Listen string
 
-	// Proto file associated with the service.
-	Proto string
+	// Proto files associated with the service.
+	Proto []string
 
 	// TLS defined authentication method (TLS for now).
 	TLS TLS
@@ -54,7 +54,10 @@ type TLS struct {
 // Hydrate the config and validate it's values.
 func (c *Config) Hydrate(cfg service.Config) error {
 	c.Workers = &roadrunner.ServerConfig{}
-	c.Workers.InitDefaults()
+	err := c.Workers.InitDefaults()
+	if err != nil {
+		return err
+	}
 
 	if err := cfg.Unmarshal(c); err != nil {
 		return err
@@ -66,15 +69,15 @@ func (c *Config) Hydrate(cfg service.Config) error {
 
 // Valid validates the configuration.
 func (c *Config) Valid() error {
-	if c.Proto == "" && c.Workers.Command != "" {
+	if len(c.Proto) == 0 && c.Workers.Command != "" {
 		// only when rr server is set
-		return errors.New("proto file is required")
+		return errors.New("at least one proto file is required")
 	}
 
-	if c.Proto != "" {
-		if _, err := os.Stat(c.Proto); err != nil {
+	for _, proto := range c.Proto {
+		if _, err := os.Stat(proto); err != nil {
 			if os.IsNotExist(err) {
-				return fmt.Errorf("proto file '%s' does not exists", c.Proto)
+				return fmt.Errorf("proto file '%s' does not exists", proto)
 			}
 
 			return err
@@ -170,7 +173,7 @@ func (c *Config) Listener() (net.Listener, error) {
 	}
 
 	if dsn[0] == "unix" {
-		syscall.Unlink(dsn[1])
+		_ = syscall.Unlink(dsn[1])
 	}
 
 	return net.Listen(dsn[0], dsn[1])

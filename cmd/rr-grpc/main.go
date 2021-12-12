@@ -6,7 +6,7 @@ import (
 	"github.com/spiral/roadrunner/service/metrics"
 	"github.com/spiral/roadrunner/service/rpc"
 
-	"github.com/spiral/php-grpc"
+	grpc "github.com/spiral/php-grpc"
 
 	// grpc specific commands
 	_ "github.com/spiral/php-grpc/cmd/rr-grpc/grpc"

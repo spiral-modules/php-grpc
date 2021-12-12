@@ -21,7 +21,7 @@ func init() {
 }
 
 func protoc(t *testing.T, args []string) {
-	cmd := exec.Command("protoc", "--plugin=protoc-gen-php-grpc="+os.Args[0])
+	cmd := exec.Command("protoc", "--plugin=protoc-gen-php-grpc="+os.Args[0]) //nolint:gosec
 	cmd.Args = append(cmd.Args, args...)
 	cmd.Env = append(os.Environ(), "RUN_AS_PROTOC_GEN_PHP=1")
 	out, err := cmd.CombinedOutput()

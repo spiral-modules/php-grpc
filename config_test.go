@@ -31,7 +31,7 @@ func Test_Config_Valid_TLS(t *testing.T) {
 			Cert:   "tests/server.crt",
 			RootCA: "tests/server.crt",
 		},
-		Proto: "tests/test.proto",
+		Proto: []string{"tests/test.proto"},
 		Workers: &roadrunner.ServerConfig{
 			Command: "php tests/worker.php",
 			Relay:   "pipes",
@@ -54,7 +54,73 @@ func Test_Config_No_Proto(t *testing.T) {
 			Key:  "tests/server.key",
 			Cert: "tests/server.crt",
 		},
-		Proto: "tests/test2.proto",
+		Proto: []string{},
+		Workers: &roadrunner.ServerConfig{
+			Command: "php tests/worker.php",
+			Relay:   "pipes",
+			Pool: &roadrunner.Config{
+				NumWorkers:      1,
+				AllocateTimeout: time.Second,
+				DestroyTimeout:  time.Second,
+			},
+		},
+	}
+
+	assert.Error(t, cfg.Valid())
+}
+
+func Test_Config_Nil_Proto(t *testing.T) {
+	cfg := &Config{
+		Listen: "tcp://:8080",
+		TLS: TLS{
+			Key:  "tests/server.key",
+			Cert: "tests/server.crt",
+		},
+		Proto: nil,
+		Workers: &roadrunner.ServerConfig{
+			Command: "php tests/worker.php",
+			Relay:   "pipes",
+			Pool: &roadrunner.Config{
+				NumWorkers:      1,
+				AllocateTimeout: time.Second,
+				DestroyTimeout:  time.Second,
+			},
+		},
+	}
+
+	assert.Error(t, cfg.Valid())
+}
+
+func Test_Config_Missing_Proto(t *testing.T) {
+	cfg := &Config{
+		Listen: "tcp://:8080",
+		TLS: TLS{
+			Key:  "tests/server.key",
+			Cert: "tests/server.crt",
+		},
+		Proto: []string{"tests/missing.proto"},
+		Workers: &roadrunner.ServerConfig{
+			Command: "php tests/worker.php",
+			Relay:   "pipes",
+			Pool: &roadrunner.Config{
+				NumWorkers:      1,
+				AllocateTimeout: time.Second,
+				DestroyTimeout:  time.Second,
+			},
+		},
+	}
+
+	assert.Error(t, cfg.Valid())
+}
+
+func Test_Config_Multiple_Missing_Proto(t *testing.T) {
+	cfg := &Config{
+		Listen: "tcp://:8080",
+		TLS: TLS{
+			Key:  "tests/server.key",
+			Cert: "tests/server.crt",
+		},
+		Proto: []string{"tests/test.proto", "tests/missing.proto"},
 		Workers: &roadrunner.ServerConfig{
 			Command: "php tests/worker.php",
 			Relay:   "pipes",
@@ -76,7 +142,7 @@ func Test_Config_BadAddress(t *testing.T) {
 			Key:  "tests/server.key",
 			Cert: "tests/server.crt",
 		},
-		Proto: "tests/test.proto",
+		Proto: []string{"tests/test.proto"},
 		Workers: &roadrunner.ServerConfig{
 			Command: "php tests/worker.php",
 			Relay:   "pipes",
@@ -98,7 +164,7 @@ func Test_Config_BadListener(t *testing.T) {
 			Key:  "tests/server.key",
 			Cert: "tests/server.crt",
 		},
-		Proto: "tests/test.proto",
+		Proto: []string{"tests/test.proto"},
 		Workers: &roadrunner.ServerConfig{
 			Command: "php tests/worker.php",
 			Relay:   "pipes",
@@ -125,7 +191,7 @@ func Test_Config_UnixListener(t *testing.T) {
 			Key:  "tests/server.key",
 			Cert: "tests/server.crt",
 		},
-		Proto: "tests/test2.proto",
+		Proto: []string{"tests/test.proto"},
 		Workers: &roadrunner.ServerConfig{
 			Command: "php tests/worker.php",
 			Relay:   "pipes",
@@ -150,7 +216,7 @@ func Test_Config_InvalidWorkerPool(t *testing.T) {
 			Key:  "tests/server.key",
 			Cert: "tests/server.crt",
 		},
-		Proto: "tests/test.proto",
+		Proto: []string{"tests/test.proto"},
 		Workers: &roadrunner.ServerConfig{
 			Command: "php tests/worker.php",
 			Relay:   "pipes",
@@ -169,7 +235,7 @@ func Test_Config_TLS_No_key(t *testing.T) {
 		TLS: TLS{
 			Cert: "tests/server.crt",
 		},
-		Proto: "tests/test.proto",
+		Proto: []string{"tests/test.proto"},
 		Workers: &roadrunner.ServerConfig{
 			Command: "php tests/worker.php",
 			Relay:   "pipes",
@@ -192,7 +258,7 @@ func Test_Config_TLS_WrongKeyPath(t *testing.T) {
 			Cert: "testss/server.crt",
 			Key:  "testss/server.key",
 		},
-		Proto: "tests/test.proto",
+		Proto: []string{"tests/test.proto"},
 		Workers: &roadrunner.ServerConfig{
 			Command: "php tests/worker.php",
 			Relay:   "pipes",
@@ -215,7 +281,7 @@ func Test_Config_TLS_WrongRootCAPath(t *testing.T) {
 			Key:    "tests/server.key",
 			RootCA: "testss/server.crt",
 		},
-		Proto: "tests/test.proto",
+		Proto: []string{"tests/test.proto"},
 		Workers: &roadrunner.ServerConfig{
 			Command: "php tests/worker.php",
 			Relay:   "pipes",
@@ -236,7 +302,7 @@ func Test_Config_TLS_No_Cert(t *testing.T) {
 		TLS: TLS{
 			Key: "tests/server.key",
 		},
-		Proto: "tests/test.proto",
+		Proto: []string{"tests/test.proto"},
 		Workers: &roadrunner.ServerConfig{
 			Command: "php tests/worker.php",
 			Relay:   "pipes",

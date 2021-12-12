@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/golang/protobuf/protoc-gen-go/descriptor"
-	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
+	desc "google.golang.org/protobuf/types/descriptorpb"
+	plugin "google.golang.org/protobuf/types/pluginpb"
 )
 
 // manages internal name representation of the package
@@ -22,11 +22,7 @@ type ns struct {
 }
 
 // newNamespace creates new work namespace.
-func newNamespace(
-	req *plugin.CodeGeneratorRequest,
-	file *descriptor.FileDescriptorProto,
-	service *descriptor.ServiceDescriptorProto,
-) *ns {
+func newNamespace(req *plugin.CodeGeneratorRequest, file *desc.FileDescriptorProto, service *desc.ServiceDescriptorProto) *ns {
 	ns := &ns{
 		Package:   *file.Package,
 		Namespace: namespace(file.Package, "\\"),
@@ -37,9 +33,9 @@ func newNamespace(
 		ns.Namespace = *file.Options.PhpNamespace
 	}
 
-	for _, m := range service.Method {
-		ns.importMessage(req, m.InputType)
-		ns.importMessage(req, m.OutputType)
+	for k := range service.Method {
+		ns.importMessage(req, service.Method[k].InputType)
+		ns.importMessage(req, service.Method[k].OutputType)
 	}
 
 	return ns

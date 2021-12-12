@@ -23,8 +23,8 @@
 package php
 
 import (
-	"github.com/golang/protobuf/protoc-gen-go/descriptor"
-	plugin "github.com/golang/protobuf/protoc-gen-go/plugin"
+	desc "google.golang.org/protobuf/types/descriptorpb"
+	plugin "google.golang.org/protobuf/types/pluginpb"
 )
 
 // Generate generates needed service classes
@@ -42,8 +42,8 @@ func Generate(req *plugin.CodeGeneratorRequest) *plugin.CodeGeneratorResponse {
 
 func generate(
 	req *plugin.CodeGeneratorRequest,
-	file *descriptor.FileDescriptorProto,
-	service *descriptor.ServiceDescriptorProto,
+	file *desc.FileDescriptorProto,
+	service *desc.ServiceDescriptorProto,
 ) *plugin.CodeGeneratorResponse_File {
 	return &plugin.CodeGeneratorResponse_File{
 		Name:    str(filename(file, service.Name)),

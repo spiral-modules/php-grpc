@@ -73,12 +73,12 @@ func Test_Service_Configure_Enable(t *testing.T) {
 
 	assert.NoError(t, c.Init(&testCfg{
 		grpcCfg: `{
-			"listen": "tcp://:9080",
+			"listen": "tcp://:9081",
 			"tls": {
 				"key": "tests/server.key",
 				"cert": "tests/server.crt"
 			},
-			"proto": "tests/test.proto",
+			"proto": ["tests/test.proto"],
 			"workers":{
 				"command": "php tests/worker.php",
 				"relay": "pipes",
@@ -105,12 +105,12 @@ func Test_Service_Dead(t *testing.T) {
 
 	assert.NoError(t, c.Init(&testCfg{
 		grpcCfg: `{
-			"listen": "tcp://:9080",
+			"listen": "tcp://:9082",
 			"tls": {
 				"key": "tests/server.key",
 				"cert": "tests/server.crt"
 			},
-			"proto": "tests/test.proto",
+			"proto": ["tests/test.proto"],
 			"workers":{
 				"command": "php tests/worker-bad.php",
 				"relay": "pipes",
@@ -142,12 +142,12 @@ func Test_Service_Invalid_TLS(t *testing.T) {
 
 	assert.NoError(t, c.Init(&testCfg{
 		grpcCfg: `{
-			"listen": "tcp://:9080",
+			"listen": "tcp://:9083",
 			"tls": {
 				"key": "tests/server.key",
 				"cert": "tests/test.proto"
 			},
-			"proto": "tests/test.proto",
+			"proto": ["tests/test.proto"],
 			"workers":{
 				"command": "php tests/worker.php",
 				"relay": "pipes",
@@ -179,12 +179,49 @@ func Test_Service_Invalid_Proto(t *testing.T) {
 
 	assert.NoError(t, c.Init(&testCfg{
 		grpcCfg: `{
-			"listen": "tcp://:9080",
+			"listen": "tcp://:9084",
 			"tls": {
 				"key": "tests/server.key",
 				"cert": "tests/server.crt"
 			},
-			"proto": "tests/server.key",
+			"proto": ["tests/server.key"],
+			"workers":{
+				"command": "php tests/worker.php",
+				"relay": "pipes",
+				"pool": {
+					"numWorkers": 1, 
+					"allocateTimeout": 10,
+					"destroyTimeout": 10 
+				}
+			}
+	}`,
+	}))
+
+	s, st := c.Get(ID)
+	assert.NotNil(t, s)
+	assert.Equal(t, service.StatusOK, st)
+
+	// should do nothing
+	s.(*Service).Stop()
+
+	assert.Error(t, c.Serve())
+}
+
+func Test_Service_Multiple_Invalid_Proto(t *testing.T) {
+	logger, _ := test.NewNullLogger()
+	logger.SetLevel(logrus.DebugLevel)
+
+	c := service.NewContainer(logger)
+	c.Register(ID, &Service{})
+
+	assert.NoError(t, c.Init(&testCfg{
+		grpcCfg: `{
+			"listen": "tcp://:9085",
+			"tls": {
+				"key": "tests/server.key",
+				"cert": "tests/server.crt"
+			},
+			"proto": ["tests/health.proto", "tests/server.key"],
 			"workers":{
 				"command": "php tests/worker.php",
 				"relay": "pipes",
@@ -216,12 +253,12 @@ func Test_Service_Echo(t *testing.T) {
 
 	assert.NoError(t, c.Init(&testCfg{
 		grpcCfg: `{
-			"listen": "tcp://:9080",
+			"listen": "tcp://:9086",
 			"tls": {
 				"key": "tests/server.key",
 				"cert": "tests/server.crt"
 			},
-			"proto": "tests/test.proto",
+			"proto": ["tests/test.proto"],
 			"workers":{
 				"command": "php tests/worker.php",
 				"relay": "pipes",
@@ -245,7 +282,54 @@ func Test_Service_Echo(t *testing.T) {
 	time.Sleep(time.Millisecond * 100)
 	defer c.Stop()
 
-	cl, cn := getClient(addr)
+	cl, cn := getClient("localhost:9086")
+	defer cn.Close()
+
+	out, err := cl.Echo(context.Background(), &tests.Message{Msg: "ping"})
+
+	assert.NoError(t, err)
+	assert.Equal(t, "ping", out.Msg)
+}
+
+func Test_Service_Multiple_Echo(t *testing.T) {
+	logger, _ := test.NewNullLogger()
+	logger.SetLevel(logrus.DebugLevel)
+
+	c := service.NewContainer(logger)
+	c.Register(ID, &Service{})
+
+	assert.NoError(t, c.Init(&testCfg{
+		grpcCfg: `{
+			"listen": "tcp://:9087",
+			"tls": {
+				"key": "tests/server.key",
+				"cert": "tests/server.crt"
+			},
+			"proto": ["tests/test.proto", "tests/health.proto"],
+			"workers":{
+				"command": "php tests/worker.php",
+				"relay": "pipes",
+				"pool": {
+					"numWorkers": 1, 
+					"allocateTimeout": 10,
+					"destroyTimeout": 10 
+				}
+			}
+	}`,
+	}))
+
+	s, st := c.Get(ID)
+	assert.NotNil(t, s)
+	assert.Equal(t, service.StatusOK, st)
+
+	// should do nothing
+	s.(*Service).Stop()
+
+	go func() { assert.NoError(t, c.Serve()) }()
+	time.Sleep(time.Millisecond * 100)
+	defer c.Stop()
+
+	cl, cn := getClient("127.0.0.1:9087")
 	defer cn.Close()
 
 	out, err := cl.Echo(context.Background(), &tests.Message{Msg: "ping"})
@@ -263,12 +347,12 @@ func Test_Service_Empty(t *testing.T) {
 
 	assert.NoError(t, c.Init(&testCfg{
 		grpcCfg: `{
-			"listen": "tcp://:9080",
+			"listen": "tcp://:9088",
 			"tls": {
 				"key": "tests/server.key",
 				"cert": "tests/server.crt"
 			},
-			"proto": "tests/test.proto",
+			"proto": ["tests/test.proto"],
 			"workers":{
 				"command": "php tests/worker.php",
 				"relay": "pipes",
@@ -292,7 +376,7 @@ func Test_Service_Empty(t *testing.T) {
 	time.Sleep(time.Millisecond * 100)
 	defer c.Stop()
 
-	cl, cn := getClient(addr)
+	cl, cn := getClient("127.0.0.1:9088")
 	defer cn.Close()
 
 	_, err := cl.Ping(context.Background(), &tests.EmptyMessage{})
@@ -309,12 +393,12 @@ func Test_Service_ErrorBuffer(t *testing.T) {
 
 	assert.NoError(t, c.Init(&testCfg{
 		grpcCfg: `{
-			"listen": "tcp://:9080",
+			"listen": "tcp://:9089",
 			"tls": {
 				"key": "tests/server.key",
 				"cert": "tests/server.crt"
 			},
-			"proto": "tests/test.proto",
+			"proto": ["tests/test.proto"],
 			"workers":{
 				"command": "php tests/worker.php",
 				"relay": "pipes",
@@ -347,7 +431,7 @@ func Test_Service_ErrorBuffer(t *testing.T) {
 	time.Sleep(time.Millisecond * 100)
 	defer c.Stop()
 
-	cl, cn := getClient(addr)
+	cl, cn := getClient("127.0.0.1:9089")
 	defer cn.Close()
 
 	out, err := cl.Die(context.Background(), &tests.Message{Msg: "WORLD"})
@@ -367,12 +451,12 @@ func Test_Service_Env(t *testing.T) {
 
 	assert.NoError(t, c.Init(&testCfg{
 		grpcCfg: `{
-			"listen": "tcp://:9080",
+			"listen": "tcp://:9090",
 			"tls": {
 				"key": "tests/server.key",
 				"cert": "tests/server.crt"
 			},
-			"proto": "tests/test.proto",
+			"proto": ["tests/test.proto"],
 			"workers":{
 				"command": "php tests/worker.php",
 				"relay": "pipes",
@@ -400,7 +484,7 @@ func Test_Service_Env(t *testing.T) {
 	time.Sleep(time.Millisecond * 100)
 	defer c.Stop()
 
-	cl, cn := getClient(addr)
+	cl, cn := getClient("127.0.0.1:9090")
 	defer cn.Close()
 
 	out, err := cl.Info(context.Background(), &tests.Message{Msg: "RR_GRPC"})
@@ -422,12 +506,12 @@ func Test_Service_External_Service_Test(t *testing.T) {
 	c.Register(ID, &Service{})
 
 	assert.NoError(t, c.Init(&testCfg{grpcCfg: `{
-			"listen": "tcp://:9080",
+			"listen": "tcp://:9091",
 			"tls": {
 				"key": "tests/server.key",
 				"cert": "tests/server.crt"
 			},
-			"proto": "tests/test.proto",
+			"proto": ["tests/test.proto"],
 			"workers":{
 				"command": "php tests/worker.php",
 				"relay": "pipes",
@@ -452,7 +536,7 @@ func Test_Service_External_Service_Test(t *testing.T) {
 	time.Sleep(time.Millisecond * 100)
 	defer c.Stop()
 
-	cl, cn := getExternalClient("localhost:9080")
+	cl, cn := getExternalClient("localhost:9091")
 	defer cn.Close()
 
 	out, err := cl.Echo(context.Background(), &ext.Ping{Value: 9})
@@ -469,12 +553,12 @@ func Test_Service_Kill(t *testing.T) {
 	c.Register(ID, &Service{})
 
 	assert.NoError(t, c.Init(&testCfg{grpcCfg: `{
-			"listen": "tcp://:9080",
+			"listen": "tcp://:9092",
 			"tls": {
 				"key": "tests/server.key",
 				"cert": "tests/server.crt"
 			},
-			"proto": "tests/test.proto",
+			"proto": ["tests/test.proto"],
 			"workers":{
 				"command": "php tests/worker.php",
 				"relay": "pipes",
