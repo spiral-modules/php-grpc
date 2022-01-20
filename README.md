@@ -1,3 +1,6 @@
+⚠️ RRv2 `protoc-gen-php-grpc` releases are here: https://github.com/roadrunner-server/roadrunner/releases  ⚠️   
+⚠️ `PHP Client` for the RRv2 is here: https://github.com/spiral/roadrunner-grpc  ⚠️ 
+
 PHP-GRPC
 =================================
 [![Latest Stable Version](https://poser.pugx.org/spiral/php-grpc/version)](https://packagist.org/packages/spiral/php-grpc)
